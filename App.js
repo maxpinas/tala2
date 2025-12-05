@@ -9,7 +9,7 @@ import { theme } from './src/theme';
 import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK } from './src/data';
 
 // --- CONTEXT ---
-import { AppProviders } from './src/context';
+import { AppProviders, useApp } from './src/context';
 
 // --- COMMON COMPONENTS ---
 import { CustomPopup, SimpleInputModal, EditToolbar, OutputBar, SelectorModal } from './src/components/common';
@@ -41,24 +41,42 @@ import {
 
 // --- MAIN APP ---
 const MainApp = ({ initialName, initialPartner }) => {
-  const [profile, setProfile] = useState({ name: initialName, partnerName: initialPartner, phone: "", email: "", address: "", partnerPhone: "", partnerEmail: "", contact2Name: "", contact2Phone: "", hospitalName: "", doctorPhone: "", medication: "", allergies: "", customPartnerText: "", customMedicalText: "" });
-  const [extendedProfile, setExtendedProfile] = useState({});
+  // Get shared state from AppContext
+  const { 
+    profile, setProfile,
+    extendedProfile, setExtendedProfile,
+    contexts, setContexts,
+    customPartners, setCustomPartners,
+    quickResponses, setQuickResponses,
+    activePartners,
+    currentContext, setCurrentContext,
+    currentPartner, setCurrentPartner,
+    history, addToHistory,
+    gallery, setGallery, addPhoto, updatePhoto,
+    addContext, addPartner, addQuickResponse
+  } = useApp();
+
+  // Initialize profile with initial values on first render
+  useEffect(() => {
+    if (initialName || initialPartner) {
+      setProfile(prev => ({
+        ...prev,
+        name: initialName || prev.name,
+        partnerName: initialPartner || prev.partnerName
+      }));
+    }
+  }, []);
+
+  // Local UI state (will move to UIContext later)
   const [currentView, setCurrentView] = useState('HOME');
   const [activeCategory, setActiveCategory] = useState(null);
   const [sentence, setSentence] = useState([]);
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
-  const [gallery, setGallery] = useState([]);
-  const [history, setHistory] = useState([]);
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
   const [isBuilding, setIsBuilding] = useState(false);
   const [builderMode, setBuilderMode] = useState('SENTENCE');
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [isInstantMode, setIsInstantMode] = useState(false);
-  
-  // DYNAMIC LISTS STATE
-  const [contexts, setContexts] = useState(DEFAULT_CONTEXTS);
-  const [customPartners, setCustomPartners] = useState([]);
-  const [quickResponses, setQuickResponses] = useState(DEFAULT_QUICK);
 
   // POPUP & MODAL STATE
   const [popup, setPopup] = useState({ visible: false, title: '', message: '', type: 'info' });
@@ -72,13 +90,6 @@ const MainApp = ({ initialName, initialPartner }) => {
   const triggerPopup = (title, message, type = 'info') => {
       setPopup({ visible: true, title, message, type });
   };
-
-  const activePartners = [
-      { id: 'niemand', label: 'Niemand', icon: 'user' },
-      { id: 'partner', label: profile.partnerName || 'Partner', icon: 'heart' },
-      { id: 'dokter', label: 'Arts', icon: 'plus-circle' },
-      ...customPartners
-  ];
 
   useEffect(() => {
       if(categories['Persoonlijk']) {
@@ -102,8 +113,7 @@ const MainApp = ({ initialName, initialPartner }) => {
   const [showPartnerScreen, setShowPartnerScreen] = useState(false);
   const [showMedicalScreen, setShowMedicalScreen] = useState(false);
   const [showFullScreen, setShowFullScreen] = useState(false);
-  const [currentContext, setCurrentContext] = useState('thuis');
-  const [currentPartner, setCurrentPartner] = useState('partner');
+  // currentContext and currentPartner now come from AppContext
   const [showContextModal, setShowContextModal] = useState(false);
   const [showPartnerModal, setShowPartnerModal] = useState(false);
 
@@ -117,8 +127,7 @@ const MainApp = ({ initialName, initialPartner }) => {
     const txt = textToSpeak || sentence.join(' ');
     if (!txt) return;
     triggerPopup("Ik zeg:", txt, 'info');
-    const newEntry = { text: txt, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) };
-    setHistory(prev => [newEntry, ...prev]);
+    addToHistory(txt);
   };
 
   const handlePhrasePress = (text) => { if (isInstantMode) { handleSpeak(text); } else { setSentence(prev => [...prev, text]); } };
@@ -126,11 +135,10 @@ const MainApp = ({ initialName, initialPartner }) => {
   const handleSavePhoto = (caption, category) => {
     const finalCaption = caption.trim() || "Kijk eens";
     if (photoToEdit) {
-        setGallery(prev => prev.map(p => p.id === photoToEdit.id ? {...p, text: finalCaption, category} : p));
+        updatePhoto(photoToEdit.id, finalCaption, category);
         setPhotoToEdit(null);
     } else {
-        const newPhoto = { id: Date.now(), color: ['#F59E0B', '#10B981', '#3B82F6'][Math.floor(Math.random()*3)], text: finalCaption, category };
-        setGallery(prev => [...prev, newPhoto]);
+        addPhoto(finalCaption, category);
         if(category && categories[category]) {
             setCategories(prev => ({ ...prev, [category]: { ...prev[category], items: [...prev[category].items, finalCaption + " 📷"] } }));
         }
@@ -158,17 +166,15 @@ const MainApp = ({ initialName, initialPartner }) => {
   };
 
   const handleAddContext = (name) => {
-      const newId = name.toLowerCase().replace(/\s/g, '_') + Date.now();
-      setContexts([...contexts, { id: newId, label: name, icon: 'map-pin' }]);
+      addContext(name);
   };
 
   const handleAddPartner = (name) => {
-      const newId = name.toLowerCase().replace(/\s/g, '_') + Date.now();
-      setCustomPartners([...customPartners, { id: newId, label: name, icon: 'user' }]);
+      addPartner(name);
   };
 
   const handleAddQuick = (text) => {
-      setQuickResponses([...quickResponses, text]);
+      addQuickResponse(text);
   };
 
   const moveWordMain = (dir) => { if (selectedWordIndex === null) return; const newIdx = selectedWordIndex + dir; if (newIdx >= 0 && newIdx < sentence.length) { const newS = [...sentence]; [newS[selectedWordIndex], newS[newIdx]] = [newS[newIdx], newS[selectedWordIndex]]; setSentence(newS); setSelectedWordIndex(newIdx); } };
