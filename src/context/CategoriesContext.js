@@ -1,15 +1,37 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { INITIAL_CATEGORIES } from '../data';
+import { loadCategories, saveCategories } from '../utils/storage';
 
 const CategoriesContext = createContext(null);
 
 export const CategoriesProvider = ({ children }) => {
+  const isInitialized = useRef(false);
+
   // Categories state
   const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const [activeCategory, setActiveCategory] = useState(
     Object.keys(INITIAL_CATEGORIES)[0]
   );
   const [isEditingCategory, setIsEditingCategory] = useState(null);
+
+  // Load categories from storage on mount
+  useEffect(() => {
+    const loadStoredCategories = async () => {
+      const stored = await loadCategories(INITIAL_CATEGORIES);
+      if (stored) {
+        setCategories(stored);
+      }
+      isInitialized.current = true;
+    };
+    loadStoredCategories();
+  }, []);
+
+  // Auto-save categories when they change
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveCategories(categories);
+    }
+  }, [categories]);
 
   // Helper functions
   const addCategory = useCallback((name, icon = '📁') => {

@@ -12,7 +12,7 @@ import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK } from './src/data'
 import { loadOnboarded, saveOnboarded } from './src/utils/storage';
 
 // --- CONTEXT ---
-import { AppProviders, useApp } from './src/context';
+import { AppProviders, useApp, useCategories } from './src/context';
 
 // --- COMMON COMPONENTS ---
 import { CustomPopup, SimpleInputModal, EditToolbar, OutputBar, SelectorModal } from './src/components/common';
@@ -74,15 +74,22 @@ const MainApp = ({ onReset }) => {
     addContext, addPartner, addQuickResponse
   } = useApp();
 
-  // Local UI state (will move to UIContext later)
+  // Get categories state from CategoriesContext
+  const {
+    categories,
+    setCategories,
+    activeCategory,
+    setActiveCategory,
+    isEditingCategory,
+    setIsEditingCategory
+  } = useCategories();
+
+  // Local UI state
   const [currentView, setCurrentView] = useState('HOME');
-  const [activeCategory, setActiveCategory] = useState(null);
   const [sentence, setSentence] = useState([]);
-  const [categories, setCategories] = useState(INITIAL_CATEGORIES);
   const [selectedWordIndex, setSelectedWordIndex] = useState(null);
   const [isBuilding, setIsBuilding] = useState(false);
   const [builderMode, setBuilderMode] = useState('SENTENCE');
-  const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [isInstantMode, setIsInstantMode] = useState(false);
 
   // POPUP & MODAL STATE
