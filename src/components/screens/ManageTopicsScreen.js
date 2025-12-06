@@ -83,7 +83,7 @@ const ManageTopicsScreen = ({ onClose, categories, setCategories }) => {
                                      <TouchableOpacity onPress={() => move(i, 1)} disabled={i===catList.length-1}>
                                          <Feather name="arrow-down" size={20} color={i===catList.length-1?theme.surfaceHighlight:theme.textDim}/>
                                      </TouchableOpacity>
-                                     {item.key !== 'Persoonlijk' && (
+                                     {item.key !== 'Persoonlijk' && item.key !== 'Aangepast' && (
                                          <TouchableOpacity onPress={() => remove(i)}>
                                              <Feather name="trash-2" size={20} color={theme.danger}/>
                                          </TouchableOpacity>

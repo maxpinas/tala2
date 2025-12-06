@@ -19,7 +19,15 @@ export const CategoriesProvider = ({ children }) => {
     const loadStoredCategories = async () => {
       const stored = await loadCategories(INITIAL_CATEGORIES);
       if (stored) {
-        setCategories(stored);
+        // Ensure required categories always exist (for existing users)
+        const updatedCategories = { ...stored };
+        if (!updatedCategories.Aangepast) {
+          updatedCategories.Aangepast = { icon: 'edit-3', items: [] };
+        }
+        if (!updatedCategories.Persoonlijk) {
+          updatedCategories.Persoonlijk = { icon: 'user', items: [] };
+        }
+        setCategories(updatedCategories);
       }
       isInitialized.current = true;
     };

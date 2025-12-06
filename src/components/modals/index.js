@@ -9,3 +9,5 @@ export { default as PartnerScreen } from './PartnerScreen';
 export { default as HistoryOptionsModal } from './HistoryOptionsModal';
 export { default as AddOrEditPhotoModal } from './AddOrEditPhotoModal';
 export { default as FullScreenShow } from './FullScreenShow';
+export { default as PhotoFullScreenShow } from './PhotoFullScreenShow';
+export { default as MovePhraseModal } from './MovePhraseModal';

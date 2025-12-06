@@ -7,6 +7,8 @@ export { default as ManageTopicsScreen } from './ManageTopicsScreen';
 export { default as ManagePeopleLocations } from './ManagePeopleLocations';
 export { default as ManagePartnersScreen } from './ManagePartnersScreen';
 export { default as ManageLocationsScreen } from './ManageLocationsScreen';
+export { default as ManagePhotosScreen } from './ManagePhotosScreen';
 export { default as ExtendedModeSetup } from './ExtendedModeSetup';
 export { default as SmartSentenceBuilder } from './SmartSentenceBuilder';
 export { default as ProfileSetupFlow } from './ProfileSetupFlow';
+export { default as VoiceSettingsScreen } from './VoiceSettingsScreen';

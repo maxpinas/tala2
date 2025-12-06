@@ -8,7 +8,8 @@ export const WORD_CATEGORIES = {
 };
 
 export const INITIAL_CATEGORIES = {
-  Persoonlijk: { icon: 'user', items: [] }, 
+  Persoonlijk: { icon: 'user', items: [] },
+  Aangepast: { icon: 'edit-3', items: [] },
   Sociaal: { icon: 'smile', items: ["Hoe is het?", "Leuk je te zien"] },
   Werk: { icon: 'briefcase', items: ["Ik zit in een meeting", "Even overleggen"] },
   Thuis: { icon: 'home', items: ["Ik heb honger", "Ik ga slapen"] },

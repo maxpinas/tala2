@@ -44,6 +44,13 @@ const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
             subtitle="Over mij en medisch paspoort" 
             onPress={() => { onClose(); onNavigate('CUSTOM_TEXTS'); }} 
           />
+          
+          <MenuItem 
+            icon="volume-2" 
+            title="Stem" 
+            subtitle="Kies Claire of Xander" 
+            onPress={() => { onClose(); onNavigate('VOICE_SETTINGS'); }} 
+          />
         </View>
       </View>
     </Modal>

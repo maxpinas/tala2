@@ -30,6 +30,8 @@ const INITIAL_PROFILE = {
   allergies: '',
   customPartnerText: '',
   customMedicalText: '',
+  // Stem instelling
+  voiceId: 'claire', // 'claire' of 'xander' (later ook cloud providers)
 };
 
 const AppContext = createContext(null);
@@ -147,11 +149,48 @@ export const AppProvider = ({ children }) => {
 
   // Helper functions
   const addToHistory = (text) => {
+    const now = new Date();
     const newEntry = {
       text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: now.getTime(), // For filtering by period
     };
     setHistory((prev) => [newEntry, ...prev]);
+  };
+
+  const clearHistory = (period = 'all') => {
+    if (period === 'all') {
+      setHistory([]);
+      return;
+    }
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    
+    let cutoffTime;
+    switch (period) {
+      case 'today':
+        // Remove items from today (after midnight)
+        cutoffTime = todayStart;
+        break;
+      case 'week':
+        // Remove items from the last 7 days
+        cutoffTime = todayStart - (6 * 24 * 60 * 60 * 1000);
+        break;
+      case 'month':
+        // Remove items from the last 30 days
+        cutoffTime = todayStart - (29 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        cutoffTime = 0;
+    }
+
+    setHistory((prev) => prev.filter((item) => {
+      // Items without timestamp were added before this feature - keep them unless 'all'
+      if (!item.timestamp) return true;
+      // Keep items that are OLDER than the cutoff (before the selected period)
+      return item.timestamp < cutoffTime;
+    }));
   };
 
   const addContext = (name) => {
@@ -211,6 +250,7 @@ export const AppProvider = ({ children }) => {
     history,
     setHistory,
     addToHistory,
+    clearHistory,
 
     // Gallery
     gallery,

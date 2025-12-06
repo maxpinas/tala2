@@ -3,15 +3,23 @@ import { Modal, View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'rea
 import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
 
-const SelectorModal = ({ visible, title, options, selectedId, onSelect, onClose, onAdd }) => (
+const SelectorModal = ({ visible, title, options, selectedId, onSelect, onClose, onManage }) => (
   <Modal visible={visible} transparent animationType="slide">
     <View style={styles.modalOverlay}>
       <View style={styles.selectorContainer}>
         <View style={styles.selectorHeader}>
           <Text style={styles.selectorTitle}>{title}</Text>
-          <TouchableOpacity onPress={onClose}>
-            <Feather name="x" size={24} color={theme.text} />
-          </TouchableOpacity>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: 16}}>
+            {onManage && (
+              <TouchableOpacity onPress={onManage} style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Feather name="edit-2" size={18} color={theme.primary} />
+                <Text style={{color: theme.primary, marginLeft: 6, fontWeight: '600'}}>Aanpassen</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity onPress={onClose}>
+              <Feather name="x" size={24} color={theme.text} />
+            </TouchableOpacity>
+          </View>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {options.map(opt => (
@@ -26,14 +34,6 @@ const SelectorModal = ({ visible, title, options, selectedId, onSelect, onClose,
               <Text style={styles.selectorLabel}>{opt.label}</Text>
             </TouchableOpacity>
           ))}
-          {onAdd && (
-            <TouchableOpacity style={styles.selectorItem} onPress={onAdd}>
-              <View style={[styles.selectorIcon, {backgroundColor: theme.surfaceHighlight, borderWidth:1, borderColor: theme.primary}]}>
-                <Feather name="plus" size={24} color={theme.primary} />
-              </View>
-              <Text style={styles.selectorLabel}>Toevoegen</Text>
-            </TouchableOpacity>
-          )}
         </ScrollView>
       </View>
     </View>

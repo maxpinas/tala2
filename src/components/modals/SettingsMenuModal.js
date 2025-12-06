@@ -20,7 +20,7 @@ const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger }) => (
   </TouchableOpacity>
 );
 
-const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset }) => {
+const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset, onSpeechTest }) => {
   const handleReset = () => {
     Alert.alert(
       "App Resetten",
@@ -63,6 +63,14 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
           title="Inhoud Beheren" 
           subtitle="Snel reageren, onderwerpen, personen" 
           onPress={() => { onClose(); onContentMenu(); }} 
+        />
+        
+        <MenuItem 
+          icon="volume-2" 
+          iconBg={theme.accent}
+          title="Spraak Test" 
+          subtitle="Test tekst-naar-spraak functie"
+          onPress={() => { onClose(); if(onSpeechTest) onSpeechTest(); }}
         />
         
         <MenuItem 
