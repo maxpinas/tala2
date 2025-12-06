@@ -3,16 +3,38 @@ import { SafeAreaView, View, Text, TextInput, TouchableOpacity, KeyboardAvoiding
 import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import styles from '../../styles';
+import { saveProfile } from '../../utils/storage';
 
 const OnboardingFlow = ({ onComplete }) => {
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [partner, setPartner] = useState("");
   
-  const handleNext = () => { 
+  const handleNext = async () => { 
     if(step === 0) setStep(1); 
     else if(step === 1) setStep(2); 
-    else onComplete(name || "Gebruiker", partner || "Partner"); 
+    else {
+      // Save profile data to AsyncStorage immediately
+      const profileData = {
+        name: name || "Gebruiker",
+        partnerName: partner || "Partner",
+        phone: '',
+        email: '',
+        address: '',
+        partnerPhone: '',
+        partnerEmail: '',
+        contact2Name: '',
+        contact2Phone: '',
+        hospitalName: '',
+        doctorPhone: '',
+        medication: '',
+        allergies: '',
+        customPartnerText: '',
+        customMedicalText: '',
+      };
+      await saveProfile(profileData);
+      onComplete(name || "Gebruiker", partner || "Partner");
+    }
   };
   
   return (

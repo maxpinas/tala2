@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Platform, StyleSheet } from 'react-native';
+import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Platform, StyleSheet, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 // --- THEMA ---
@@ -7,6 +7,9 @@ import { theme } from './src/theme';
 
 // --- DATA ---
 import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK } from './src/data';
+
+// --- UTILS ---
+import { loadOnboarded, saveOnboarded } from './src/utils/storage';
 
 // --- CONTEXT ---
 import { AppProviders, useApp } from './src/context';
@@ -39,8 +42,23 @@ import {
   FullScreenShow 
 } from './src/components/modals';
 
+// --- MAIN APP WRAPPER (checks loading state) ---
+const MainAppWrapper = ({ onReset }) => {
+  const { isLoading } = useApp();
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  return <MainApp onReset={onReset} />;
+};
+
 // --- MAIN APP ---
-const MainApp = ({ initialName, initialPartner }) => {
+const MainApp = ({ onReset }) => {
   // Get shared state from AppContext
   const { 
     profile, setProfile,
@@ -55,17 +73,6 @@ const MainApp = ({ initialName, initialPartner }) => {
     gallery, setGallery, addPhoto, updatePhoto,
     addContext, addPartner, addQuickResponse
   } = useApp();
-
-  // Initialize profile with initial values on first render
-  useEffect(() => {
-    if (initialName || initialPartner) {
-      setProfile(prev => ({
-        ...prev,
-        name: initialName || prev.name,
-        partnerName: initialPartner || prev.partnerName
-      }));
-    }
-  }, []);
 
   // Local UI state (will move to UIContext later)
   const [currentView, setCurrentView] = useState('HOME');
@@ -192,7 +199,7 @@ const MainApp = ({ initialName, initialPartner }) => {
       <SimpleInputModal visible={showAddQuick} title="Snel reageren toevoegen" placeholder="Bijv. Bedankt!" onClose={() => setShowAddQuick(false)} onSave={handleAddQuick} />
 
       <AddOrEditPhotoModal visible={showPhotoModal} onClose={() => { setShowPhotoModal(false); setPhotoToEdit(null); }} onSave={handleSavePhoto} categories={categories} initialData={photoToEdit} onTriggerPopup={triggerPopup} />
-      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onNavigate={(v) => { setCurrentView(v); }} />
+      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onReset={onReset} />
       <ToolsMenuModal visible={showToolsMenu} onClose={() => setShowToolsMenu(false)} onNavigate={(v) => { if(v === 'PARTNER_SCREEN') setShowPartnerScreen(true); else if(v === 'MEDICAL_SCREEN') setShowMedicalScreen(true); else if(v === 'HISTORY') setCurrentView('HISTORY'); }} />
       <EmergencyModal visible={showEmergency} onClose={() => setShowEmergency(false)} profile={profile} extended={extendedProfile} onTriggerPopup={triggerPopup} />
       <PartnerScreen visible={showPartnerScreen} onClose={() => setShowPartnerScreen(false)} text={profile.customPartnerText} name={profile.name} />
@@ -296,13 +303,45 @@ const MainApp = ({ initialName, initialPartner }) => {
 };
 
 export default function App() { 
-  const [onboarded, setOnboarded] = useState(false);
-  const [initialName, setInitialName] = useState("");
-  const [initialPartner, setInitialPartner] = useState("");
-  if(!onboarded) return <OnboardingFlow onComplete={(n, p) => { setInitialName(n); setInitialPartner(p); setOnboarded(true); }} />;
+  const [onboarded, setOnboarded] = useState(null); // null = loading
+  const [appKey, setAppKey] = useState(0); // Key to force re-mount
+
+  // Check onboarding status on mount
+  useEffect(() => {
+    loadOnboarded().then(value => setOnboarded(value === true));
+  }, [appKey]); // Re-check when appKey changes
+
+  // Handle app reset
+  const handleReset = () => {
+    setOnboarded(null);
+    setAppKey(prev => prev + 1); // Force re-mount
+  };
+
+  // Show loading while checking onboarding status
+  if (onboarded === null) {
+    return (
+      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  if (!onboarded) {
+    return (
+      <OnboardingFlow 
+        onComplete={(n, p) => { 
+          // Save profile data immediately during onboarding
+          saveOnboarded(true);
+          setOnboarded(true); 
+        }} 
+      />
+    );
+  }
+
+  // Profile data is now loaded from AsyncStorage in AppContext
   return (
-    <AppProviders>
-      <MainApp initialName={initialName} initialPartner={initialPartner} />
+    <AppProviders key={appKey}>
+      <MainAppWrapper onReset={handleReset} />
     </AppProviders>
   );
 }

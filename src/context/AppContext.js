@@ -1,5 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { DEFAULT_CONTEXTS, DEFAULT_QUICK } from '../data';
+import {
+  saveProfile,
+  saveExtendedProfile,
+  saveContexts,
+  saveCustomPartners,
+  saveQuickResponses,
+  saveGallery,
+  saveHistory,
+  saveCurrentContext,
+  saveCurrentPartner,
+  loadAllData,
+} from '../utils/storage';
 
 // Initial profile state
 const INITIAL_PROFILE = {
@@ -22,13 +34,13 @@ const INITIAL_PROFILE = {
 
 const AppContext = createContext(null);
 
-export const AppProvider = ({ children, initialName = '', initialPartner = '' }) => {
+export const AppProvider = ({ children }) => {
+  // Loading state
+  const [isLoading, setIsLoading] = useState(true);
+  const isInitialized = useRef(false);
+
   // Profile state
-  const [profile, setProfile] = useState({
-    ...INITIAL_PROFILE,
-    name: initialName,
-    partnerName: initialPartner,
-  });
+  const [profile, setProfile] = useState(INITIAL_PROFILE);
   const [extendedProfile, setExtendedProfile] = useState({});
 
   // Dynamic lists
@@ -45,6 +57,85 @@ export const AppProvider = ({ children, initialName = '', initialPartner = '' })
 
   // Gallery
   const [gallery, setGallery] = useState([]);
+
+  // Load data from storage on mount
+  useEffect(() => {
+    const loadStoredData = async () => {
+      try {
+        const defaults = {
+          profile: INITIAL_PROFILE,
+          extendedProfile: {},
+          contexts: DEFAULT_CONTEXTS,
+          customPartners: [],
+          quickResponses: DEFAULT_QUICK,
+          gallery: [],
+          history: [],
+          currentContext: 'thuis',
+          currentPartner: 'partner',
+        };
+
+        const data = await loadAllData(defaults);
+        
+        // Load stored profile data
+        if (data.profile) {
+          setProfile(data.profile);
+        }
+        if (data.extendedProfile) setExtendedProfile(data.extendedProfile);
+        if (data.contexts) setContexts(data.contexts);
+        if (data.customPartners) setCustomPartners(data.customPartners);
+        if (data.quickResponses) setQuickResponses(data.quickResponses);
+        if (data.gallery) setGallery(data.gallery);
+        if (data.history) setHistory(data.history);
+        if (data.currentContext) setCurrentContext(data.currentContext);
+        if (data.currentPartner) setCurrentPartner(data.currentPartner);
+
+        isInitialized.current = true;
+      } catch (error) {
+        console.error('Error loading stored data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadStoredData();
+  }, []); // Run once on mount
+
+  // Auto-save effects (only after initial load)
+  useEffect(() => {
+    if (isInitialized.current) saveProfile(profile);
+  }, [profile]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveExtendedProfile(extendedProfile);
+  }, [extendedProfile]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveContexts(contexts);
+  }, [contexts]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveCustomPartners(customPartners);
+  }, [customPartners]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveQuickResponses(quickResponses);
+  }, [quickResponses]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveGallery(gallery);
+  }, [gallery]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveHistory(history);
+  }, [history]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveCurrentContext(currentContext);
+  }, [currentContext]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveCurrentPartner(currentPartner);
+  }, [currentPartner]);
 
   // Computed: active partners list
   const activePartners = [
@@ -131,6 +222,9 @@ export const AppProvider = ({ children, initialName = '', initialPartner = '' })
     addContext,
     addPartner,
     addQuickResponse,
+
+    // Loading state
+    isLoading,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
