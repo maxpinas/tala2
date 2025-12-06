@@ -5,5 +5,8 @@ export { default as HistoryView } from './HistoryView';
 export { default as ListManagerScreen } from './ListManagerScreen';
 export { default as ManageTopicsScreen } from './ManageTopicsScreen';
 export { default as ManagePeopleLocations } from './ManagePeopleLocations';
+export { default as ManagePartnersScreen } from './ManagePartnersScreen';
+export { default as ManageLocationsScreen } from './ManageLocationsScreen';
 export { default as ExtendedModeSetup } from './ExtendedModeSetup';
 export { default as SmartSentenceBuilder } from './SmartSentenceBuilder';
+export { default as ProfileSetupFlow } from './ProfileSetupFlow';

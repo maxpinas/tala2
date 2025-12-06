@@ -5,7 +5,22 @@ import { theme } from '../../theme';
 import styles from '../../styles';
 import { clearAllData } from '../../utils/storage';
 
-const SettingsMenuModal = ({ visible, onClose, onNavigate, onReset }) => {
+const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger }) => (
+  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+    <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
+      <View style={[styles.selectorIcon, {backgroundColor: iconBg || theme.primary}]}>
+        <Feather name={icon} size={22} color={danger ? '#FFF' : '#000'} />
+      </View>
+      <View style={{flex: 1, marginLeft: 16}}>
+        <Text style={[styles.menuItemTitle, {marginLeft: 0}, danger && {color: theme.danger}]}>{title}</Text>
+        {subtitle && <Text style={{color: theme.textDim, fontSize: 12, marginTop: 2}}>{subtitle}</Text>}
+      </View>
+      <Feather name="chevron-right" size={20} color={theme.textDim} />
+    </View>
+  </TouchableOpacity>
+);
+
+const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset }) => {
   const handleReset = () => {
     Alert.alert(
       "App Resetten",
@@ -30,74 +45,34 @@ const SettingsMenuModal = ({ visible, onClose, onNavigate, onReset }) => {
     <View style={styles.modalOverlay}>
       <View style={styles.selectorContainer}>
         <View style={styles.selectorHeader}>
-          <Text style={styles.selectorTitle}>Profiel & Instellingen</Text>
+          <Text style={styles.selectorTitle}>Instellingen</Text>
           <TouchableOpacity onPress={onClose}>
             <Feather name="x" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
         
-        <TouchableOpacity style={styles.menuItem} onPress={() => { onClose(); onNavigate('BASIC_SETUP'); }}>
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-            <View style={[styles.selectorIcon, {backgroundColor: theme.primary}]}>
-              <Feather name="user" size={24} color="#000" />
-            </View>
-            <Text style={styles.menuItemTitle}>Profiel</Text>
-          </View>
-        </TouchableOpacity>
+        <MenuItem 
+          icon="user" 
+          title="Mijn Profiel" 
+          subtitle="Persoonlijke gegevens en uitleg" 
+          onPress={() => { onClose(); onProfileMenu(); }} 
+        />
         
-        <TouchableOpacity style={styles.menuItem} onPress={() => { onClose(); onNavigate('EXTENDED_SETUP'); }}>
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-            <View style={[styles.selectorIcon, {backgroundColor: theme.primary}]}>
-              <Feather name="layers" size={24} color="#000" />
-            </View>
-            <Text style={styles.menuItemTitle}>Profiel uitgebreid</Text>
-          </View>
-        </TouchableOpacity>
+        <MenuItem 
+          icon="layers" 
+          title="Inhoud Beheren" 
+          subtitle="Snel reageren, onderwerpen, personen" 
+          onPress={() => { onClose(); onContentMenu(); }} 
+        />
         
-        <TouchableOpacity style={styles.menuItem} onPress={() => { onClose(); onNavigate('MANAGE_PEOPLE_LOCATIONS'); }}>
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-            <View style={[styles.selectorIcon, {backgroundColor: theme.primary}]}>
-              <Feather name="map-pin" size={24} color="#000" />
-            </View>
-            <Text style={styles.menuItemTitle}>Personen & Locaties</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => { onClose(); onNavigate('MANAGE_QUICK'); }}>
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-            <View style={[styles.selectorIcon, {backgroundColor: theme.primary}]}>
-              <Feather name="zap" size={24} color="#000" />
-            </View>
-            <Text style={styles.menuItemTitle}>Snel Reageren</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => { onClose(); onNavigate('TOPIC_MANAGER'); }}>
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-            <View style={[styles.selectorIcon, {backgroundColor: theme.primary}]}>
-              <Feather name="grid" size={24} color="#000" />
-            </View>
-            <Text style={styles.menuItemTitle}>Onderwerpen Beheer</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => { onClose(); onNavigate('CUSTOM_TEXTS'); }}>
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-            <View style={[styles.selectorIcon, {backgroundColor: theme.primary}]}>
-              <Feather name="message-square" size={24} color="#000" />
-            </View>
-            <Text style={styles.menuItemTitle}>Uitleg Teksten</Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.menuItem, {marginTop: 20, borderTopWidth: 1, borderTopColor: theme.surfaceHighlight, paddingTop: 20}]} onPress={handleReset}>
-          <View style={{flexDirection:'row', alignItems:'center'}}>
-            <View style={[styles.selectorIcon, {backgroundColor: theme.danger}]}>
-              <Feather name="trash-2" size={24} color="#FFF" />
-            </View>
-            <Text style={[styles.menuItemTitle, {color: theme.danger}]}>App Resetten</Text>
-          </View>
-        </TouchableOpacity>
+        <MenuItem 
+          icon="trash-2" 
+          iconBg={theme.danger}
+          title="App Resetten" 
+          subtitle="Alle gegevens wissen"
+          onPress={handleReset}
+          danger
+        />
       </View>
     </View>
   </Modal>

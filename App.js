@@ -26,14 +26,19 @@ import {
   ListManagerScreen, 
   ManageTopicsScreen, 
   ManagePeopleLocations, 
+  ManagePartnersScreen,
+  ManageLocationsScreen,
   ExtendedModeSetup, 
-  SmartSentenceBuilder 
+  SmartSentenceBuilder,
+  ProfileSetupFlow
 } from './src/components/screens';
 
 // --- MODALS ---
 import { 
-  SettingsMenuModal, 
-  ToolsMenuModal, 
+  SettingsMenuModal,
+  ProfileMenuModal,
+  ContentMenuModal,
+  QuickAccessModal,
   EmergencyModal, 
   MedicalScreen, 
   PartnerScreen, 
@@ -118,9 +123,14 @@ const MainApp = ({ onReset }) => {
       }
   }, [profile, extendedProfile]);
 
-  const [showSettingsMenu, setShowSettingsMenu] = useState(false); 
-  const [showToolsMenu, setShowToolsMenu] = useState(false);       
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showContentMenu, setShowContentMenu] = useState(false);
+  const [showQuickAccess, setShowQuickAccess] = useState(false);       
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [showPartnersScreen, setShowPartnersScreen] = useState(false);
+  const [showLocationsScreen, setShowLocationsScreen] = useState(false);
   
   const [photoToEdit, setPhotoToEdit] = useState(null);
   const [showEmergency, setShowEmergency] = useState(false);
@@ -131,7 +141,7 @@ const MainApp = ({ onReset }) => {
   const [showContextModal, setShowContextModal] = useState(false);
   const [showPartnerModal, setShowPartnerModal] = useState(false);
 
-  const handleBackFromSettings = () => { setCurrentView('HOME'); setShowSettingsMenu(true); };
+  const handleBackFromSettings = () => { setCurrentView('HOME'); };
   const addPhraseToCategory = (text) => { if(!activeCategory) return; setCategories(prev => ({ ...prev, [activeCategory]: { ...prev[activeCategory], items: [...prev[activeCategory].items, text] } })); };
   const deletePhraseFromCategory = (idx) => { setCategories(prev => ({ ...prev, [activeCategory]: { ...prev[activeCategory], items: prev[activeCategory].items.filter((_, i) => i !== idx) } })); };
   const movePhrase = (idx, dir) => { const items = [...categories[activeCategory].items]; const newIdx = idx + dir; if(newIdx < 0 || newIdx >= items.length) return; [items[idx], items[newIdx]] = [items[newIdx], items[idx]]; setCategories(prev => ({ ...prev, [activeCategory]: { ...prev[activeCategory], items } })); };
@@ -206,8 +216,13 @@ const MainApp = ({ onReset }) => {
       <SimpleInputModal visible={showAddQuick} title="Snel reageren toevoegen" placeholder="Bijv. Bedankt!" onClose={() => setShowAddQuick(false)} onSave={handleAddQuick} />
 
       <AddOrEditPhotoModal visible={showPhotoModal} onClose={() => { setShowPhotoModal(false); setPhotoToEdit(null); }} onSave={handleSavePhoto} categories={categories} initialData={photoToEdit} onTriggerPopup={triggerPopup} />
-      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onReset={onReset} />
-      <ToolsMenuModal visible={showToolsMenu} onClose={() => setShowToolsMenu(false)} onNavigate={(v) => { if(v === 'PARTNER_SCREEN') setShowPartnerScreen(true); else if(v === 'MEDICAL_SCREEN') setShowMedicalScreen(true); else if(v === 'HISTORY') setCurrentView('HISTORY'); }} />
+      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onProfileMenu={() => setShowProfileMenu(true)} onContentMenu={() => setShowContentMenu(true)} onReset={onReset} />
+      <ProfileMenuModal visible={showProfileMenu} onClose={() => setShowProfileMenu(false)} onNavigate={(v) => { if(v === 'PROFILE_SETUP') setShowProfileSetup(true); else if(v === 'CUSTOM_TEXTS') setCurrentView(v); }} />
+      <ContentMenuModal visible={showContentMenu} onClose={() => setShowContentMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onShowPartners={() => setShowPartnersScreen(true)} onShowLocations={() => setShowLocationsScreen(true)} />
+      {showProfileSetup && <ProfileSetupFlow profile={profile} extendedProfile={extendedProfile} onSaveProfile={setProfile} onSaveExtended={setExtendedProfile} onClose={() => { setShowProfileSetup(false); setShowProfileMenu(true); }} onTriggerPopup={triggerPopup} />}
+      {showPartnersScreen && <ManagePartnersScreen onClose={() => setShowPartnersScreen(false)} partners={customPartners} setPartners={setCustomPartners} />}
+      {showLocationsScreen && <ManageLocationsScreen onClose={() => setShowLocationsScreen(false)} contexts={contexts} setContexts={setContexts} />}
+      <QuickAccessModal visible={showQuickAccess} onClose={() => setShowQuickAccess(false)} onNavigate={(v) => { if(v === 'PARTNER_SCREEN') setShowPartnerScreen(true); else if(v === 'MEDICAL_SCREEN') setShowMedicalScreen(true); else if(v === 'EMERGENCY') setShowEmergency(true); }} />
       <EmergencyModal visible={showEmergency} onClose={() => setShowEmergency(false)} profile={profile} extended={extendedProfile} onTriggerPopup={triggerPopup} />
       <PartnerScreen visible={showPartnerScreen} onClose={() => setShowPartnerScreen(false)} text={profile.customPartnerText} name={profile.name} />
       <MedicalScreen visible={showMedicalScreen} onClose={() => setShowMedicalScreen(false)} profile={profile} extended={extendedProfile} text={profile.customMedicalText} />
@@ -218,10 +233,9 @@ const MainApp = ({ onReset }) => {
 
       {currentView === 'TOPIC_MANAGER' && <ManageTopicsScreen onClose={handleBackFromSettings} categories={categories} setCategories={setCategories} />}
       {currentView === 'MANAGE_QUICK' && <ListManagerScreen title="Beheer Snel Reageren" items={quickResponses} onUpdate={setQuickResponses} onClose={handleBackFromSettings} type="string" />}
-      {currentView === 'MANAGE_PEOPLE_LOCATIONS' && <ManagePeopleLocations onClose={handleBackFromSettings} contexts={contexts} setContexts={setContexts} partners={customPartners} setPartners={setCustomPartners} />}
 
       <View style={styles.container}>
-        {!isBuilding && !['BASIC_SETUP', 'CUSTOM_TEXTS', 'EXTENDED_SETUP', 'TOPIC_MANAGER', 'MANAGE_QUICK', 'MANAGE_PEOPLE_LOCATIONS'].includes(currentView) && (
+        {!isBuilding && !['BASIC_SETUP', 'CUSTOM_TEXTS', 'EXTENDED_SETUP', 'TOPIC_MANAGER', 'MANAGE_QUICK'].includes(currentView) && (
           <View style={styles.header}>
             <View style={{flex: 1, paddingRight: 10}}>
                 <TouchableOpacity onPress={() => setCurrentView('HOME')}><Text numberOfLines={1} ellipsizeMode="tail" style={styles.greeting}>Hoi {profile.name}</Text></TouchableOpacity>
@@ -231,7 +245,7 @@ const MainApp = ({ onReset }) => {
           </View>
         )}
 
-        {!isBuilding && !['BASIC_SETUP', 'CUSTOM_TEXTS', 'EXTENDED_SETUP', 'TOPIC_MANAGER', 'MANAGE_QUICK', 'MANAGE_PEOPLE_LOCATIONS'].includes(currentView) && (
+        {!isBuilding && !['BASIC_SETUP', 'CUSTOM_TEXTS', 'EXTENDED_SETUP', 'TOPIC_MANAGER', 'MANAGE_QUICK'].includes(currentView) && (
           <><View style={styles.sentenceContainer}>{sentence.length === 0 ? <Text style={styles.placeholderText}>Zin wordt hier gebouwd...</Text> : <ScrollView horizontal>{sentence.map((w, i) => (<TouchableOpacity key={i} style={[styles.wordBubble, selectedWordIndex === i && {backgroundColor: theme.primary}]} onPress={() => setSelectedWordIndex(selectedWordIndex === i ? null : i)}><Text style={[styles.wordText, selectedWordIndex === i && {color:'#FFF'}]}>{w}</Text></TouchableOpacity>))}</ScrollView>}{sentence.length > 0 && <TouchableOpacity onPress={() => setSentence([])}><Feather name="x" size={24} color={theme.textDim}/></TouchableOpacity>}</View>{selectedWordIndex !== null && (<EditToolbar word={sentence[selectedWordIndex]} onMoveLeft={() => moveWordMain(-1)} onMoveRight={() => moveWordMain(1)} onDelete={deleteWordMain} onDeselect={() => setSelectedWordIndex(null)} />)}</>
         )}
 
@@ -282,25 +296,25 @@ const MainApp = ({ onReset }) => {
           )}
         </ScrollView>
 
-        {sentence.length > 0 && selectedWordIndex === null && !isBuilding && !['BASIC_SETUP', 'CUSTOM_TEXTS', 'EXTENDED_SETUP', 'TOPIC_MANAGER', 'MANAGE_QUICK', 'MANAGE_PEOPLE_LOCATIONS'].includes(currentView) ? (
+        {sentence.length > 0 && selectedWordIndex === null && !isBuilding && !['BASIC_SETUP', 'CUSTOM_TEXTS', 'EXTENDED_SETUP', 'TOPIC_MANAGER', 'MANAGE_QUICK', 'MANAGE_PEOPLE_LOCATIONS', 'PROFILE_SETUP'].includes(currentView) ? (
           <OutputBar onSpeak={() => handleSpeak()} onCopy={handleCopy} onShow={handleShow} onClear={() => setSentence([])} />
         ) : !isBuilding && (currentView === 'HOME' || currentView === 'CATEGORY' || currentView === 'GALLERY' || currentView === 'HISTORY') ? (
            <View style={styles.fixedBottomNav}>
-              <TouchableOpacity style={styles.navBtn} onPress={() => setShowEmergency(true)}>
-                  <View style={styles.navIconContainer}><Feather name="shield" size={24} color={theme.danger} /></View>
-                  <Text style={[styles.navLabel, {color: theme.danger}]}>Nood</Text>
+              <TouchableOpacity style={[styles.navBtn, styles.navBtnPrimary]} onPress={() => { setBuilderMode('SENTENCE'); setIsBuilding(true); }}>
+                  <Feather name="message-circle" size={28} color="#000" />
+                  <Text style={styles.navLabelPrimary}>Praten</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.navBtn} onPress={() => setCurrentView('HISTORY')}>
+                  <View style={styles.navIconContainer}><Feather name="clock" size={24} color={theme.text} /></View>
+                  <Text style={styles.navLabel}>Herhaal</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.navBtn} onPress={() => setIsInstantMode(!isInstantMode)}>
                   <View style={styles.navIconContainer}><Feather name={isInstantMode ? "zap" : "circle"} size={24} color={isInstantMode ? theme.warning : theme.textDim} /></View>
                   <Text style={[styles.navLabel, isInstantMode && {color: theme.warning}]}>Direct</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.navBtn} onPress={() => setShowToolsMenu(true)}>
-                  <View style={styles.navIconContainer}><Feather name="grid" size={24} color={theme.text} /></View>
-                  <Text style={styles.navLabel}>Menu</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.navBtn, styles.navBtnPrimary]} onPress={() => { setBuilderMode('SENTENCE'); setIsBuilding(true); }}>
-                  <Feather name="edit-3" size={28} color="#000" />
-                  <Text style={styles.navLabelPrimary}>Bouwen</Text>
+              <TouchableOpacity style={styles.navBtn} onPress={() => setShowQuickAccess(true)}>
+                  <View style={styles.navIconContainer}><Feather name="shield" size={24} color={theme.danger} /></View>
+                  <Text style={[styles.navLabel, {color: theme.danger}]}>Snel</Text>
               </TouchableOpacity>
            </View>
         ) : null}
