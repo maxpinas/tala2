@@ -1,5 +1,5 @@
 // Context exports
-export { AppProvider, useApp } from './AppContext';
+export { AppProvider, useApp, APP_MODES } from './AppContext';
 export { SentenceProvider, useSentence } from './SentenceContext';
 export { CategoriesProvider, useCategories } from './CategoriesContext';
 export { UIProvider, useUI } from './UIContext';

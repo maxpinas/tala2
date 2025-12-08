@@ -4,7 +4,8 @@ import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import { WORD_CATEGORIES } from '../../data';
 import { getAISuggestions, getAIFullSentences } from '../../services';
-import { EditToolbar } from '../common';
+import { EditToolbar, CompactBuilderView } from '../common';
+import { useApp } from '../../context';
 import styles from '../../styles';
 
 const SmartSentenceBuilder = ({ initialSentence, mode = 'SENTENCE', onSave, onCancel }) => {
@@ -18,6 +19,8 @@ const SmartSentenceBuilder = ({ initialSentence, mode = 'SENTENCE', onSave, onCa
       if(mode === 'ADD_TO_CATEGORY') setSentence([]);
       else setSentence(initialSentence || []);
   }, [mode, initialSentence]);
+
+  const { isGebruikMode } = useApp();
 
   const aiSuggestions = getAISuggestions(sentence);
   const aiFullSentences = getAIFullSentences(sentence);
@@ -137,17 +140,26 @@ const SmartSentenceBuilder = ({ initialSentence, mode = 'SENTENCE', onSave, onCa
         </ScrollView>
       </View>
       
-      <View style={styles.wordTabs}>
-        {Object.keys(WORD_CATEGORIES).map(cat => (
-          <TouchableOpacity 
-            key={cat} 
-            style={[styles.wordTab, builderTab === cat && {backgroundColor: theme[cat === 'WIE' ? 'catPeople' : cat === 'DOE' ? 'catAction' : cat === 'WAT' ? 'catThing' : 'catPlace']}]} 
-            onPress={() => setBuilderTab(cat)}
-          >
-            <Text style={[styles.wordTabText, builderTab === cat && {color: '#000'}]}>{cat}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {isGebruikMode ? (
+        <CompactBuilderView
+          onWho={() => setBuilderTab('WIE')}
+          onDo={() => setBuilderTab('DOE')}
+          onWhat={() => setBuilderTab('WAT')}
+          onWhere={() => setBuilderTab('WAAR')}
+        />
+      ) : (
+        <View style={styles.wordTabs}>
+          {Object.keys(WORD_CATEGORIES).map(cat => (
+            <TouchableOpacity 
+              key={cat} 
+              style={[styles.wordTab, builderTab === cat && {backgroundColor: theme[cat === 'WIE' ? 'catPeople' : cat === 'DOE' ? 'catAction' : cat === 'WAT' ? 'catThing' : 'catPlace']}]} 
+              onPress={() => setBuilderTab(cat)}
+            >
+              <Text style={[styles.wordTabText, builderTab === cat && {color: '#000'}]}>{cat}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
       
       <View style={{flex: 1}}>
         <View style={styles.coreWordsGrid}>

@@ -7,6 +7,8 @@ import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { theme } from '../../theme';
 import styles from '../../styles';
+import { useApp } from '../../context';
+import { LargeTile, IconTile, BigActionBar } from '../common';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -25,6 +27,8 @@ const GalleryScreen = ({
   onSpeak,
   isInstantMode 
 }) => {
+  const { isGebruikMode } = useApp();
+  const PINNED_HEIGHT = 200;
   const [activeFilter, setActiveFilter] = useState('all');
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [fullscreenIndex, setFullscreenIndex] = useState(0);
@@ -36,8 +40,8 @@ const GalleryScreen = ({
   const [isSelectMode, setIsSelectMode] = useState(false);
 
   // Filter photos by category
-  const filteredPhotos = activeFilter === 'all' 
-    ? gallery 
+  const filteredPhotos = activeFilter === 'all'
+    ? gallery
     : gallery.filter(p => p.category === activeFilter);
 
   // Get unique categories from photos
@@ -198,6 +202,8 @@ const GalleryScreen = ({
           <View style={[localStyles.photoPlaceholder, { backgroundColor: photo.color || theme.surfaceHighlight }]} />
         )}
         
+
+      const gridMarginTop = PINNED_HEIGHT + 12;
         {/* Video indicator */}
         {photo.type === 'video' && (
           <View style={localStyles.videoIndicator}>
@@ -222,80 +228,93 @@ const GalleryScreen = ({
     );
   };
 
+  const gridMarginTop = Math.max(12, PINNED_HEIGHT + 12);
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      {/* Header */}
-      <View style={localStyles.header}>
-        <TouchableOpacity onPress={onBack} style={localStyles.backBtn}>
-          <Feather name="arrow-left" size={20} color={theme.textDim} />
-          <Text style={localStyles.backText}>Terug</Text>
-        </TouchableOpacity>
-        
-        <View style={localStyles.headerActions}>
-          {isSelectMode ? (
-            <>
-              <TouchableOpacity 
-                style={localStyles.headerBtn}
-                onPress={playPlaylist}
-                disabled={selectedPhotos.length === 0}
-              >
-                <Feather name="play" size={20} color={selectedPhotos.length > 0 ? theme.primary : theme.textDim} />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={localStyles.headerBtn}
-                onPress={() => { setIsSelectMode(false); setSelectedPhotos([]); }}
-              >
-                <Text style={{ color: theme.primary, fontWeight: '600' }}>Klaar</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <TouchableOpacity 
-                style={localStyles.headerBtn}
-                onPress={() => setIsSelectMode(true)}
-              >
-                <Feather name="check-square" size={20} color={theme.textDim} />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={localStyles.headerBtn}
-                onPress={() => setShowAddMenu(true)}
-              >
-                <Feather name="plus" size={24} color={theme.primary} />
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-      </View>
-
-      {/* Title */}
-      <Text style={[styles.catHeaderBig, { marginHorizontal: 16 }]}>Laten Zien</Text>
-
-      {/* Category filters */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
-        style={localStyles.filterRow}
-        contentContainerStyle={{ paddingHorizontal: 16 }}
-      >
-        {photoCategories.map(cat => (
-          <TouchableOpacity
-            key={cat}
-            style={[localStyles.filterChip, activeFilter === cat && localStyles.filterChipActive]}
-            onPress={() => setActiveFilter(cat)}
-          >
-            <Text style={[
-              localStyles.filterText, 
-              activeFilter === cat && localStyles.filterTextActive
-            ]}>
-              {cat === 'all' ? 'Alles' : cat}
-            </Text>
+      {/* Pinned area: header + title + filters */}
+      <View style={localStyles.pinnedContainer}>
+        <View style={localStyles.header}>
+          <TouchableOpacity onPress={onBack} style={localStyles.backBtn}>
+            <Feather name="arrow-left" size={20} color={theme.textDim} />
+            <Text style={localStyles.backText}>Terug</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+          
+          <View style={localStyles.headerActions}>
+            {isGebruikMode ? (
+              <>
+                <TouchableOpacity style={localStyles.headerBtnLarge} onPress={() => setShowAddMenu(true)}>
+                  <Feather name="plus" size={28} color={theme.primary} />
+                </TouchableOpacity>
+                <TouchableOpacity style={localStyles.headerBtnLarge} onPress={() => setIsSelectMode(true)}>
+                  <Feather name="check-square" size={26} color={theme.textDim} />
+                </TouchableOpacity>
+              </>
+            ) : (
+              isSelectMode ? (
+                <>
+                  <TouchableOpacity 
+                    style={localStyles.headerBtn}
+                    onPress={playPlaylist}
+                    disabled={selectedPhotos.length === 0}
+                  >
+                    <Feather name="play" size={20} color={selectedPhotos.length > 0 ? theme.primary : theme.textDim} />
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={localStyles.headerBtn}
+                    onPress={() => { setIsSelectMode(false); setSelectedPhotos([]); }}
+                  >
+                    <Text style={{ color: theme.primary, fontWeight: '600' }}>Klaar</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <TouchableOpacity 
+                    style={localStyles.headerBtn}
+                    onPress={() => setIsSelectMode(true)}
+                  >
+                    <Feather name="check-square" size={20} color={theme.textDim} />
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={localStyles.headerBtn}
+                    onPress={() => setShowAddMenu(true)}
+                  >
+                    <Feather name="plus" size={24} color={theme.primary} />
+                  </TouchableOpacity>
+                </>
+              )
+            )}
+          </View>
+        </View>
+
+        <Text style={[styles.catHeaderBig, { marginHorizontal: 16 }]}>Laten Zien</Text>
+
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={localStyles.filterRow}
+          contentContainerStyle={{ paddingHorizontal: 16 }}
+        >
+          {photoCategories.map(cat => (
+            <TouchableOpacity
+              key={cat}
+              style={[localStyles.filterChip, activeFilter === cat && localStyles.filterChipActive]}
+              onPress={() => setActiveFilter(cat)}
+            >
+              <Text style={[
+                localStyles.filterText, 
+                activeFilter === cat && localStyles.filterTextActive
+              ]}>
+                {cat === 'all' ? 'Alles' : cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       {/* Selection info bar */}
       {isSelectMode && selectedPhotos.length > 0 && (
-        <View style={localStyles.selectionBar}>
+        <View style={[localStyles.selectionBar, { marginTop: gridMarginTop }]}>
           <Text style={localStyles.selectionText}>
             {selectedPhotos.length} foto{selectedPhotos.length !== 1 ? "'s" : ''} geselecteerd
           </Text>
@@ -308,7 +327,8 @@ const GalleryScreen = ({
 
       {/* Photo grid */}
       <ScrollView 
-        contentContainerStyle={localStyles.photoGrid}
+        style={{ marginTop: gridMarginTop }}
+        contentContainerStyle={[localStyles.photoGrid, { paddingTop: 0 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Quick camera button - always visible */}
@@ -367,6 +387,7 @@ const GalleryScreen = ({
         visible={showEditModal}
         photo={editingPhoto}
         categories={categories}
+        isSimpleMode={isGebruikMode}
         onClose={() => { setShowEditModal(false); setEditingPhoto(null); }}
         onSave={(updates) => {
           if (editingPhoto) {
@@ -393,10 +414,12 @@ const GalleryScreen = ({
 };
 
 // Edit Photo Modal Component
-const EditPhotoModal = ({ visible, photo, categories, onClose, onSave, onDelete }) => {
+const EditPhotoModal = ({ visible, photo, categories, isSimpleMode, onClose, onSave, onDelete }) => {
   const [caption, setCaption] = useState('');
   const [category, setCategory] = useState(null);
   const [size, setSize] = useState('medium');
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+  const [showCaptionEditor, setShowCaptionEditor] = useState(false);
 
   useEffect(() => {
     if (photo) {
@@ -408,6 +431,158 @@ const EditPhotoModal = ({ visible, photo, categories, onClose, onSave, onDelete 
 
   if (!photo) return null;
 
+  // Simplified mode for Gewoon users
+  if (isSimpleMode) {
+    return (
+      <Modal visible={visible} transparent animationType="slide">
+        <KeyboardAvoidingView 
+          style={localStyles.modalOverlay} 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={localStyles.editModal}>
+            {/* Header with back tile (match onderwerpen style) */}
+            <View style={localStyles.simpleEditHeader}>
+              <TouchableOpacity onPress={onClose} style={localStyles.backTile}>
+                <View style={localStyles.backIcon}>
+                  <Feather name="arrow-left" size={20} color="#000" />
+                </View>
+                <Text style={localStyles.backText}>Terug</Text>
+              </TouchableOpacity>
+              <Text style={localStyles.simpleEditTitle}>Foto bewerken</Text>
+              <View style={{ width: 80 }} />
+            </View>
+
+            <ScrollView keyboardShouldPersistTaps="handled" style={{ paddingHorizontal: 16 }}>
+              {/* Preview */}
+              <View style={localStyles.editPreview}>
+                {photo.uri ? (
+                  <Image source={{ uri: photo.uri }} style={localStyles.editPreviewImage} />
+                ) : (
+                  <View style={[localStyles.editPreviewPlaceholder, { backgroundColor: photo.color }]} />
+                )}
+              </View>
+
+              {/* Four action buttons in simple mode: caption, category, delete, save */}
+              <TouchableOpacity
+                style={localStyles.longPressOption}
+                onPress={() => setShowCaptionEditor(true)}
+              >
+                <View style={[localStyles.longPressIconBg, { backgroundColor: theme.surfaceHighlight }]}> 
+                  <Feather name="message-circle" size={24} color={theme.textDim} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={localStyles.longPressLabel}>Wat wil je zeggen?</Text>
+                  <Text style={localStyles.longPressSublabel}>{caption ? caption : 'Geen bijschrift'}</Text>
+                </View>
+                <Feather name="chevron-right" size={20} color={theme.textDim} />
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={localStyles.longPressOption}
+                onPress={() => setShowCategoryPicker(true)}
+              >
+                <View style={[localStyles.longPressIconBg, { backgroundColor: '#22C55E' }]}>
+                  <Feather name="folder-plus" size={24} color="#000" />
+                </View>
+                <Text style={localStyles.longPressLabel}>Toevoegen aan onderwerp</Text>
+                {category && <Feather name="check" size={20} color={theme.primary} />}
+              </TouchableOpacity>
+
+              <TouchableOpacity style={localStyles.longPressOption} onPress={onDelete}>
+                <View style={[localStyles.longPressIconBg, { backgroundColor: theme.danger }]}>
+                  <Feather name="trash-2" size={24} color="#FFF" />
+                </View>
+                <Text style={localStyles.longPressLabel}>Foto verwijderen</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={localStyles.longPressOption} onPress={() => onSave({ text: caption, category, size })}>
+                <View style={[localStyles.longPressIconBg, { backgroundColor: theme.primary }]}>
+                  <Feather name="save" size={24} color="#000" />
+                </View>
+                <Text style={localStyles.longPressLabel}>Opslaan</Text>
+              </TouchableOpacity>
+              
+              <View style={{ height: 40 }} />
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+
+        {/* Caption editor modal */}
+        <Modal visible={showCaptionEditor} transparent animationType="fade">
+          <View style={localStyles.modalOverlay}>
+            {/* tappable backdrop that closes modal when pressed outside the sheet */}
+            <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setShowCaptionEditor(false)} />
+
+            <View style={localStyles.categoryPickerSheet}>
+              <Text style={localStyles.categoryPickerTitle}>Wat wil je zeggen?</Text>
+              <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 40}>
+                <View style={{ backgroundColor: theme.surface, borderRadius: 12, padding: 12 }}>
+                  <TextInput
+                    style={[localStyles.captionTextInput, { minHeight: 80 }]}
+                    value={caption}
+                    onChangeText={setCaption}
+                    placeholder="Typ hier wat er gezegd moet worden"
+                    placeholderTextColor={theme.textDim}
+                    multiline
+                    autoFocus
+                  />
+                </View>
+                <TouchableOpacity style={localStyles.saveBtn} onPress={() => setShowCaptionEditor(false)}>
+                  <Text style={localStyles.saveBtnText}>Gereed</Text>
+                </TouchableOpacity>
+              </KeyboardAvoidingView>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Category Picker Modal (same style as long-press modal) */}
+        <Modal visible={showCategoryPicker} transparent animationType="slide">
+          <TouchableOpacity 
+            style={localStyles.modalOverlay} 
+            activeOpacity={1} 
+            onPress={() => setShowCategoryPicker(false)}
+          >
+            <View style={localStyles.categoryPickerSheet}>
+              <Text style={localStyles.categoryPickerTitle}>Kies onderwerp</Text>
+              <ScrollView style={{ maxHeight: 350 }}>
+                <TouchableOpacity
+                  style={localStyles.longPressOption}
+                  onPress={() => { setCategory(null); setShowCategoryPicker(false); }}
+                >
+                  <View style={[localStyles.longPressIconBg, { backgroundColor: theme.surfaceHighlight }]}>
+                    <Feather name="x" size={24} color={theme.textDim} />
+                  </View>
+                  <Text style={localStyles.longPressLabel}>Geen onderwerp</Text>
+                  {!category && <Feather name="check" size={20} color={theme.primary} />}
+                </TouchableOpacity>
+                {Object.keys(categories).map((catKey) => (
+                  <TouchableOpacity
+                    key={catKey}
+                    style={localStyles.longPressOption}
+                    onPress={() => { setCategory(catKey); setShowCategoryPicker(false); }}
+                  >
+                    <View style={[localStyles.longPressIconBg, { backgroundColor: theme.surfaceHighlight }]}>
+                      <Feather name={categories[catKey].icon || 'folder'} size={24} color={theme.primary} />
+                    </View>
+                    <Text style={localStyles.longPressLabel}>{catKey}</Text>
+                    {category === catKey && <Feather name="check" size={20} color={theme.primary} />}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <TouchableOpacity 
+                style={localStyles.cancelBtn}
+                onPress={() => setShowCategoryPicker(false)}
+              >
+                <Text style={localStyles.cancelBtnText}>Annuleer</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      </Modal>
+    );
+  }
+
+  // Expert mode - full options
   return (
     <Modal visible={visible} transparent animationType="slide">
       <KeyboardAvoidingView 
@@ -650,6 +825,16 @@ const FullscreenViewer = ({ visible, photos, initialIndex, playlistMode, selecte
 
 // Local styles
 const localStyles = {
+  pinnedContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+    backgroundColor: theme.bg,
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -675,7 +860,8 @@ const localStyles = {
     padding: 8,
   },
   filterRow: {
-    marginVertical: 12,
+    marginTop: 12,
+    marginBottom: 20,
     maxHeight: 44,
   },
   filterChip: {
@@ -730,6 +916,7 @@ const localStyles = {
     flexDirection: 'row',
     flexWrap: 'wrap',
     paddingHorizontal: 16,
+    paddingTop: 0,
     paddingBottom: 100,
     justifyContent: 'flex-start',
   },
@@ -988,6 +1175,95 @@ const localStyles = {
   deleteBtnText: {
     color: theme.danger,
     marginLeft: 8,
+    fontWeight: '600',
+  },
+  // Simple mode styles (long-press style)
+  simpleEditHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.surfaceHighlight,
+  },
+  simpleEditTitle: {
+    color: theme.text,
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  simpleEditLabel: {
+    color: theme.text,
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  backPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.surfaceHighlight,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  backPillText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  longPressOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.surfaceHighlight,
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 12,
+  },
+  longPressIconBg: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: theme.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  longPressLabel: {
+    color: theme.text,
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+  },
+  longPressSublabel: {
+    color: theme.textDim,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  categoryPickerSheet: {
+    backgroundColor: theme.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    maxHeight: '80%',
+  },
+  categoryPickerTitle: {
+    color: theme.text,
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  cancelBtn: {
+    backgroundColor: theme.surfaceHighlight,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  cancelBtnText: {
+    color: theme.text,
+    fontSize: 16,
     fontWeight: '600',
   },
   fullscreenContainer: {

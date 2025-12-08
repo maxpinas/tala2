@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import styles from '../../styles';
+import { useApp } from '../../context';
 
 const CLEAR_OPTIONS = [
   { id: 'today', label: 'Vandaag', icon: 'sun' },
@@ -11,7 +12,8 @@ const CLEAR_OPTIONS = [
   { id: 'all', label: 'Alles wissen', icon: 'trash-2' },
 ];
 
-const HistoryView = ({ history, onBack, onSelect, onClear }) => {
+const HistoryView = ({ history, onBack, onSelect, onLongPress, onClear }) => {
+  const { isGebruikMode } = useApp();
   const [showClearModal, setShowClearModal] = useState(false);
 
   const handleClear = (period) => {
@@ -40,7 +42,59 @@ const HistoryView = ({ history, onBack, onSelect, onClear }) => {
       <ScrollView>
         {history.length === 0 ? (
           <Text style={styles.emptyText}>Nog niets gezegd vandaag.</Text>
+        ) : isGebruikMode ? (
+          // Gewoon modus: grote toegankelijke tegels
+          <View style={{ gap: 12 }}>
+            {history.map((h, i) => (
+              <TouchableOpacity 
+                key={i} 
+                style={{
+                  backgroundColor: theme.surfaceHighlight,
+                  borderRadius: 16,
+                  padding: 20,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+                onPress={() => onSelect(h)}
+                onLongPress={() => onLongPress && onLongPress(h)}
+                delayLongPress={500}
+                activeOpacity={0.8}
+              >
+                <View style={{ 
+                  width: 50, 
+                  height: 50, 
+                  borderRadius: 25, 
+                  backgroundColor: theme.primary + '30',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginRight: 16
+                }}>
+                  <Feather name="message-circle" size={24} color={theme.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ 
+                    color: '#FFFFFF', 
+                    fontSize: 18, 
+                    fontWeight: '600',
+                    marginBottom: 4
+                  }}>{h.text}</Text>
+                  <Text style={{ 
+                    color: theme.textDim, 
+                    fontSize: 14 
+                  }}>{h.time}</Text>
+                </View>
+                <View style={{
+                  backgroundColor: theme.primary + '30',
+                  borderRadius: 20,
+                  padding: 10,
+                }}>
+                  <Feather name="play" size={24} color={theme.primary} />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         ) : (
+          // Expert modus: compacte lijst
           history.map((h, i) => (
             <TouchableOpacity key={i} style={styles.historyItem} onPress={() => onSelect(h)}>
               <Text style={styles.historyTime}>{h.time}</Text>

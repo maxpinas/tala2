@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import styles from '../../styles';
 import { clearAllData } from '../../utils/storage';
+import { useApp, APP_MODES } from '../../context';
 
 const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger }) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -21,6 +22,31 @@ const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger }) => (
 );
 
 const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset, onSpeechTest }) => {
+  const { appMode, setAppMode, setModeRemember, isExpertMode, isGebruikMode } = useApp();
+
+  const handleModeSwitch = () => {
+    const newMode = isExpertMode ? APP_MODES.GEBRUIK : APP_MODES.EXPERT;
+    const modeName = newMode === APP_MODES.GEBRUIK ? 'Gebruikersmodus' : 'Expertmodus';
+    
+    Alert.alert(
+      "Modus Wijzigen",
+      `Wil je overschakelen naar ${modeName}?`,
+      [
+        { text: "Annuleren", style: "cancel" },
+        { 
+          text: "Wijzigen", 
+          onPress: () => {
+            // When switching modes from the settings menu we persist the choice
+            // so the app will start in the selected mode next time.
+            setModeRemember(true);
+            setAppMode(newMode);
+            onClose();
+          }
+        }
+      ]
+    );
+  };
+
   const handleReset = () => {
     Alert.alert(
       "App Resetten",
@@ -51,36 +77,72 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
           </TouchableOpacity>
         </View>
         
-        <MenuItem 
-          icon="user" 
-          title="Mijn Profiel" 
-          subtitle="Persoonlijke gegevens en uitleg" 
-          onPress={() => { onClose(); onProfileMenu(); }} 
-        />
-        
-        <MenuItem 
-          icon="layers" 
-          title="Inhoud Beheren" 
-          subtitle="Snel reageren, onderwerpen, personen" 
-          onPress={() => { onClose(); onContentMenu(); }} 
-        />
-        
-        <MenuItem 
-          icon="volume-2" 
-          iconBg={theme.accent}
-          title="Spraak Test" 
-          subtitle="Test tekst-naar-spraak functie"
-          onPress={() => { onClose(); if(onSpeechTest) onSpeechTest(); }}
-        />
-        
-        <MenuItem 
-          icon="trash-2" 
-          iconBg={theme.danger}
-          title="App Resetten" 
-          subtitle="Alle gegevens wissen"
-          onPress={handleReset}
-          danger
-        />
+        {isGebruikMode ? (
+          // Simplified menu for 'gebruik' mode
+          <>
+            <MenuItem
+              icon="settings"
+              iconBg={theme.primary}
+              title="Instellingen"
+              subtitle="Algemene instellingen"
+              onPress={() => { onClose(); onContentMenu ? onContentMenu() : onProfileMenu(); }}
+            />
+            <MenuItem
+              icon="volume-2"
+              iconBg={theme.accent}
+              title="Stem"
+              subtitle="Kies of test de spraak"
+              onPress={() => { onClose(); if(onSpeechTest) onSpeechTest(); else onProfileMenu(); }}
+            />
+            <MenuItem
+              icon="unlock"
+              iconBg={theme.surfaceHighlight}
+              title="Wijzig naar Expert"
+              subtitle="Schakel naar Expertmodus"
+              onPress={() => { onClose(); handleModeSwitch(); }}
+            />
+          </>
+        ) : (
+          // Full menu for Expert mode
+          <>
+            <MenuItem
+              icon="user"
+              iconBg={theme.surfaceHighlight}
+              title="Persoonlijke gegevens"
+              subtitle="Beheer je profiel"
+              onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
+            />
+            <MenuItem
+              icon="grid"
+              iconBg={theme.primary}
+              title="Inhoud beheren"
+              subtitle="Zinnen, onderwerpen en foto's"
+              onPress={() => { onClose(); if (onContentMenu) onContentMenu(); }}
+            />
+            <MenuItem
+              icon="volume-2"
+              iconBg={theme.accent}
+              title="Stem"
+              subtitle="Kies of test de spraak"
+              onPress={() => { onClose(); if(onSpeechTest) onSpeechTest(); }}
+            />
+            <MenuItem
+              icon="trash-2"
+              iconBg={theme.danger}
+              title="App resetten"
+              subtitle="Verwijder alle data"
+              danger
+              onPress={() => { onClose(); handleReset(); }}
+            />
+            <MenuItem
+              icon="lock"
+              iconBg={theme.surfaceHighlight}
+              title="Wijzig naar Gebruikersmodus"
+              subtitle="Schakel naar Gebruikersmodus"
+              onPress={() => { onClose(); handleModeSwitch(); }}
+            />
+          </>
+        )}
       </View>
     </View>
   </Modal>

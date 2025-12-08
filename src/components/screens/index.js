@@ -12,3 +12,8 @@ export { default as ExtendedModeSetup } from './ExtendedModeSetup';
 export { default as SmartSentenceBuilder } from './SmartSentenceBuilder';
 export { default as ProfileSetupFlow } from './ProfileSetupFlow';
 export { default as VoiceSettingsScreen } from './VoiceSettingsScreen';
+
+// Simplified screens for Gewoon modus
+export { default as SimpleHome } from './SimpleHome';
+export { default as SimpleSentenceBuilder } from './SimpleSentenceBuilder';
+export { default as SimpleCategoryView } from './SimpleCategoryView';

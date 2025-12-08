@@ -7,6 +7,9 @@ export const WORD_CATEGORIES = {
   WAAR: ["Hier", "Daar", "Thuis", "Buiten", "Boven", "Nu", "Straks", "Morgen"]
 };
 
+// Emoji / emoticon category for SimpleSentenceBuilder (not spoken)
+WORD_CATEGORIES.EMOJI = ["😀","😂","😊","😍","😢","😡","👍","🙏","🎉","❤️","👏","😮"];
+
 export const INITIAL_CATEGORIES = {
   Persoonlijk: { icon: 'user', items: [] },
   Aangepast: { icon: 'edit-3', items: [] },

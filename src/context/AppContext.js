@@ -10,7 +10,13 @@ import {
   saveHistory,
   saveCurrentContext,
   saveCurrentPartner,
+  saveAppMode,
+  saveModeRemember,
+  saveUserPresets,
   loadAllData,
+  loadAppMode,
+  loadModeRemember,
+  loadUserPresets,
 } from '../utils/storage';
 
 // Initial profile state
@@ -36,10 +42,21 @@ const INITIAL_PROFILE = {
 
 const AppContext = createContext(null);
 
+// Mode constants
+export const APP_MODES = {
+  EXPERT: 'expert',
+  GEBRUIK: 'gebruik',
+};
+
 export const AppProvider = ({ children }) => {
   // Loading state
   const [isLoading, setIsLoading] = useState(true);
   const isInitialized = useRef(false);
+
+  // App mode state (null = not yet chosen, show startup modal)
+  const [appMode, setAppModeState] = useState(null);
+  const [modeRemember, setModeRememberState] = useState(false);
+  const [userPresets, setUserPresetsState] = useState({});
 
   // Profile state
   const [profile, setProfile] = useState(INITIAL_PROFILE);
@@ -76,7 +93,18 @@ export const AppProvider = ({ children }) => {
           currentPartner: 'partner',
         };
 
-        const data = await loadAllData(defaults);
+        // Load mode settings in parallel with other data
+        const [data, storedMode, storedModeRemember, storedUserPresets] = await Promise.all([
+          loadAllData(defaults),
+          loadAppMode(),
+          loadModeRemember(),
+          loadUserPresets({}),
+        ]);
+
+        // Set mode state (null means not yet chosen - will trigger startup modal)
+        setAppModeState(storedMode);
+        setModeRememberState(storedModeRemember || false);
+        setUserPresetsState(storedUserPresets || {});
         
         // Load stored profile data
         if (data.profile) {
@@ -138,6 +166,44 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (isInitialized.current) saveCurrentPartner(currentPartner);
   }, [currentPartner]);
+
+  // Auto-save mode settings
+  useEffect(() => {
+    // Only persist the selected app mode when the user chose to remember it
+    if (isInitialized.current && appMode !== null && modeRemember === true) saveAppMode(appMode);
+  }, [appMode, modeRemember]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveModeRemember(modeRemember);
+  }, [modeRemember]);
+
+  useEffect(() => {
+    if (isInitialized.current) saveUserPresets(userPresets);
+  }, [userPresets]);
+
+  // Mode helper functions
+  const setAppMode = useCallback((mode) => {
+    if (mode === APP_MODES.EXPERT || mode === APP_MODES.GEBRUIK) {
+      setAppModeState(mode);
+    }
+  }, []);
+
+  const setModeRemember = useCallback((remember) => {
+    const val = Boolean(remember);
+    setModeRememberState(val);
+    // If user enabled 'remember' and an appMode is already set, persist it immediately
+    if (val && appMode !== null && isInitialized.current) {
+      saveAppMode(appMode);
+    }
+  }, [appMode]);
+
+  const setUserPresets = useCallback((presets) => {
+    setUserPresetsState(presets);
+  }, []);
+
+  // Helper to check if we're in expert mode
+  const isExpertMode = appMode === APP_MODES.EXPERT;
+  const isGebruikMode = appMode === APP_MODES.GEBRUIK;
 
   // Computed: active partners list
   const activePartners = [
@@ -225,6 +291,16 @@ export const AppProvider = ({ children }) => {
   };
 
   const value = {
+    // App Mode
+    appMode,
+    setAppMode,
+    modeRemember,
+    setModeRemember,
+    userPresets,
+    setUserPresets,
+    isExpertMode,
+    isGebruikMode,
+
     // Profile
     profile,
     setProfile,

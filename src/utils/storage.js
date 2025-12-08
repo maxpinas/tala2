@@ -12,6 +12,10 @@ const STORAGE_KEYS = {
   ONBOARDED: '@tala_onboarded',
   CURRENT_CONTEXT: '@tala_current_context',
   CURRENT_PARTNER: '@tala_current_partner',
+  // Mode settings (expert vs gebruik)
+  APP_MODE: '@tala_app_mode',
+  MODE_REMEMBER: '@tala_mode_remember',
+  USER_PRESETS: '@tala_user_presets',
 };
 
 // Generic save function
@@ -50,6 +54,11 @@ export const saveOnboarded = (onboarded) => saveData(STORAGE_KEYS.ONBOARDED, onb
 export const saveCurrentContext = (context) => saveData(STORAGE_KEYS.CURRENT_CONTEXT, context);
 export const saveCurrentPartner = (partner) => saveData(STORAGE_KEYS.CURRENT_PARTNER, partner);
 
+// Mode-specific save functions
+export const saveAppMode = (mode) => saveData(STORAGE_KEYS.APP_MODE, mode);
+export const saveModeRemember = (remember) => saveData(STORAGE_KEYS.MODE_REMEMBER, remember);
+export const saveUserPresets = (presets) => saveData(STORAGE_KEYS.USER_PRESETS, presets);
+
 // Specific load functions
 export const loadProfile = (defaultValue) => loadData(STORAGE_KEYS.PROFILE, defaultValue);
 export const loadExtendedProfile = (defaultValue) => loadData(STORAGE_KEYS.EXTENDED_PROFILE, defaultValue);
@@ -62,6 +71,11 @@ export const loadCategories = (defaultValue) => loadData(STORAGE_KEYS.CATEGORIES
 export const loadOnboarded = () => loadData(STORAGE_KEYS.ONBOARDED, false);
 export const loadCurrentContext = (defaultValue) => loadData(STORAGE_KEYS.CURRENT_CONTEXT, defaultValue);
 export const loadCurrentPartner = (defaultValue) => loadData(STORAGE_KEYS.CURRENT_PARTNER, defaultValue);
+
+// Mode-specific load functions
+export const loadAppMode = () => loadData(STORAGE_KEYS.APP_MODE, null); // null = not set yet, show modal
+export const loadModeRemember = () => loadData(STORAGE_KEYS.MODE_REMEMBER, false);
+export const loadUserPresets = (defaultValue) => loadData(STORAGE_KEYS.USER_PRESETS, defaultValue);
 
 // Load all app data at once
 export const loadAllData = async (defaults = {}) => {
