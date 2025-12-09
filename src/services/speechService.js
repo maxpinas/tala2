@@ -4,17 +4,25 @@ import * as Speech from 'expo-speech';
 export const VOICE_OPTIONS = {
   claire: {
     id: 'claire',
-    name: 'Claire',
-    description: 'Vrouwelijke stem (Enhanced)',
+    name: 'Claire (Enhanced)',
+    description: 'Vrouwelijke stem - Premium kwaliteit',
     identifier: 'com.apple.voice.enhanced.nl-NL.Claire',
     language: 'nl-NL',
     provider: 'system',
   },
   xander: {
     id: 'xander', 
-    name: 'Xander',
-    description: 'Mannelijke stem (Enhanced)',
+    name: 'Xander (Enhanced)',
+    description: 'Mannelijke stem - Premium kwaliteit',
     identifier: 'com.apple.voice.enhanced.nl-NL.Xander',
+    language: 'nl-NL',
+    provider: 'system',
+  },
+  xander_basic: {
+    id: 'xander_basic',
+    name: 'Xander (Standaard)',
+    description: 'Mannelijke stem - Basisversie',
+    identifier: 'com.apple.voice.compact.nl-NL.Xander',
     language: 'nl-NL',
     provider: 'system',
   },
@@ -33,14 +41,37 @@ class SpeechService {
     this.onSpeakingChange = null;
   }
 
-  // Stel de actieve stem in
+  // Stel de actieve stem in via voiceId (legacy) of identifier
   setVoice(voiceId) {
+    // Check eerst of het een bekende voiceId is
     if (VOICE_OPTIONS[voiceId]) {
       this.currentVoice = VOICE_OPTIONS[voiceId];
       console.log('Voice set to:', this.currentVoice.name);
       return true;
     }
-    return false;
+    // Anders behandel het als een identifier
+    this.currentVoice = {
+      id: voiceId,
+      name: voiceId,
+      identifier: voiceId,
+      language: 'nl-NL',
+      provider: 'system',
+    };
+    console.log('Voice set to identifier:', voiceId);
+    return true;
+  }
+
+  // Stel stem in via identifier (nieuw)
+  setVoiceByIdentifier(identifier, name = '') {
+    this.currentVoice = {
+      id: identifier,
+      name: name || identifier,
+      identifier: identifier,
+      language: 'nl-NL',
+      provider: 'system',
+    };
+    console.log('Voice set to:', name || identifier);
+    return true;
   }
 
   // Haal huidige stem op

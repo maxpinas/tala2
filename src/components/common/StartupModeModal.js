@@ -21,12 +21,13 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
  * Moderne UI met grote, toegankelijke knoppen en duidelijke iconen.
  */
 const StartupModeModal = ({ visible, onSelectMode }) => {
-  const [rememberChoice, setRememberChoice] = useState(true);
+  const [rememberChoice, setRememberChoice] = useState(false);
+  const [fillDemoData, setFillDemoData] = useState(false);
   const [selectedMode, setSelectedMode] = useState(null);
 
   const handleConfirm = () => {
     if (selectedMode) {
-      onSelectMode(selectedMode, rememberChoice);
+      onSelectMode(selectedMode, rememberChoice, fillDemoData);
     }
   };
 
@@ -98,6 +99,20 @@ const StartupModeModal = ({ visible, onSelectMode }) => {
               color="#6366F1"
             />
           </View>
+
+          {/* Demo data toggle */}
+          <TouchableOpacity
+            style={styles.rememberRow}
+            onPress={() => setFillDemoData(!fillDemoData)}
+            activeOpacity={0.7}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: fillDemoData }}
+          >
+            <View style={[styles.checkbox, fillDemoData && styles.checkboxChecked]}>
+              {fillDemoData && <Feather name="check" size={14} color="#fff" />}
+            </View>
+            <Text style={styles.rememberText}>Vul met demo informatie</Text>
+          </TouchableOpacity>
 
           {/* Remember choice toggle */}
           <TouchableOpacity

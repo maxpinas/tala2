@@ -201,9 +201,7 @@ const GalleryScreen = ({
         ) : (
           <View style={[localStyles.photoPlaceholder, { backgroundColor: photo.color || theme.surfaceHighlight }]} />
         )}
-        
 
-      const gridMarginTop = PINNED_HEIGHT + 12;
         {/* Video indicator */}
         {photo.type === 'video' && (
           <View style={localStyles.videoIndicator}>
@@ -334,10 +332,10 @@ const GalleryScreen = ({
         {/* Quick camera button - always visible */}
         <TouchableOpacity 
           style={[localStyles.quickCameraBtn, getTileStyle('medium', 0)]}
-          onPress={pickFromCamera}
+          onPress={() => setShowAddMenu(true)}
         >
-          <Feather name="camera" size={32} color={theme.primary} />
-          <Text style={localStyles.quickCameraText}>Snelle Foto</Text>
+          <Feather name="plus" size={32} color={theme.primary} />
+          <Text style={localStyles.quickCameraText}>Foto Toevoegen</Text>
         </TouchableOpacity>
 
         {filteredPhotos.map((photo, index) => renderPhotoTile(photo, index))}

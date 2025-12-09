@@ -8,6 +8,7 @@ import { theme } from './src/theme';
 
 // --- DATA ---
 import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK } from './src/data';
+import { buildDemoState } from './src/demo/demoData';
 
 // --- UTILS ---
 import { loadOnboarded, saveOnboarded, saveCategories, saveQuickResponses } from './src/utils/storage';
@@ -78,10 +79,40 @@ const getQuickResponseIcon = (text) => {
 
 // --- MAIN APP WRAPPER (checks loading state and mode selection) ---
 const MainAppWrapper = ({ onReset }) => {
-  const { isLoading, appMode, setAppMode, setModeRemember } = useApp();
+  const {
+    isLoading,
+    appMode,
+    setAppMode,
+    setModeRemember,
+    setProfile,
+    setExtendedProfile,
+    setContexts,
+    setCustomPartners,
+    setQuickResponses,
+    setGallery,
+    setHistory,
+    setCurrentContext,
+    setCurrentPartner,
+  } = useApp();
+  const { setCategories, setActiveCategory } = useCategories();
 
   // Handle mode selection from startup modal
-  const handleModeSelect = (mode, remember) => {
+  const handleModeSelect = (mode, remember, fillDemo = false) => {
+    if (fillDemo) {
+      const demoState = buildDemoState();
+      setProfile(demoState.profile);
+      setExtendedProfile(demoState.extendedProfile);
+      setContexts(demoState.contexts);
+      setCustomPartners(demoState.customPartners);
+      setQuickResponses(demoState.quickResponses);
+      setGallery(demoState.gallery);
+      setHistory(demoState.history);
+      setCurrentContext(demoState.contexts[0]?.id || 'thuis');
+      setCurrentPartner('partner');
+      setCategories(demoState.categories);
+      setActiveCategory(Object.keys(demoState.categories)[0]);
+    }
+
     // Set remember flag first so persistence effect can act when appMode is set
     setModeRemember(remember);
     setAppMode(mode);
@@ -476,14 +507,14 @@ const MainApp = ({ onReset }) => {
       />
 
       <AddOrEditPhotoModal visible={showPhotoModal} onClose={() => { setShowPhotoModal(false); setPhotoToEdit(null); }} onSave={handleSavePhoto} categories={categories} initialData={photoToEdit} onTriggerPopup={triggerPopup} />
-      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onProfileMenu={() => setShowProfileMenu(true)} onContentMenu={() => setShowContentMenu(true)} onReset={onReset} onSpeechTest={() => setShowSpeechTest(true)} />
+      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onProfileMenu={() => setShowProfileMenu(true)} onContentMenu={() => setShowContentMenu(true)} onReset={onReset} onSpeechTest={() => setShowSpeechTest(true)} onVoiceSettings={() => setShowVoiceSettings(true)} />
       <ProfileMenuModal visible={showProfileMenu} onClose={() => setShowProfileMenu(false)} onNavigate={(v) => { if(v === 'PROFILE_SETUP') setShowProfileSetup(true); else if(v === 'CUSTOM_TEXTS') setCurrentView(v); else if(v === 'VOICE_SETTINGS') setShowVoiceSettings(true); }} />
       <ContentMenuModal visible={showContentMenu} onClose={() => setShowContentMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onShowPartners={() => setShowPartnersScreen(true)} onShowLocations={() => setShowLocationsScreen(true)} />
       {showProfileSetup && <ProfileSetupFlow profile={profile} extendedProfile={extendedProfile} onSaveProfile={setProfile} onSaveExtended={setExtendedProfile} onClose={() => { setShowProfileSetup(false); setShowProfileMenu(true); }} onTriggerPopup={triggerPopup} />}
       {showPartnersScreen && <ManagePartnersScreen onClose={() => setShowPartnersScreen(false)} partners={customPartners} setPartners={setCustomPartners} />}
       {showLocationsScreen && <ManageLocationsScreen onClose={() => setShowLocationsScreen(false)} contexts={contexts} setContexts={setContexts} />}
       {showSpeechTest && <SpeechTest onClose={() => setShowSpeechTest(false)} />}
-      {showVoiceSettings && <VoiceSettingsScreen currentVoiceId={profile.voiceId} onSave={handleSaveVoice} onClose={() => { setShowVoiceSettings(false); setShowProfileMenu(true); }} />}
+      {showVoiceSettings && <VoiceSettingsScreen currentVoiceId={profile.voiceId} onSave={handleSaveVoice} onClose={() => { setShowVoiceSettings(false); setShowProfileMenu(true); }} onSaveAndClose={() => { setShowVoiceSettings(false); setShowProfileMenu(false); setShowSettingsMenu(false); }} />}
       <QuickAccessModal visible={showQuickAccess} onClose={() => setShowQuickAccess(false)} onNavigate={(v) => { if(v === 'PARTNER_SCREEN') setShowPartnerScreen(true); else if(v === 'MEDICAL_SCREEN') setShowMedicalScreen(true); else if(v === 'EMERGENCY') setShowEmergency(true); }} />
       <EmergencyModal visible={showEmergency} onClose={() => setShowEmergency(false)} profile={profile} extended={extendedProfile} onTriggerPopup={triggerPopup} />
       <PartnerScreen visible={showPartnerScreen} onClose={() => setShowPartnerScreen(false)} text={profile.customPartnerText} name={profile.name} />

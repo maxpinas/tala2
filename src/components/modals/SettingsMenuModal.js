@@ -21,7 +21,7 @@ const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger }) => (
   </TouchableOpacity>
 );
 
-const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset, onSpeechTest }) => {
+const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset, onSpeechTest, onVoiceSettings }) => {
   const { appMode, setAppMode, setModeRemember, isExpertMode, isGebruikMode } = useApp();
 
   const handleModeSwitch = () => {
@@ -92,7 +92,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.accent}
               title="Stem"
               subtitle="Kies of test de spraak"
-              onPress={() => { onClose(); if(onSpeechTest) onSpeechTest(); else onProfileMenu(); }}
+              onPress={() => { onClose(); if(onVoiceSettings) onVoiceSettings(); }}
             />
             <MenuItem
               icon="unlock"
@@ -124,7 +124,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.accent}
               title="Stem"
               subtitle="Kies of test de spraak"
-              onPress={() => { onClose(); if(onSpeechTest) onSpeechTest(); }}
+              onPress={() => { onClose(); if(onVoiceSettings) onVoiceSettings(); }}
             />
             <MenuItem
               icon="trash-2"

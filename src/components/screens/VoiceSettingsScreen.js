@@ -1,29 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import * as Speech from 'expo-speech';
 import { theme } from '../../theme';
-import speechService, { VOICE_OPTIONS } from '../../services/speechService';
+import speechService from '../../services/speechService';
 
-const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose }) => {
-  const [selectedVoice, setSelectedVoice] = useState(currentVoiceId || 'claire');
+const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose, onSaveAndClose }) => {
+  const [selectedVoice, setSelectedVoice] = useState(currentVoiceId || null);
   const [isPlaying, setIsPlaying] = useState(null);
+  const [availableVoices, setAvailableVoices] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const testPhrase = "Hallo, dit is een test van mijn stem.";
 
   useEffect(() => {
+    // Haal alle beschikbare stemmen op
+    const loadVoices = async () => {
+      try {
+        const voices = await Speech.getAvailableVoicesAsync();
+        // Filter alleen Nederlandse stemmen
+        const dutchVoices = voices.filter(v => v.language === 'nl-NL');
+        // Sorteer: Enhanced eerst, dan alfabetisch
+        dutchVoices.sort((a, b) => {
+          const aEnhanced = a.quality === 'Enhanced' || a.name.includes('Enhanced');
+          const bEnhanced = b.quality === 'Enhanced' || b.name.includes('Enhanced');
+          if (aEnhanced && !bEnhanced) return -1;
+          if (!aEnhanced && bEnhanced) return 1;
+          return a.name.localeCompare(b.name);
+        });
+        setAvailableVoices(dutchVoices);
+        
+        // Als er nog geen stem geselecteerd is, kies de eerste
+        if (!selectedVoice && dutchVoices.length > 0) {
+          setSelectedVoice(dutchVoices[0].identifier);
+        }
+      } catch (error) {
+        console.log('Error loading voices:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadVoices();
+    
     // Stop spraak bij unmount
     return () => {
       speechService.stop();
     };
   }, []);
 
-  const handleTestVoice = async (voiceId) => {
-    setIsPlaying(voiceId);
+  const handleTestVoice = async (voiceIdentifier) => {
+    setIsPlaying(voiceIdentifier);
     
-    // Tijdelijk de stem instellen voor test
-    speechService.setVoice(voiceId);
-    
-    await speechService.speak(testPhrase, {
+    // Direct spreken met de identifier
+    Speech.speak(testPhrase, {
+      voice: voiceIdentifier,
+      language: 'nl-NL',
       onDone: () => setIsPlaying(null),
       onStopped: () => setIsPlaying(null),
       onError: () => setIsPlaying(null),
@@ -31,112 +63,140 @@ const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose }) => {
   };
 
   const handleSave = () => {
-    speechService.setVoice(selectedVoice);
+    // Vind de stem info
+    const voice = availableVoices.find(v => v.identifier === selectedVoice);
+    if (voice) {
+      speechService.setVoiceByIdentifier(selectedVoice, voice.name);
+    }
     onSave(selectedVoice);
+    // Gebruik onSaveAndClose als die beschikbaar is, anders onClose
+    if (onSaveAndClose) {
+      onSaveAndClose();
+    } else {
+      onClose();
+    }
   };
 
-  const voiceList = Object.values(VOICE_OPTIONS).filter(v => v.provider === 'system');
+  // Helper om kwaliteit label te krijgen
+  const getQualityLabel = (voice) => {
+    if (voice.quality === 'Enhanced' || voice.name.includes('Enhanced')) return '⭐ Premium';
+    if (voice.quality === 'Premium') return '⭐ Premium';
+    return 'Standaard';
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onClose} style={styles.backButton}>
-          <Feather name="arrow-left" size={24} color={theme.text} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Stem Kiezen</Text>
-        <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Opslaan</Text>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.sectionTitle}>Kies je stem</Text>
-        <Text style={styles.description}>
-          Deze stem wordt gebruikt als je op "Spreek" drukt of in Direct modus bent.
-        </Text>
-
-        {voiceList.map((voice) => (
-          <TouchableOpacity
-            key={voice.id}
-            style={[
-              styles.voiceCard,
-              selectedVoice === voice.id && styles.voiceCardSelected,
-            ]}
-            onPress={() => setSelectedVoice(voice.id)}
-          >
-            <View style={styles.voiceInfo}>
-              <View style={styles.voiceHeader}>
-                <View style={[
-                  styles.voiceIcon,
-                  selectedVoice === voice.id && styles.voiceIconSelected
-                ]}>
-                  <Feather 
-                    name={voice.id === 'claire' ? 'user' : 'user'} 
-                    size={24} 
-                    color={selectedVoice === voice.id ? '#000' : theme.text} 
-                  />
-                </View>
-                <View style={styles.voiceText}>
-                  <Text style={[
-                    styles.voiceName,
-                    selectedVoice === voice.id && styles.voiceNameSelected
-                  ]}>
-                    {voice.name}
-                  </Text>
-                  <Text style={styles.voiceDescription}>{voice.description}</Text>
-                </View>
-              </View>
-              
-              {selectedVoice === voice.id && (
-                <Feather name="check-circle" size={24} color={theme.primary} />
-              )}
-            </View>
-
-            <TouchableOpacity
-              style={[
-                styles.testButton,
-                isPlaying === voice.id && styles.testButtonPlaying
-              ]}
-              onPress={() => handleTestVoice(voice.id)}
-            >
-              <Feather 
-                name={isPlaying === voice.id ? "volume-2" : "play"} 
-                size={18} 
-                color={isPlaying === voice.id ? theme.primary : theme.text} 
-              />
-              <Text style={[
-                styles.testButtonText,
-                isPlaying === voice.id && styles.testButtonTextPlaying
-              ]}>
-                {isPlaying === voice.id ? "Speelt..." : "Test"}
-              </Text>
-            </TouchableOpacity>
+    <Modal visible animationType="slide">
+      <View style={styles.fullScreen}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onClose} style={styles.backButton}>
+            <Feather name="arrow-left" size={24} color={theme.text} />
           </TouchableOpacity>
-        ))}
-
-        <View style={styles.futureSection}>
-          <Text style={styles.futureSectionTitle}>🔮 Binnenkort beschikbaar</Text>
-          <Text style={styles.futureSectionText}>
-            • Google Cloud TTS (WaveNet stemmen){'\n'}
-            • ElevenLabs (Ultra-realistische stemmen){'\n'}
-            • Eigen stem klonen
-          </Text>
+          <Text style={styles.title}>Stem Kiezen</Text>
+          <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
+            <Text style={styles.saveButtonText}>Opslaan</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-    </View>
+
+        {/* Content */}
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <Text style={styles.sectionTitle}>Kies je stem</Text>
+          <Text style={styles.description}>
+            {availableVoices.length} Nederlandse stemmen gevonden op dit apparaat.
+          </Text>
+
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={theme.primary} />
+              <Text style={styles.loadingText}>Stemmen laden...</Text>
+            </View>
+          ) : availableVoices.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Feather name="alert-circle" size={48} color={theme.textDim} />
+              <Text style={styles.emptyText}>Geen Nederlandse stemmen gevonden</Text>
+              <Text style={styles.emptySubtext}>
+                Ga naar Instellingen → Toegankelijkheid → Gesproken inhoud → Stemmen → Nederlands om stemmen te downloaden.
+              </Text>
+            </View>
+          ) : (
+            availableVoices.map((voice) => (
+              <TouchableOpacity
+                key={voice.identifier}
+                style={[
+                  styles.voiceCard,
+                  selectedVoice === voice.identifier && styles.voiceCardSelected,
+                ]}
+                onPress={() => setSelectedVoice(voice.identifier)}
+              >
+                <View style={styles.voiceInfo}>
+                  <View style={styles.voiceHeader}>
+                    <View style={[
+                      styles.voiceIcon,
+                      selectedVoice === voice.identifier && styles.voiceIconSelected
+                    ]}>
+                      <Feather 
+                        name="user" 
+                        size={24} 
+                        color={selectedVoice === voice.identifier ? '#000' : theme.text} 
+                      />
+                    </View>
+                    <View style={styles.voiceText}>
+                      <Text style={[
+                        styles.voiceName,
+                        selectedVoice === voice.identifier && styles.voiceNameSelected
+                      ]}>
+                        {voice.name}
+                      </Text>
+                      <Text style={styles.voiceDescription}>{getQualityLabel(voice)}</Text>
+                    </View>
+                  </View>
+                  
+                  {selectedVoice === voice.identifier && (
+                    <Feather name="check-circle" size={24} color={theme.primary} />
+                  )}
+                </View>
+
+                <TouchableOpacity
+                  style={[
+                    styles.testButton,
+                    isPlaying === voice.identifier && styles.testButtonPlaying
+                  ]}
+                  onPress={() => handleTestVoice(voice.identifier)}
+                >
+                  <Feather 
+                    name={isPlaying === voice.identifier ? "volume-2" : "play"} 
+                    size={18} 
+                    color={isPlaying === voice.identifier ? theme.primary : theme.text} 
+                  />
+                  <Text style={[
+                    styles.testButtonText,
+                    isPlaying === voice.identifier && styles.testButtonTextPlaying
+                  ]}>
+                    {isPlaying === voice.identifier ? "Speelt..." : "Test"}
+                  </Text>
+                </TouchableOpacity>
+              </TouchableOpacity>
+            ))
+          )}
+
+          <View style={styles.futureSection}>
+            <Text style={styles.futureSectionTitle}>🔮 Binnenkort beschikbaar</Text>
+            <Text style={styles.futureSectionText}>
+              • Google Cloud TTS (WaveNet stemmen){'\n'}
+              • ElevenLabs (Ultra-realistische stemmen){'\n'}
+              • Eigen stem klonen
+            </Text>
+          </View>
+        </ScrollView>
+      </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  fullScreen: {
     flex: 1,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#1a1a2e',
-    zIndex: 1000,
+    backgroundColor: theme.bg,
   },
   header: {
     flexDirection: 'row',
@@ -254,6 +314,34 @@ const styles = StyleSheet.create({
   },
   testButtonTextPlaying: {
     color: theme.primary,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    color: theme.textDim,
+    marginTop: 12,
+    fontSize: 14,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    color: theme.text,
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 12,
+  },
+  emptySubtext: {
+    color: theme.textDim,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 20,
   },
   futureSection: {
     backgroundColor: theme.surface,

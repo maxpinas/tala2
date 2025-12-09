@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform, Modal, SafeAreaView } from 'react-native';
 import * as Speech from 'expo-speech';
 import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
@@ -150,7 +150,8 @@ const SpeechTest = ({ onClose }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <Modal visible animationType="slide">
+      <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>🔊 Spraak Test</Text>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -307,7 +308,8 @@ const SpeechTest = ({ onClose }) => {
           </Text>
         </View>
       </ScrollView>
-    </View>
+      </SafeAreaView>
+    </Modal>
   );
 };
 
