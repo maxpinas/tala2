@@ -4,7 +4,6 @@
     "slug": "tala2",
     "version": "1.1.0",
     "orientation": "portrait",
-    
     "userInterfaceStyle": "dark",
     "splash": {
       "resizeMode": "contain",
@@ -14,7 +13,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.tala2"
     },
     "android": {
       "adaptiveIcon": {

@@ -3,7 +3,7 @@ import { SafeAreaView, View, Text, TextInput, TouchableOpacity, KeyboardAvoiding
 import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import styles from '../../styles';
-import { saveProfile } from '../../utils/storage';
+import { saveProfile } from '../../storage';
 
 const OnboardingFlow = ({ onComplete }) => {
   const [step, setStep] = useState(0);

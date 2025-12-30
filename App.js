@@ -10,8 +10,8 @@ import { theme } from './src/theme';
 import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK } from './src/data';
 import { buildDemoState } from './src/demo/demoData';
 
-// --- UTILS ---
-import { loadOnboarded, saveOnboarded, saveCategories, saveQuickResponses } from './src/utils/storage';
+// --- STORAGE ---
+import { loadOnboarded, saveOnboarded, saveCategories, saveQuickResponses } from './src/storage';
 
 // --- CONTEXT ---
 import { AppProviders, useApp, useCategories } from './src/context';
@@ -276,9 +276,12 @@ const MainApp = ({ onReset }) => {
   
   // Initialiseer speech service met opgeslagen stem
   useEffect(() => {
-    if (profile.voiceId) {
-      speechService.setVoice(profile.voiceId);
-    }
+    // Initialize speech service (discovers available voices)
+    speechService.initialize().then(() => {
+      if (profile.voiceId) {
+        speechService.setVoice(profile.voiceId);
+      }
+    });
     speechService.setSpeakingChangeCallback(setIsSpeaking);
   }, [profile.voiceId]);
 

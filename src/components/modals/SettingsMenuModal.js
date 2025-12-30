@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import styles from '../../styles';
-import { clearAllData } from '../../utils/storage';
+import { clearAllData } from '../../storage';
+import { createBackupObject, encryptBackup, saveAndShareBackup } from '../../utils/backup';
 import { useApp, APP_MODES } from '../../context';
 
 const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger }) => (
@@ -22,6 +23,46 @@ const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger }) => (
 );
 
 const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset, onSpeechTest, onVoiceSettings }) => {
+    // Backup handler
+    const handleBackup = async () => {
+      try {
+        // Vraag om wachtwoord
+        let password = '';
+        if (typeof window !== 'undefined') {
+          password = prompt('Kies een wachtwoord voor je backup-bestand:');
+        } else {
+          // React Native prompt alternatief (optioneel: gebruik een eigen modal)
+          Alert.prompt(
+            'Backup-wachtwoord',
+            'Kies een wachtwoord voor je backup-bestand:',
+            [
+              {
+                text: 'Annuleren',
+                style: 'cancel',
+                onPress: () => {},
+              },
+              {
+                text: 'OK',
+                onPress: async (input) => {
+                  if (!input) return;
+                  const backupObj = await createBackupObject();
+                  const encrypted = encryptBackup(backupObj, input);
+                  await saveAndShareBackup(encrypted);
+                },
+              },
+            ],
+            'secure-text'
+          );
+          return;
+        }
+        if (!password) return;
+        const backupObj = await createBackupObject();
+        const encrypted = encryptBackup(backupObj, password);
+        await saveAndShareBackup(encrypted);
+      } catch (e) {
+        Alert.alert('Fout', 'Backup maken is mislukt. Probeer het opnieuw.');
+      }
+    };
   const { appMode, setAppMode, setModeRemember, isExpertMode, isGebruikMode } = useApp();
 
   const handleModeSwitch = () => {
@@ -133,6 +174,13 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               subtitle="Verwijder alle data"
               danger
               onPress={() => { onClose(); handleReset(); }}
+            />
+            <MenuItem
+              icon="download"
+              iconBg={theme.accent}
+              title="Backup maken"
+              subtitle="Versleutelde backup exporteren"
+              onPress={() => { onClose(); handleBackup(); }}
             />
             <MenuItem
               icon="lock"

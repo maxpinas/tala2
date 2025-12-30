@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { INITIAL_CATEGORIES } from '../data';
-import { loadCategories, saveCategories } from '../utils/storage';
+import { loadCategories, saveCategories } from '../storage';
 
 const CategoriesContext = createContext(null);
 

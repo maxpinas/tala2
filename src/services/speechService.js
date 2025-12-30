@@ -34,11 +34,76 @@ export const VOICE_OPTIONS = {
 // Default voice
 export const DEFAULT_VOICE = 'claire';
 
+// Fallback volgorde voor Nederlandse stemmen
+const DUTCH_VOICE_FALLBACK_ORDER = [
+  'com.apple.voice.enhanced.nl-NL.Claire',
+  'com.apple.voice.enhanced.nl-NL.Xander', 
+  'com.apple.voice.compact.nl-NL.Xander',
+  'com.apple.voice.compact.nl-NL.Ellen',
+  'com.apple.ttsbundle.nl-NL-compact',
+  'nl-NL', // Generic fallback
+];
+
 class SpeechService {
   constructor() {
     this.currentVoice = VOICE_OPTIONS[DEFAULT_VOICE];
     this.isSpeaking = false;
     this.onSpeakingChange = null;
+    this.availableVoices = [];
+    this.fallbackVoice = null;
+    this.isInitialized = false;
+  }
+
+  // Initialiseer service en zoek beschikbare stemmen
+  async initialize() {
+    if (this.isInitialized) return;
+    
+    try {
+      const allVoices = await Speech.getAvailableVoicesAsync();
+      this.availableVoices = allVoices;
+      
+      // Zoek beschikbare Nederlandse stemmen
+      const dutchVoices = allVoices.filter(v => 
+        v.language === 'nl-NL' || v.identifier?.includes('nl-NL')
+      );
+      
+      console.log(`[speech] Found ${dutchVoices.length} Dutch voices`);
+      
+      // Zoek beste beschikbare fallback
+      for (const fallbackId of DUTCH_VOICE_FALLBACK_ORDER) {
+        const found = allVoices.find(v => v.identifier === fallbackId);
+        if (found) {
+          this.fallbackVoice = found.identifier;
+          console.log(`[speech] Fallback voice: ${found.identifier}`);
+          break;
+        }
+      }
+      
+      // Als geen specifieke match, pak eerste Nederlandse stem
+      if (!this.fallbackVoice && dutchVoices.length > 0) {
+        this.fallbackVoice = dutchVoices[0].identifier;
+        console.log(`[speech] Using first Dutch voice as fallback: ${this.fallbackVoice}`);
+      }
+      
+      this.isInitialized = true;
+    } catch (error) {
+      console.log('[speech] Could not initialize voices:', error);
+      this.isInitialized = true; // Don't retry
+    }
+  }
+
+  // Check of een stem beschikbaar is
+  isVoiceAvailable(identifier) {
+    return this.availableVoices.some(v => v.identifier === identifier);
+  }
+
+  // Krijg effectieve stem (met fallback)
+  getEffectiveVoice() {
+    if (this.isVoiceAvailable(this.currentVoice.identifier)) {
+      return this.currentVoice.identifier;
+    }
+    console.log(`[speech] Voice ${this.currentVoice.identifier} not available, using fallback`);
+    return this.fallbackVoice || 'nl-NL';
   }
 
   // Stel de actieve stem in via voiceId (legacy) of identifier
@@ -83,6 +148,11 @@ class SpeechService {
   async speak(text, options = {}) {
     if (!text || text.trim() === '') return;
 
+    // Ensure we've discovered available voices
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+
     // Stop eventuele huidige spraak
     await this.stop();
 
@@ -93,7 +163,7 @@ class SpeechService {
       language: this.currentVoice.language,
       pitch: options.pitch || 1.0,
       rate: options.rate || 0.95, // Iets natuurlijker tempo
-      voice: this.currentVoice.identifier,
+      voice: this.getEffectiveVoice(), // Use fallback if needed
       onStart: () => {
         this.isSpeaking = true;
         if (this.onSpeakingChange) this.onSpeakingChange(true);

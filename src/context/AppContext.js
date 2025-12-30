@@ -17,7 +17,7 @@ import {
   loadAppMode,
   loadModeRemember,
   loadUserPresets,
-} from '../utils/storage';
+} from '../storage';
 
 // Initial profile state
 const INITIAL_PROFILE = {
