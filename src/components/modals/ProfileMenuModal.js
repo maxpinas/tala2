@@ -5,10 +5,10 @@ import { theme } from '../../theme';
 import styles from '../../styles';
 
 const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
-  const MenuItem = ({ icon, title, subtitle, onPress }) => (
+  const MenuItem = ({ icon, title, subtitle, onPress, iconBg }) => (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
       <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
-        <View style={[styles.selectorIcon, {backgroundColor: theme.primary}]}>
+        <View style={[styles.selectorIcon, {backgroundColor: iconBg || theme.primary}]}>
           <Feather name={icon} size={22} color="#000" />
         </View>
         <View style={{flex: 1, marginLeft: 16}}>
@@ -43,6 +43,14 @@ const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
             title="Uitleg Teksten" 
             subtitle="Over mij en medisch paspoort" 
             onPress={() => { onClose(); onNavigate('CUSTOM_TEXTS'); }} 
+          />
+
+          <MenuItem 
+            icon="zap" 
+            iconBg={theme.surfaceHighlight}
+            title="Snel Reageren" 
+            subtitle="Pas snelle antwoorden aan" 
+            onPress={() => { onClose(); onNavigate('MANAGE_QUICK'); }} 
           />
           
           <MenuItem 

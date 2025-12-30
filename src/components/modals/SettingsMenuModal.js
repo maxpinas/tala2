@@ -129,6 +129,13 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               onPress={() => { onClose(); onContentMenu ? onContentMenu() : onProfileMenu(); }}
             />
             <MenuItem
+              icon="user"
+              iconBg={theme.surfaceHighlight}
+              title="Persoonlijke instellingen"
+              subtitle="Wizzard & teksten"
+              onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
+            />
+            <MenuItem
               icon="volume-2"
               iconBg={theme.accent}
               title="Stem"

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
@@ -27,13 +27,48 @@ const CATEGORY_CONFIG = {
   EMOJI: { label: 'Emoji', icon: 'smile', color: '#FFD166', description: 'Emoticons' },
 };
 
-const SimpleSentenceBuilder = ({ visible, onClose, onSpeak, onAddToCategory, categories = {}, initialSentence = [] }) => {
+const dedupeList = (items = []) => {
+  const seen = new Set();
+  return items
+    .map((item) => (typeof item === 'string' ? item.trim() : ''))
+    .filter((item) => {
+      if (!item) return false;
+      const key = item.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+};
+
+const SimpleSentenceBuilder = ({
+  visible,
+  onClose,
+  onSpeak,
+  onAddToCategory,
+  categories = {},
+  initialSentence = [],
+  peopleSuggestions = [],
+  locationSuggestions = [],
+}) => {
   const [sentence, setSentence] = useState(initialSentence);
   const [step, setStep] = useState(STEPS.OVERVIEW);
   const [activeCategory, setActiveCategory] = useState(null);
   const [customText, setCustomText] = useState('');
   const [showCategorySelector, setShowCategorySelector] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const whoWords = useMemo(() => dedupeList([...(WORD_CATEGORIES.WIE || []), ...peopleSuggestions]), [peopleSuggestions]);
+  const whereWords = useMemo(() => dedupeList([...(WORD_CATEGORIES.WAAR || []), ...locationSuggestions]), [locationSuggestions]);
+
+  const getWordsForCategory = useCallback(
+    (key) => {
+      if (!key) return [];
+      if (key === 'WIE') return whoWords;
+      if (key === 'WAAR') return whereWords;
+      return WORD_CATEGORIES[key] || [];
+    },
+    [whoWords, whereWords]
+  );
 
   const addWord = (word) => {
     setSentence([...sentence, word]);
@@ -305,7 +340,7 @@ const SimpleSentenceBuilder = ({ visible, onClose, onSpeak, onAddToCategory, cat
 
             {/* Word Grid */}
             <ScrollView contentContainerStyle={styles.wordGrid}>
-              {WORD_CATEGORIES[activeCategory]?.map((word, i) => (
+              {getWordsForCategory(activeCategory).map((word, i) => (
                 <TouchableOpacity
                   key={i}
                   style={[styles.wordTile, { borderColor: CATEGORY_CONFIG[activeCategory]?.color }]}

@@ -24,6 +24,8 @@ const SimpleCategoryView = ({
   onPhotoLongPress,
   onAddPhoto,
   onAddPhrase,
+  onManageLocations,
+  onManagePeople,
 }) => {
   const hasPhotos = photos.length > 0;
 
@@ -50,16 +52,42 @@ const SimpleCategoryView = ({
 
         {/* Add phrase button - Praat tile */}
         {onAddPhrase && (
-          <TouchableOpacity 
-            style={styles.addPhraseTile}
-            onPress={onAddPhrase}
-            activeOpacity={0.8}
-          >
-            <View style={styles.addPhraseIcon}>
-              <Feather name="plus" size={24} color="#000" />
-            </View>
-            <Text style={styles.addPhraseText}>Zin Toevoegen</Text>
-          </TouchableOpacity>
+          <View style={styles.addRow}>
+            <TouchableOpacity 
+              style={[styles.addPhraseTile, styles.addRowMain]}
+              onPress={onAddPhrase}
+              activeOpacity={0.8}
+            >
+              <View style={styles.addPhraseIcon}>
+                <Feather name="plus" size={24} color="#000" />
+              </View>
+              <Text style={styles.addPhraseText}>Zin Toevoegen</Text>
+            </TouchableOpacity>
+
+            {(onManageLocations || onManagePeople) && (
+              <View style={styles.manageColumn}>
+                {onManageLocations && (
+                  <TouchableOpacity
+                    style={styles.manageButton}
+                    onPress={onManageLocations}
+                    activeOpacity={0.8}
+                  >
+                    <Feather name="map-pin" size={18} color={theme.primary} />
+                    <Text style={styles.manageButtonText}>Locaties</Text>
+                  </TouchableOpacity>
+                )}
+                {onManagePeople && (
+                  <TouchableOpacity
+                    style={[styles.manageButton, styles.manageButtonLast]}
+                    onPress={onManagePeople}
+                  >
+                    <Feather name="users" size={18} color={theme.accent} />
+                    <Text style={styles.manageButtonText}>Mensen</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </View>
         )}
 
         {/* Photos section - only show if photos exist */}
@@ -195,6 +223,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
+  },
+  addRow: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 12,
+    marginBottom: 20,
+  },
+  addRowMain: {
+    flex: 2,
+  },
+  manageColumn: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  manageButton: {
+    backgroundColor: theme.surface,
+    borderRadius: 12,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: 10,
+    marginRight: 6,
+  },
+  manageButtonText: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  manageButtonLast: {
+    marginBottom: 0,
   },
   addPhraseIcon: {
     width: 44,

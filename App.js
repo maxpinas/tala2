@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Text, View, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Platform, StyleSheet, ActivityIndicator, Image, Alert, Modal } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Feather } from '@expo/vector-icons';
@@ -218,6 +218,7 @@ const MainApp = ({ onReset }) => {
   const [managePhotosCategory, setManagePhotosCategory] = useState(null);
   const [showSpeechTest, setShowSpeechTest] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+  const [profileSetupKey, setProfileSetupKey] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speakingText, setSpeakingText] = useState('');
   const [toast, setToast] = useState({ visible: false, message: '', icon: 'check' });
@@ -244,6 +245,57 @@ const MainApp = ({ onReset }) => {
   
   // Category picker voor toevoegen aan onderwerp
   const [showCategoryPicker, setShowCategoryPicker] = useState({ visible: false, text: '', action: 'add' }); // action: 'add' | 'move'
+
+  const openProfileSetupWizard = useCallback(() => {
+    setProfileSetupKey((prev) => prev + 1);
+    setShowProfileMenu(false);
+    setShowProfileSetup(true);
+  }, []);
+
+  const closeProfileSetupWizard = useCallback(() => {
+    setShowProfileSetup(false);
+    setShowProfileMenu(false);
+  }, []);
+
+  useEffect(() => {
+    setCurrentView('HOME');
+    setIsBuilding(false);
+    setShowSimpleSentenceBuilder(false);
+    setSentence([]);
+    setSelectedWordIndex(null);
+  }, [appMode]);
+
+  const peopleSuggestions = useMemo(() => {
+    const entries = [
+      profile?.name,
+      profile?.partnerName,
+      profile?.contact2Name,
+      extendedProfile?.emergencyName2,
+      ...(customPartners || []).map((partner) => partner?.label),
+    ];
+    const seen = new Set();
+    return entries
+      .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+      .filter((entry) => {
+        if (!entry) return false;
+        const key = entry.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  }, [profile?.name, profile?.partnerName, profile?.contact2Name, extendedProfile, customPartners]);
+
+  const locationSuggestions = useMemo(() => {
+    const labels = (contexts || []).map((context) => (typeof context?.label === 'string' ? context.label.trim() : ''));
+    const seen = new Set();
+    return labels.filter((label) => {
+      if (!label) return false;
+      const key = label.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [contexts]);
 
   const handleBackFromSettings = () => { setCurrentView('HOME'); };
   const addPhraseToCategory = (text, targetCategory = activeCategory) => { 
@@ -511,9 +563,33 @@ const MainApp = ({ onReset }) => {
 
       <AddOrEditPhotoModal visible={showPhotoModal} onClose={() => { setShowPhotoModal(false); setPhotoToEdit(null); }} onSave={handleSavePhoto} categories={categories} initialData={photoToEdit} onTriggerPopup={triggerPopup} />
       <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onProfileMenu={() => setShowProfileMenu(true)} onContentMenu={() => setShowContentMenu(true)} onReset={onReset} onSpeechTest={() => setShowSpeechTest(true)} onVoiceSettings={() => setShowVoiceSettings(true)} />
-      <ProfileMenuModal visible={showProfileMenu} onClose={() => setShowProfileMenu(false)} onNavigate={(v) => { if(v === 'PROFILE_SETUP') setShowProfileSetup(true); else if(v === 'CUSTOM_TEXTS') setCurrentView(v); else if(v === 'VOICE_SETTINGS') setShowVoiceSettings(true); }} />
+      <ProfileMenuModal
+        visible={showProfileMenu}
+        onClose={() => setShowProfileMenu(false)}
+        onNavigate={(v) => {
+          if (v === 'PROFILE_SETUP') {
+            openProfileSetupWizard();
+          } else if (v === 'CUSTOM_TEXTS') {
+            setCurrentView(v);
+          } else if (v === 'VOICE_SETTINGS') {
+            setShowVoiceSettings(true);
+          } else if (v === 'MANAGE_QUICK') {
+            setCurrentView('MANAGE_QUICK');
+          }
+        }}
+      />
       <ContentMenuModal visible={showContentMenu} onClose={() => setShowContentMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onShowPartners={() => setShowPartnersScreen(true)} onShowLocations={() => setShowLocationsScreen(true)} />
-      {showProfileSetup && <ProfileSetupFlow profile={profile} extendedProfile={extendedProfile} onSaveProfile={setProfile} onSaveExtended={setExtendedProfile} onClose={() => { setShowProfileSetup(false); setShowProfileMenu(true); }} onTriggerPopup={triggerPopup} />}
+      {showProfileSetup && (
+        <ProfileSetupFlow
+          key={profileSetupKey}
+          profile={profile}
+          extendedProfile={extendedProfile}
+          onSaveProfile={setProfile}
+          onSaveExtended={setExtendedProfile}
+          onClose={closeProfileSetupWizard}
+          onTriggerPopup={triggerPopup}
+        />
+      )}
       {showPartnersScreen && <ManagePartnersScreen onClose={() => setShowPartnersScreen(false)} partners={customPartners} setPartners={setCustomPartners} />}
       {showLocationsScreen && <ManageLocationsScreen onClose={() => setShowLocationsScreen(false)} contexts={contexts} setContexts={setContexts} />}
       {showSpeechTest && <SpeechTest onClose={() => setShowSpeechTest(false)} />}
@@ -700,6 +776,8 @@ const MainApp = ({ onReset }) => {
         onSpeak={handleSpeak}
         initialSentence={sentence}
         categories={categories}
+        peopleSuggestions={peopleSuggestions}
+        locationSuggestions={locationSuggestions}
         onAddToCategory={(text, targetCategory) => {
           // Add the sentence to the target category
           if (categories[targetCategory]) {
@@ -785,6 +863,8 @@ const MainApp = ({ onReset }) => {
             onPhotoLongPress={handlePhotoLongPress}
             onAddPhoto={() => { setManagePhotosCategory(activeCategory); setShowManagePhotos(true); }}
             onAddPhrase={() => { setActiveCategory(activeCategory); setShowSimpleSentenceBuilder(true); }}
+            onManageLocations={() => setShowLocationsScreen(true)}
+            onManagePeople={() => setShowPartnersScreen(true)}
           />
         )}
 
