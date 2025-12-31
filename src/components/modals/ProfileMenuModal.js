@@ -33,7 +33,7 @@ const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
           
           <MenuItem 
             icon="user" 
-            title="Persoonlijke Gegevens" 
+            title="Gegevens" 
             subtitle="Naam, adres, contacten & medisch" 
             onPress={() => { onClose(); onNavigate('PROFILE_SETUP'); }} 
           />
@@ -45,14 +45,6 @@ const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
             onPress={() => { onClose(); onNavigate('CUSTOM_TEXTS'); }} 
           />
 
-          <MenuItem 
-            icon="zap" 
-            iconBg={theme.surfaceHighlight}
-            title="Snel Reageren" 
-            subtitle="Pas snelle antwoorden aan" 
-            onPress={() => { onClose(); onNavigate('MANAGE_QUICK'); }} 
-          />
-          
           <MenuItem 
             icon="volume-2" 
             title="Stem" 

@@ -7,7 +7,7 @@ import { Feather } from '@expo/vector-icons';
 import { theme } from './src/theme';
 
 // --- DATA ---
-import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK } from './src/data';
+import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK, LOCATIONS, PEOPLE, renderPhrase, shouldShowPhrase, getLocationById, getPersonById } from './src/data';
 import { buildDemoState } from './src/demo/demoData';
 
 // --- STORAGE ---
@@ -228,6 +228,7 @@ const MainApp = ({ onReset }) => {
   const [showPartnerScreen, setShowPartnerScreen] = useState(false);
   const [showMedicalScreen, setShowMedicalScreen] = useState(false);
   const [showFullScreen, setShowFullScreen] = useState(false);
+  const [fullScreenText, setFullScreenText] = useState(''); // Dedicated text for fullscreen show
   const [showPhotoFullScreen, setShowPhotoFullScreen] = useState(false);
   const [fullScreenPhoto, setFullScreenPhoto] = useState(null);
   const [photoMuted, setPhotoMuted] = useState(false); // Persistent mute state
@@ -239,6 +240,7 @@ const MainApp = ({ onReset }) => {
   
   // Simple mode states
   const [showSimpleSentenceBuilder, setShowSimpleSentenceBuilder] = useState(false);
+  const [builderInitialTopic, setBuilderInitialTopic] = useState(null); // 'locations' | 'people' | null
   
   // Long-press actie modal state (Kopieer/Toon/Verwijder/Verplaats opties)
   const [longPressModal, setLongPressModal] = useState({ visible: false, text: '', type: 'phrase', index: -1, category: null, photoId: null });
@@ -296,6 +298,38 @@ const MainApp = ({ onReset }) => {
       return true;
     });
   }, [contexts]);
+
+  // Actieve context objecten voor placeholder vervanging
+  const activeLocationObject = useMemo(() => {
+    // Vind de context uit de aanpasbare contexts lijst
+    const context = (contexts || []).find(c => c.id === currentContext);
+    if (!context) return null;
+    // Probeer grammatica varianten te vinden uit LOCATIONS
+    const locationWithVariants = getLocationById(currentContext);
+    return {
+      ...context,
+      variants: locationWithVariants?.variants || { bij: context.label, naar: context.label, van: context.label }
+    };
+  }, [currentContext, contexts]);
+
+  const activePersonObject = useMemo(() => {
+    // Vind de persoon uit activePartners
+    const person = (activePartners || []).find(p => p.id === currentPartner);
+    if (!person) return null;
+    // Voeg naam toe (voor editable partners)
+    const name = person.label || person.defaultName || 'Partner';
+    return {
+      ...person,
+      name,
+      variants: { naam: name, met: `met ${name}`, voor: `voor ${name}` }
+    };
+  }, [currentPartner, activePartners]);
+
+  // Context object voor renderPhrase
+  const phraseContext = useMemo(() => ({
+    location: activeLocationObject?.id !== 'geen' ? activeLocationObject : null,
+    person: activePersonObject?.id !== 'geen' ? activePersonObject : null,
+  }), [activeLocationObject, activePersonObject]);
 
   const handleBackFromSettings = () => { setCurrentView('HOME'); };
   const addPhraseToCategory = (text, targetCategory = activeCategory) => { 
@@ -409,7 +443,10 @@ const MainApp = ({ onReset }) => {
   // Toon in fullscreen
   const handleShowFullscreen = (text) => {
     closeLongPressModal();
-    setSentence(text.split(' '));
+    // Sluit ook SimpleSentenceBuilder als die open is
+    setShowSimpleSentenceBuilder(false);
+    setBuilderInitialTopic(null);
+    setFullScreenText(text);
     setShowFullScreen(true);
   };
   
@@ -443,6 +480,9 @@ const MainApp = ({ onReset }) => {
   const handleAddToCategory = () => {
     const { text } = longPressModal;
     closeLongPressModal();
+    // Sluit ook SimpleSentenceBuilder als die open is
+    setShowSimpleSentenceBuilder(false);
+    setBuilderInitialTopic(null);
     setShowCategoryPicker({ visible: true, text, action: 'add' });
   };
 
@@ -598,7 +638,7 @@ const MainApp = ({ onReset }) => {
       <EmergencyModal visible={showEmergency} onClose={() => setShowEmergency(false)} profile={profile} extended={extendedProfile} onTriggerPopup={triggerPopup} />
       <PartnerScreen visible={showPartnerScreen} onClose={() => setShowPartnerScreen(false)} text={profile.customPartnerText} name={profile.name} />
       <MedicalScreen visible={showMedicalScreen} onClose={() => setShowMedicalScreen(false)} profile={profile} extended={extendedProfile} text={profile.customMedicalText} />
-      {showFullScreen && <FullScreenShow text={sentence.join(' ')} onClose={() => setShowFullScreen(false)} />}
+      {showFullScreen && <FullScreenShow text={fullScreenText || sentence.join(' ')} onClose={() => { setShowFullScreen(false); setFullScreenText(''); }} />}
       {showPhotoFullScreen && fullScreenPhoto && (
         <PhotoFullScreenShow 
           photo={fullScreenPhoto} 
@@ -621,9 +661,55 @@ const MainApp = ({ onReset }) => {
       )}
       
       <SelectorModal visible={showContextModal} title="Waar ben je?" options={contexts} selectedId={currentContext} onSelect={setCurrentContext} onClose={() => setShowContextModal(false)} onManage={() => { setShowContextModal(false); setShowLocationsScreen(true); }} />
-      <SelectorModal visible={showPartnerModal} title="Met wie praat je?" options={activePartners} selectedId={currentPartner} onSelect={setCurrentPartner} onClose={() => setShowPartnerModal(false)} onManage={() => { setShowPartnerModal(false); setShowPartnersScreen(true); }} />
-      
-      {/* Long-press actie modal voor Kopieer/Toon/Verwijder/Toevoegen */}
+      <SelectorModal visible={showPartnerModal} title="Met wie praat je?" options={activePartners.filter(p => p.id !== 'geen')} selectedId={currentPartner} onSelect={setCurrentPartner} onClose={() => setShowPartnerModal(false)} onManage={() => { setShowPartnerModal(false); setShowPartnersScreen(true); }} />
+
+      {currentView === 'TOPIC_MANAGER' && <ManageTopicsScreen onClose={handleBackFromSettings} categories={categories} setCategories={setCategories} />}
+      {currentView === 'MANAGE_QUICK' && <ListManagerScreen title="Beheer Snel Reageren" items={quickResponses} onUpdate={setQuickResponses} onClose={handleBackFromSettings} type="string" />}
+
+      {/* SimpleSentenceBuilder Modal for Gewoon mode */}
+      <SimpleSentenceBuilder 
+        visible={showSimpleSentenceBuilder} 
+        onClose={() => { setShowSimpleSentenceBuilder(false); setBuilderInitialTopic(null); }}
+        onSpeak={handleSpeak}
+        initialSentence={sentence}
+        categories={categories}
+        onAddToCategory={(text, targetCategory) => {
+          // Add the sentence to the target category
+          if (categories[targetCategory]) {
+            const updatedCategories = { ...categories };
+            if (!updatedCategories[targetCategory].items) {
+              updatedCategories[targetCategory].items = [];
+            }
+            // Add to beginning so it appears first
+            updatedCategories[targetCategory].items.unshift(text);
+            setCategories(updatedCategories);
+            // Save to storage
+            saveCategories(updatedCategories);
+            // Show toast
+            setToast({ visible: true, message: `Opgeslagen in ${categories[targetCategory].label || targetCategory}`, icon: 'check' });
+          } else if (targetCategory === 'aangepast') {
+            // Create or update "Aangepast" category for custom sentences
+            const updatedCategories = { ...categories };
+            if (!updatedCategories.Aangepast) {
+              updatedCategories.Aangepast = {
+                label: 'Aangepast',
+                icon: 'edit-3',
+                color: theme.accent,
+                items: []
+              };
+            }
+            if (!updatedCategories.Aangepast.items) {
+              updatedCategories.Aangepast.items = [];
+            }
+            updatedCategories.Aangepast.items.unshift(text);
+            setCategories(updatedCategories);
+            saveCategories(updatedCategories);
+            setToast({ visible: true, message: 'Opgeslagen in Aangepast', icon: 'check' });
+          }
+        }}
+      />
+
+      {/* Long-press actie modal voor Kopieer/Toon/Verwijder/Toevoegen - NA SimpleSentenceBuilder zodat het bovenop komt */}
       <Modal visible={longPressModal.visible} transparent animationType="fade">
         <TouchableOpacity 
           style={styles.longPressOverlay} 
@@ -766,54 +852,6 @@ const MainApp = ({ onReset }) => {
         </TouchableOpacity>
       </Modal>
 
-      {currentView === 'TOPIC_MANAGER' && <ManageTopicsScreen onClose={handleBackFromSettings} categories={categories} setCategories={setCategories} />}
-      {currentView === 'MANAGE_QUICK' && <ListManagerScreen title="Beheer Snel Reageren" items={quickResponses} onUpdate={setQuickResponses} onClose={handleBackFromSettings} type="string" />}
-
-      {/* SimpleSentenceBuilder Modal for Gewoon mode */}
-      <SimpleSentenceBuilder 
-        visible={showSimpleSentenceBuilder} 
-        onClose={() => setShowSimpleSentenceBuilder(false)}
-        onSpeak={handleSpeak}
-        initialSentence={sentence}
-        categories={categories}
-        peopleSuggestions={peopleSuggestions}
-        locationSuggestions={locationSuggestions}
-        onAddToCategory={(text, targetCategory) => {
-          // Add the sentence to the target category
-          if (categories[targetCategory]) {
-            const updatedCategories = { ...categories };
-            if (!updatedCategories[targetCategory].items) {
-              updatedCategories[targetCategory].items = [];
-            }
-            // Add to beginning so it appears first
-            updatedCategories[targetCategory].items.unshift(text);
-            setCategories(updatedCategories);
-            // Save to storage
-            saveCategories(updatedCategories);
-            // Show toast
-            setToast({ visible: true, message: `Opgeslagen in ${categories[targetCategory].label || targetCategory}`, icon: 'check' });
-          } else if (targetCategory === 'aangepast') {
-            // Create or update "Aangepast" category for custom sentences
-            const updatedCategories = { ...categories };
-            if (!updatedCategories.Aangepast) {
-              updatedCategories.Aangepast = {
-                label: 'Aangepast',
-                icon: 'edit-3',
-                color: theme.accent,
-                items: []
-              };
-            }
-            if (!updatedCategories.Aangepast.items) {
-              updatedCategories.Aangepast.items = [];
-            }
-            updatedCategories.Aangepast.items.unshift(text);
-            setCategories(updatedCategories);
-            saveCategories(updatedCategories);
-            setToast({ visible: true, message: 'Opgeslagen in Aangepast', icon: 'check' });
-          }
-        }}
-      />
-
       <View style={styles.container}>
         {/* Header en sentence bar alleen in Expert modus */}
         {!isGebruikMode && !isBuilding && !['BASIC_SETUP', 'CUSTOM_TEXTS', 'EXTENDED_SETUP', 'TOPIC_MANAGER', 'MANAGE_QUICK', 'GALLERY'].includes(currentView) && (
@@ -848,6 +886,10 @@ const MainApp = ({ onReset }) => {
               // Open quick access (Over mij, Medisch, Nood)
               setShowQuickAccess(true);
             }}
+            activeLocation={activeLocationObject}
+            activePerson={activePersonObject}
+            onLocationPress={() => setShowContextModal(true)}
+            onPersonPress={() => setShowPartnerModal(true)}
           />
         )}
 
@@ -855,6 +897,7 @@ const MainApp = ({ onReset }) => {
           <SimpleCategoryView
             categoryName={activeCategory}
             phrases={categories[activeCategory]?.items || []}
+            phraseContext={phraseContext}
             photos={gallery.filter(p => p.category === activeCategory)}
             onBack={() => setCurrentView('HOME')}
             onPhrasePress={handlePhrasePress}
@@ -862,9 +905,11 @@ const MainApp = ({ onReset }) => {
             onPhotoPress={handlePhotoShow}
             onPhotoLongPress={handlePhotoLongPress}
             onAddPhoto={() => { setManagePhotosCategory(activeCategory); setShowManagePhotos(true); }}
-            onAddPhrase={() => { setActiveCategory(activeCategory); setShowSimpleSentenceBuilder(true); }}
-            onManageLocations={() => setShowLocationsScreen(true)}
-            onManagePeople={() => setShowPartnersScreen(true)}
+            onAddPhrase={() => { setActiveCategory(activeCategory); setBuilderInitialTopic(null); setShowSimpleSentenceBuilder(true); }}
+            activeLocation={activeLocationObject}
+            activePerson={activePersonObject}
+            onLocationPress={() => setShowContextModal(true)}
+            onPersonPress={() => setShowPartnerModal(true)}
           />
         )}
 

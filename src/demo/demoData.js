@@ -29,7 +29,7 @@ const DEMO_EXTENDED_PROFILE = {
     'Omeprazol 20mg in de ochtend',
     'Ventolin bij benauwdheid',
   ],
-  emergencyName2: 'Broer Pieter',
+  emergencyName2: 'Pieter',
   emergencyPhone2: '06-99887766',
   generic: [
     'Ik loop met een wandelstok',
@@ -44,10 +44,10 @@ const DEMO_CONTEXTS = [
 ];
 
 const DEMO_PARTNERS = [
-  { id: 'dochter', label: 'Dochter Eva', icon: 'user' },
-  { id: 'zoon', label: 'Zoon Tom', icon: 'user' },
-  { id: 'fysio', label: 'Fysiotherapeut Iris', icon: 'activity' },
-  { id: 'buur', label: 'Buuf Maria', icon: 'home' },
+  { id: 'dochter', label: 'Eva', icon: 'user' },
+  { id: 'zoon', label: 'Tom', icon: 'user' },
+  { id: 'fysio', label: 'Iris', icon: 'activity' },
+  { id: 'buur', label: 'Maria', icon: 'home' },
 ];
 
 const DEMO_QUICK = [

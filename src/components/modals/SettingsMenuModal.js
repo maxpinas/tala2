@@ -131,7 +131,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
             <MenuItem
               icon="user"
               iconBg={theme.surfaceHighlight}
-              title="Persoonlijke instellingen"
+              title="Profiel"
               subtitle="Wizzard & teksten"
               onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
             />

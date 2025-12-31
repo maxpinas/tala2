@@ -23,6 +23,11 @@ const SimpleHome = ({
   onHerhaal,
   onSettings,
   onSnel, // New: handler for Snel options (Over mij, Medisch, Nood)
+  // Context props (hele objecten)
+  activeLocation, // { id, label, icon, ... }
+  activePerson, // { id, label, icon, name, ... }
+  onLocationPress,
+  onPersonPress,
 }) => {
   // Filter normale categorieën (zonder speciale)
   const normalCategories = Object.keys(categories).filter(
@@ -52,6 +57,61 @@ const SimpleHome = ({
           }}
         >
           <Feather name="menu" size={24} color={theme.text} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Context Knoppen - Grote, duidelijke knoppen voor Locatie en Persoon */}
+      <View style={styles.contextBar}>
+        <TouchableOpacity 
+          style={[
+            styles.contextButton,
+            activeLocation?.id !== 'geen' && styles.contextButtonActive
+          ]}
+          onPress={onLocationPress}
+          activeOpacity={0.7}
+        >
+          <View style={[
+            styles.contextIconCircle,
+            activeLocation?.id !== 'geen' && { backgroundColor: theme.primary }
+          ]}>
+            <Feather 
+              name={activeLocation?.icon || 'map-pin'} 
+              size={28} 
+              color={activeLocation?.id !== 'geen' ? '#000' : theme.textDim} 
+            />
+          </View>
+          <Text style={[
+            styles.contextButtonLabel,
+            activeLocation?.id !== 'geen' && styles.contextButtonLabelActive
+          ]}>
+            {activeLocation?.id !== 'geen' ? activeLocation?.label : 'Waar?'}
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.contextButton,
+            activePerson?.id !== 'geen' && styles.contextButtonActive
+          ]}
+          onPress={onPersonPress}
+          activeOpacity={0.7}
+        >
+          <View style={[
+            styles.contextIconCircle,
+            activePerson?.id !== 'geen' && { backgroundColor: theme.accent }
+          ]}>
+            <Feather 
+              name={activePerson?.icon || 'user'} 
+              size={28} 
+              color={activePerson?.id !== 'geen' ? '#000' : theme.textDim} 
+            />
+          </View>
+          <Text style={[
+            styles.contextButtonLabel,
+            activePerson?.id !== 'geen' && styles.contextButtonLabelActive
+          ]}>
+            {activePerson?.id !== 'geen' ? (activePerson?.name || activePerson?.label) : 'Met wie?'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -361,6 +421,46 @@ const styles = StyleSheet.create({
   actionText: {
     color: theme.text,
     fontSize: 14,
+    fontWeight: '700',
+  },
+  /* Context button styles - grote, duidelijke knoppen */
+  contextBar: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    gap: 12,
+  },
+  contextButton: {
+    flex: 1,
+    backgroundColor: theme.surface,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  contextButtonActive: {
+    borderColor: theme.primary,
+    backgroundColor: theme.surfaceHighlight,
+  },
+  contextIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: theme.surfaceHighlight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  contextButtonLabel: {
+    color: theme.textDim,
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  contextButtonLabelActive: {
+    color: theme.text,
     fontWeight: '700',
   },
 });

@@ -1,17 +1,17 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
 import { WORD_CATEGORIES } from '../../data';
+import speechService from '../../services/speechService';
 
 /**
- * SimpleSentenceBuilder - Step-by-step sentence builder for Gewoon modus
+ * SimpleSentenceBuilder - Vereenvoudigde zin bouwer voor Gewoon modus
  * 
  * Flow:
- * 1. Start screen with current sentence preview
- * 2. Choose category (Wie, Doe, Wat, Waar) as big tiles
- * 3. Pick words from that category
- * 4. Preview and speak
+ * 1. Typ een zin of kies woorden uit categorieën
+ * 2. Preview en spreek
+ * 3. Optioneel: opslaan in een onderwerp
  */
 
 const STEPS = {
@@ -27,19 +27,6 @@ const CATEGORY_CONFIG = {
   EMOJI: { label: 'Emoji', icon: 'smile', color: '#FFD166', description: 'Emoticons' },
 };
 
-const dedupeList = (items = []) => {
-  const seen = new Set();
-  return items
-    .map((item) => (typeof item === 'string' ? item.trim() : ''))
-    .filter((item) => {
-      if (!item) return false;
-      const key = item.toLowerCase();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-};
-
 const SimpleSentenceBuilder = ({
   visible,
   onClose,
@@ -47,8 +34,6 @@ const SimpleSentenceBuilder = ({
   onAddToCategory,
   categories = {},
   initialSentence = [],
-  peopleSuggestions = [],
-  locationSuggestions = [],
 }) => {
   const [sentence, setSentence] = useState(initialSentence);
   const [step, setStep] = useState(STEPS.OVERVIEW);
@@ -56,90 +41,83 @@ const SimpleSentenceBuilder = ({
   const [customText, setCustomText] = useState('');
   const [showCategorySelector, setShowCategorySelector] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-
-  const whoWords = useMemo(() => dedupeList([...(WORD_CATEGORIES.WIE || []), ...peopleSuggestions]), [peopleSuggestions]);
-  const whereWords = useMemo(() => dedupeList([...(WORD_CATEGORIES.WAAR || []), ...locationSuggestions]), [locationSuggestions]);
-
-  const getWordsForCategory = useCallback(
-    (key) => {
-      if (!key) return [];
-      if (key === 'WIE') return whoWords;
-      if (key === 'WAAR') return whereWords;
-      return WORD_CATEGORIES[key] || [];
-    },
-    [whoWords, whereWords]
-  );
-
-  const addWord = (word) => {
-    setSentence([...sentence, word]);
-  };
-
-  const removeLastWord = () => {
-    if (sentence.length > 0) {
-      setSentence(sentence.slice(0, -1));
-    }
-  };
-
-  const clearSentence = () => {
-    setSentence([]);
-  };
-
-  const handleSpeak = () => {
-    // Do not speak emoji tokens — filter them out for TTS
-    const emojis = WORD_CATEGORIES.EMOJI || [];
-    const filtered = sentence.filter(w => !emojis.includes(w));
-    const text = filtered.join(' ');
-    if (text.trim()) {
-      onSpeak(text);
-      // Don't close - user should press back button to close
-    }
-  };
   
-  const handleSpeakAndSave = (targetCategory) => {
-    const text = sentence.join(' ');
-    if (text.trim()) {
-      onSpeak(text);
-      if (onAddToCategory && targetCategory) {
-        onAddToCategory(text, targetCategory);
+  // Ref for timeout cleanup
+  const timeoutRef = useRef(null);
+  
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
+    };
+  }, []);
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (visible) {
+      setStep(STEPS.OVERVIEW);
+      setActiveCategory(null);
       setShowCategorySelector(false);
-      onClose();
     }
-  };
-  
-  const handleAddToCategory = (targetCategory) => {
-    const text = sentence.join(' ');
-    if (text.trim() && onAddToCategory) {
-      onAddToCategory(text, targetCategory);
+  }, [visible]);
+
+  const sentenceText = sentence.join(' ');
+
+  // Handle word selection
+  const handleWordSelect = useCallback((word) => {
+    setSentence(prev => [...prev, word]);
+  }, []);
+
+  // Handle word removal
+  const handleWordRemove = useCallback((index) => {
+    setSentence(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  // Handle speak
+  const handleSpeak = useCallback(() => {
+    const textToSpeak = customText.trim() || sentenceText;
+    if (textToSpeak) {
+      speechService.speak(textToSpeak);
+      if (onSpeak) onSpeak(textToSpeak);
+    }
+  }, [customText, sentenceText, onSpeak]);
+
+  // Handle save to category
+  const handleSaveToCategory = useCallback((targetCategory) => {
+    const textToSave = customText.trim() || sentenceText;
+    if (textToSave && onAddToCategory) {
+      onAddToCategory(textToSave, targetCategory);
       setShowCategorySelector(false);
       setSaveSuccess(true);
-      // Auto-hide success message after 2 seconds
-      setTimeout(() => setSaveSuccess(false), 2000);
+      // Auto-hide success message
+      timeoutRef.current = setTimeout(() => {
+        setSaveSuccess(false);
+      }, 2000);
     }
-  };
+  }, [customText, sentenceText, onAddToCategory]);
 
-  const openCategory = (cat) => {
-    setActiveCategory(cat);
-    setStep(STEPS.CATEGORY);
-  };
+  // Clear sentence
+  const handleClear = useCallback(() => {
+    setSentence([]);
+    setCustomText('');
+  }, []);
 
-  const backToOverview = () => {
-    setStep(STEPS.OVERVIEW);
-    setActiveCategory(null);
-  };
-
-  const addCustomWord = () => {
-    if (customText.trim()) {
-      addWord(customText.trim());
-      setCustomText('');
-    }
+  // Word categories data
+  const wordCategories = {
+    WIE: WORD_CATEGORIES.WIE || [],
+    DOE: WORD_CATEGORIES.DOE || [],
+    WAT: WORD_CATEGORIES.WAT || [],
+    WAAR: WORD_CATEGORIES.WAAR || [],
+    EMOJI: WORD_CATEGORIES.EMOJI || [],
   };
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
-          {/* Success message */}
+          {/* Success message - Opgeslagen */}
           {saveSuccess && (
             <View style={styles.successBanner}>
               <Feather name="check-circle" size={20} color="#000" />
@@ -160,209 +138,198 @@ const SimpleSentenceBuilder = ({
                 <View style={{ width: 80 }} />
               </View>
 
-            {/* Sentence Preview */}
-            <View style={styles.sentencePreview}>
-              {sentence.length === 0 ? (
-                <Text style={styles.placeholderText}>Tik op een categorie om te beginnen...</Text>
-              ) : (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {sentence.map((word, i) => (
-                    <View key={i} style={styles.wordChip}>
-                      <Text style={styles.wordChipText}>{word}</Text>
-                    </View>
-                  ))}
-                </ScrollView>
-              )}
-            </View>
-
-            {/* Quick actions if sentence has words */}
-            {sentence.length > 0 && (
-              <View style={styles.quickActions}>
-                <TouchableOpacity style={styles.quickActionBtn} onPress={removeLastWord}>
-                  <Feather name="delete" size={20} color={theme.warning} />
-                  <Text style={styles.quickActionText}>Laatste weg</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.quickActionBtn} onPress={clearSentence}>
-                  <Feather name="trash-2" size={20} color={theme.danger} />
-                  <Text style={[styles.quickActionText, { color: theme.danger }]}>Alles wissen</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {/* Category Grid */}
-            <ScrollView contentContainerStyle={styles.categoryGrid}>
-              {Object.entries(CATEGORY_CONFIG).map(([key, config]) => (
-                <TouchableOpacity
-                  key={key}
-                  style={[styles.categoryTile, { borderColor: config.color }]}
-                  onPress={() => openCategory(key)}
-                  activeOpacity={0.8}
+              <KeyboardAvoidingView 
+                style={{ flex: 1 }} 
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              >
+                <ScrollView 
+                  contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
                 >
-                  <View style={[styles.categoryIcon, { backgroundColor: config.color }]}>
-                    <Feather name={config.icon} size={32} color="#000" />
+                  {/* Custom text input */}
+                  <View style={styles.inputSection}>
+                    <Text style={styles.inputLabel}>Typ je zin</Text>
+                    <TextInput
+                      style={styles.textInput}
+                      placeholder="Of kies woorden hieronder..."
+                      placeholderTextColor={theme.textDim}
+                      value={customText}
+                      onChangeText={setCustomText}
+                      multiline
+                    />
                   </View>
-                  <Text style={styles.categoryLabel}>{config.label}</Text>
-                  <Text style={styles.categoryDescription}>{config.description}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
 
-            {/* Custom input */}
-            <KeyboardAvoidingView 
-              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
-            >
-              <View style={styles.customInputRow}>
-                <TextInput
-                  style={styles.customInput}
-                  placeholder="Of typ zelf..."
-                  placeholderTextColor={theme.textDim}
-                  value={customText}
-                  onChangeText={setCustomText}
-                  onSubmitEditing={addCustomWord}
-                  returnKeyType="done"
-                  blurOnSubmit={true}
-                />
-                <TouchableOpacity 
-                  style={[styles.addCustomBtn, !customText.trim() && { opacity: 0.5 }]} 
-                  onPress={() => {
-                    addCustomWord();
-                    Keyboard.dismiss();
-                  }}
-                  disabled={!customText.trim()}
-                >
-                  <Feather name="plus" size={24} color="#000" />
-                </TouchableOpacity>
-              </View>
-            </KeyboardAvoidingView>
-
-            {/* Action Buttons Row */}
-            <View style={styles.actionButtonsRow}>
-              {/* Speak Button */}
-              <TouchableOpacity
-                style={[styles.speakButton, sentence.length === 0 && styles.speakButtonDisabled]}
-                onPress={handleSpeak}
-                disabled={sentence.length === 0}
-                activeOpacity={0.8}
-              >
-                <Feather name="volume-2" size={28} color={sentence.length > 0 ? '#000' : theme.textDim} />
-                <Text style={[styles.speakButtonText, sentence.length === 0 && { color: theme.textDim }]}>
-                  Zeg het
-                </Text>
-              </TouchableOpacity>
-              
-              {/* Save Button */}
-              <TouchableOpacity
-                style={[styles.saveButton, sentence.length === 0 && styles.saveButtonDisabled]}
-                onPress={() => setShowCategorySelector(true)}
-                disabled={sentence.length === 0}
-                activeOpacity={0.8}
-              >
-                <Feather name="bookmark" size={24} color={sentence.length > 0 ? '#000' : theme.textDim} />
-                <Text style={[styles.saveButtonText, sentence.length === 0 && { color: theme.textDim }]}>
-                  Opslaan
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Category Selector Modal - Long-press style */}
-            <Modal
-              visible={showCategorySelector}
-              transparent
-              animationType="slide"
-              onRequestClose={() => setShowCategorySelector(false)}
-            >
-              <TouchableOpacity 
-                style={styles.categoryModalOverlay}
-                activeOpacity={1}
-                onPress={() => setShowCategorySelector(false)}
-              >
-                <View style={styles.categorySheet}>
-                  <Text style={styles.categorySheetTitle}>Toevoegen aan onderwerp</Text>
-                  <ScrollView style={styles.categoryList} showsVerticalScrollIndicator={false}>
-                    {/* Aangepast (eigen zinnen) eerst */}
-                    <TouchableOpacity
-                      style={styles.longPressOption}
-                      onPress={() => handleAddToCategory('Aangepast')}
-                      activeOpacity={0.7}
-                    >
-                      <View style={[styles.longPressIconBg, { backgroundColor: theme.accent }]}>
-                        <Feather name="edit-3" size={24} color="#000" />
+                  {/* Current sentence preview */}
+                  {sentence.length > 0 && (
+                    <View style={styles.previewSection}>
+                      <Text style={styles.previewLabel}>Gekozen woorden</Text>
+                      <View style={styles.wordsRow}>
+                        {sentence.map((word, i) => (
+                          <TouchableOpacity
+                            key={i}
+                            style={styles.wordChip}
+                            onPress={() => handleWordRemove(i)}
+                          >
+                            <Text style={styles.wordChipText}>{word}</Text>
+                            <Feather name="x" size={14} color={theme.textDim} />
+                          </TouchableOpacity>
+                        ))}
                       </View>
-                      <Text style={styles.longPressLabel}>Aangepast (eigen zinnen)</Text>
-                    </TouchableOpacity>
-                    
-                    {/* Andere categorieën */}
-                    {Object.entries(categories)
-                      .filter(([key]) => key !== 'Aangepast' && key !== 'aangepast')
-                      .map(([key, cat]) => (
+                    </View>
+                  )}
+
+                  {/* Word category tiles */}
+                  <Text style={styles.sectionTitle}>Kies woorden</Text>
+                  <View style={styles.categoryGrid}>
+                    {Object.entries(CATEGORY_CONFIG).map(([key, config]) => (
                       <TouchableOpacity
                         key={key}
-                        style={styles.longPressOption}
-                        onPress={() => handleAddToCategory(key)}
-                        activeOpacity={0.7}
+                        style={[styles.categoryTile, { borderColor: config.color }]}
+                        onPress={() => {
+                          setActiveCategory(key);
+                          setStep(STEPS.CATEGORY);
+                        }}
+                        activeOpacity={0.8}
                       >
-                        <View style={[styles.longPressIconBg, { backgroundColor: theme.surfaceHighlight }]}>
-                          <Feather name={cat.icon || 'folder'} size={24} color={theme.primary} />
+                        <View style={[styles.categoryIcon, { backgroundColor: config.color }]}>
+                          <Feather name={config.icon} size={24} color="#000" />
                         </View>
-                        <Text style={styles.longPressLabel}>{cat.label || key}</Text>
+                        <Text style={styles.categoryLabel}>{config.label}</Text>
+                        <Text style={styles.categoryDesc}>{config.description}</Text>
                       </TouchableOpacity>
                     ))}
-                  </ScrollView>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => setShowCategorySelector(false)}
+                  </View>
+                </ScrollView>
+
+                {/* Action bar */}
+                <View style={styles.actionBar}>
+                  {(customText.trim() || sentence.length > 0) && (
+                    <TouchableOpacity 
+                      style={styles.clearButton}
+                      onPress={handleClear}
+                    >
+                      <Feather name="trash-2" size={20} color={theme.danger} />
+                    </TouchableOpacity>
+                  )}
+                  
+                  <TouchableOpacity 
+                    style={styles.saveButton}
+                    onPress={() => setShowCategorySelector(true)}
+                    disabled={!customText.trim() && sentence.length === 0}
                   >
-                    <Text style={styles.cancelButtonText}>Annuleren</Text>
+                    <Feather name="folder-plus" size={20} color="#000" />
+                    <Text style={styles.saveButtonText}>Opslaan</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[
+                      styles.speakButton,
+                      (!customText.trim() && sentence.length === 0) && styles.speakButtonDisabled
+                    ]}
+                    onPress={handleSpeak}
+                    disabled={!customText.trim() && sentence.length === 0}
+                  >
+                    <Feather name="volume-2" size={24} color="#000" />
+                    <Text style={styles.speakButtonText}>Spreek</Text>
                   </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
-            </Modal>
-          </>
-        ) : (
-          // CATEGORY VIEW - Show words from selected category
-          <>
-            {/* Header with back */}
-            <View style={styles.header}>
-              <TouchableOpacity onPress={backToOverview} style={styles.backButton}>
-                <Feather name="arrow-left" size={28} color={theme.text} />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>{CATEGORY_CONFIG[activeCategory]?.label}</Text>
-              <View style={{ width: 44 }} />
-            </View>
-
-            {/* Mini sentence preview */}
-            <View style={styles.miniPreview}>
-              <Text style={styles.miniPreviewText}>
-                {sentence.length > 0 ? sentence.join(' ') : 'Kies woorden...'}
-              </Text>
-            </View>
-
-            {/* Word Grid */}
-            <ScrollView contentContainerStyle={styles.wordGrid}>
-              {getWordsForCategory(activeCategory).map((word, i) => (
-                <TouchableOpacity
-                  key={i}
-                  style={[styles.wordTile, { borderColor: CATEGORY_CONFIG[activeCategory]?.color }]}
-                  onPress={() => addWord(word)}
-                  activeOpacity={0.8}
+              </KeyboardAvoidingView>
+            </>
+          ) : step === STEPS.CATEGORY ? (
+            // CATEGORY - Show words from selected category
+            <>
+              <View style={styles.header}>
+                <TouchableOpacity 
+                  onPress={() => setStep(STEPS.OVERVIEW)} 
+                  style={styles.backPill}
                 >
-                  <Text style={styles.wordTileText}>{word}</Text>
+                  <Feather name="arrow-left" size={20} color={theme.text} />
+                  <Text style={styles.backPillText}>Terug</Text>
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
+                <Text style={styles.headerTitle}>
+                  {CATEGORY_CONFIG[activeCategory]?.label || 'Woorden'}
+                </Text>
+                <View style={{ width: 80 }} />
+              </View>
 
-            {/* Done button */}
-            <TouchableOpacity
-              style={styles.doneButton}
-              onPress={backToOverview}
-              activeOpacity={0.8}
-            >
-              <Feather name="check" size={24} color="#000" />
-              <Text style={styles.doneButtonText}>Klaar</Text>
-            </TouchableOpacity>
-          </>
-        )}
+              <ScrollView 
+                contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+                showsVerticalScrollIndicator={false}
+              >
+                <View style={styles.wordsGrid}>
+                  {wordCategories[activeCategory]?.map((word, i) => (
+                    <TouchableOpacity
+                      key={i}
+                      style={styles.wordTile}
+                      onPress={() => {
+                        handleWordSelect(word);
+                        setStep(STEPS.OVERVIEW);
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={styles.wordTileText}>{word}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            </>
+          ) : null}
+
+          {/* Category Selector Modal */}
+          <Modal
+            visible={showCategorySelector}
+            transparent
+            animationType="slide"
+            onRequestClose={() => setShowCategorySelector(false)}
+          >
+            <View style={styles.categoryModalOverlay}>
+              <TouchableOpacity 
+                style={styles.modalDismissArea}
+                activeOpacity={1}
+                onPress={() => setShowCategorySelector(false)}
+              />
+              <View style={styles.categorySheet}>
+                <Text style={styles.categorySheetTitle}>Opslaan in onderwerp</Text>
+                <ScrollView style={styles.categoryList} showsVerticalScrollIndicator={false}>
+                  {/* Aangepast eerst */}
+                  <TouchableOpacity
+                    style={styles.categoryOption}
+                    onPress={() => handleSaveToCategory('Aangepast')}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.categoryOptionIcon, { backgroundColor: theme.accent }]}>
+                      <Feather name="edit-3" size={24} color="#000" />
+                    </View>
+                    <Text style={styles.categoryOptionLabel}>Aangepast (eigen zinnen)</Text>
+                  </TouchableOpacity>
+                  
+                  {/* Andere categorieën */}
+                  {Object.entries(categories)
+                    .filter(([key]) => key !== 'Aangepast' && key !== 'aangepast')
+                    .map(([key, cat]) => (
+                    <TouchableOpacity
+                      key={key}
+                      style={styles.categoryOption}
+                      onPress={() => handleSaveToCategory(key)}
+                      activeOpacity={0.7}
+                    >
+                      <View style={[styles.categoryOptionIcon, { backgroundColor: theme.surfaceHighlight }]}>
+                        <Feather name={cat.icon || 'folder'} size={24} color={theme.primary} />
+                      </View>
+                      <Text style={styles.categoryOptionLabel}>{cat.label || key}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setShowCategorySelector(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Annuleren</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
@@ -393,180 +360,177 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
   },
   backPill: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.surface,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 20,
     gap: 6,
   },
   backPillText: {
     color: theme.text,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '500',
-  },
-  closeButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: theme.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: theme.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   headerTitle: {
     color: theme.text,
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  sentencePreview: {
-    backgroundColor: theme.surface,
-    marginHorizontal: 16,
-    borderRadius: 16,
-    padding: 20,
-    minHeight: 80,
-    justifyContent: 'center',
-  },
-  placeholderText: {
-    color: theme.textDim,
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  wordChip: {
-    backgroundColor: theme.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  wordChipText: {
-    color: '#000',
     fontSize: 18,
     fontWeight: '600',
   },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 20,
-    paddingVertical: 12,
+  inputSection: {
+    marginBottom: 20,
   },
-  quickActionBtn: {
+  inputLabel: {
+    color: theme.text,
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  textInput: {
+    backgroundColor: theme.surface,
+    borderRadius: 12,
+    padding: 16,
+    color: theme.text,
+    fontSize: 18,
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+  previewSection: {
+    marginBottom: 20,
+  },
+  previewLabel: {
+    color: theme.textDim,
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  wordsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  wordChip: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: theme.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
     gap: 6,
   },
-  quickActionText: {
-    color: theme.warning,
-    fontSize: 14,
-    fontWeight: '500',
+  wordChipText: {
+    color: theme.text,
+    fontSize: 16,
+  },
+  sectionTitle: {
+    color: theme.text,
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 12,
   },
   categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: 16,
     gap: 12,
   },
   categoryTile: {
     width: '47%',
-    backgroundColor: theme.surfaceHighlight,
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
+    backgroundColor: theme.surface,
+    borderRadius: 16,
+    padding: 16,
     borderWidth: 2,
   },
   categoryIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
-    marginBottom: 12,
+    justifyContent: 'center',
+    marginBottom: 8,
   },
   categoryLabel: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 4,
+    color: theme.text,
+    fontSize: 18,
+    fontWeight: '600',
   },
-  categoryDescription: {
+  categoryDesc: {
     color: theme.textDim,
     fontSize: 14,
+    marginTop: 2,
   },
-  customInputRow: {
+  wordsGrid: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    flexWrap: 'wrap',
     gap: 12,
   },
-  customInput: {
-    flex: 1,
+  wordTile: {
     backgroundColor: theme.surface,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderRadius: 12,
-    paddingHorizontal: 16,
+  },
+  wordTileText: {
+    color: theme.text,
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  actionBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 16,
+    backgroundColor: theme.bg,
+    borderTopWidth: 1,
+    borderTopColor: theme.border,
+    gap: 12,
+  },
+  clearButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: theme.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.surface,
+    paddingHorizontal: 20,
     paddingVertical: 14,
+    borderRadius: 28,
+    gap: 8,
+  },
+  saveButtonText: {
     color: theme.text,
     fontSize: 16,
-  },
-  addCustomBtn: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: theme.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  actionButtonsRow: {
-    flexDirection: 'row',
-    marginHorizontal: 16,
-    marginBottom: 32,
-    gap: 12,
+    fontWeight: '600',
   },
   speakButton: {
-    flex: 2,
-    backgroundColor: theme.accent,
-    borderRadius: 16,
-    padding: 18,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
+    backgroundColor: theme.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 28,
+    gap: 8,
   },
   speakButtonDisabled: {
-    backgroundColor: theme.surface,
+    opacity: 0.5,
   },
   speakButtonText: {
     color: '#000',
     fontSize: 18,
-    fontWeight: '700',
-  },
-  saveButton: {
-    flex: 1,
-    backgroundColor: theme.primary,
-    borderRadius: 16,
-    padding: 18,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  saveButtonDisabled: {
-    backgroundColor: theme.surface,
-  },
-  saveButtonText: {
-    color: '#000',
-    fontSize: 14,
     fontWeight: '600',
   },
   categoryModalOverlay: {
@@ -574,12 +538,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.8)',
     justifyContent: 'flex-end',
   },
+  modalDismissArea: {
+    flex: 1,
+  },
   categorySheet: {
     backgroundColor: theme.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
-    maxHeight: '80%',
+    maxHeight: '70%',
   },
   categorySheetTitle: {
     color: theme.text,
@@ -589,88 +556,34 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   categoryList: {
-    maxHeight: 350,
+    maxHeight: 300,
   },
-  longPressOption: {
+  categoryOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.surfaceHighlight,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    paddingVertical: 12,
+    gap: 16,
   },
-  longPressIconBg: {
+  categoryOptionIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: theme.primary,
-    justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    justifyContent: 'center',
   },
-  longPressLabel: {
+  categoryOptionLabel: {
     color: theme.text,
-    fontSize: 16,
-    fontWeight: '600',
-    flex: 1,
+    fontSize: 18,
+    fontWeight: '500',
   },
   cancelButton: {
-    backgroundColor: theme.surfaceHighlight,
+    marginTop: 16,
     padding: 16,
-    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 8,
   },
   cancelButtonText: {
-    color: theme.text,
+    color: theme.textDim,
     fontSize: 16,
-    fontWeight: '600',
-  },
-  miniPreview: {
-    backgroundColor: theme.surface,
-    marginHorizontal: 16,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  miniPreviewText: {
-    color: theme.text,
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  wordGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 16,
-    gap: 10,
-  },
-  wordTile: {
-    backgroundColor: theme.surfaceHighlight,
-    borderRadius: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderWidth: 2,
-  },
-  wordTileText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  doneButton: {
-    backgroundColor: theme.primary,
-    marginHorizontal: 16,
-    marginBottom: 32,
-    borderRadius: 16,
-    padding: 18,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  doneButtonText: {
-    color: '#000',
-    fontSize: 18,
-    fontWeight: '700',
   },
 });
 

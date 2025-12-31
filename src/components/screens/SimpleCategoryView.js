@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { theme } from '../../theme';
+import { renderPhrase, shouldShowPhrase } from '../../data';
 
 /**
  * SimpleCategoryView - Simplified category view for Gewoon modus
@@ -10,12 +11,14 @@ import { theme } from '../../theme';
  * - Big back tile at top
  * - Photo thumbnails only if photos exist (real images, not icons)
  * - Phrase tiles that speak when tapped
+ * - Placeholder rendering for {locatie} and {persoon}
  * - No clutter, no small buttons
  */
 
 const SimpleCategoryView = ({
   categoryName,
   phrases = [],
+  phraseContext = {},
   photos = [],
   onBack,
   onPhrasePress,
@@ -24,13 +27,94 @@ const SimpleCategoryView = ({
   onPhotoLongPress,
   onAddPhoto,
   onAddPhrase,
-  onManageLocations,
-  onManagePeople,
+  // Context props
+  activeLocation,
+  activePerson,
+  onLocationPress,
+  onPersonPress,
 }) => {
   const hasPhotos = photos.length > 0;
 
+  // DEBUG: Log the phraseContext
+  console.log('[SimpleCategoryView] phraseContext:', JSON.stringify(phraseContext));
+  console.log('[SimpleCategoryView] phrases count:', phrases.length);
+
+  // Filter phrases die niet getoond moeten worden (placeholder zonder context)
+  // en render de zichtbare phrases met placeholder vervanging
+  const visiblePhrases = phrases
+    .map((phrase, originalIndex) => {
+      const rendered = renderPhrase(phrase, phraseContext);
+      const shouldShow = shouldShowPhrase(phrase, phraseContext);
+      // DEBUG: Log each phrase
+      if (phrase.includes('{')) {
+        console.log('[SimpleCategoryView] Placeholder phrase:', phrase, '→', rendered, 'shouldShow:', shouldShow);
+      }
+      return {
+        original: phrase,
+        rendered,
+        originalIndex,
+        shouldShow,
+      };
+    })
+    .filter(p => p.shouldShow);
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      {/* Context Knoppen - Compacte versie bovenaan */}
+      <View style={styles.contextBar}>
+        <TouchableOpacity 
+          style={[
+            styles.contextButton,
+            activeLocation?.id !== 'geen' && styles.contextButtonActive
+          ]}
+          onPress={onLocationPress}
+          activeOpacity={0.7}
+        >
+          <View style={[
+            styles.contextIconCircle,
+            activeLocation?.id !== 'geen' && { backgroundColor: theme.primary }
+          ]}>
+            <Feather 
+              name={activeLocation?.icon || 'map-pin'} 
+              size={24} 
+              color={activeLocation?.id !== 'geen' ? '#000' : theme.textDim} 
+            />
+          </View>
+          <Text style={[
+            styles.contextButtonLabel,
+            activeLocation?.id !== 'geen' && styles.contextButtonLabelActive
+          ]} numberOfLines={1}>
+            {activeLocation?.id !== 'geen' ? activeLocation?.label : 'Waar?'}
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.contextButton,
+            activePerson?.id !== 'geen' && styles.contextButtonActive
+          ]}
+          onPress={onPersonPress}
+          activeOpacity={0.7}
+        >
+          <View style={[
+            styles.contextIconCircle,
+            activePerson?.id !== 'geen' && { backgroundColor: theme.accent }
+          ]}>
+            <Feather 
+              name={activePerson?.icon || 'user'} 
+              size={24} 
+              color={activePerson?.id !== 'geen' ? '#000' : theme.textDim} 
+            />
+          </View>
+          <Text style={[
+            styles.contextButtonLabel,
+            activePerson?.id !== 'geen' && styles.contextButtonLabelActive
+          ]} numberOfLines={1}>
+            {activePerson?.id !== 'geen' ? (activePerson?.name || activePerson?.label) : 'Met wie?'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView 
         contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
         showsVerticalScrollIndicator={false}
@@ -50,44 +134,16 @@ const SimpleCategoryView = ({
         {/* Category title */}
         <Text style={styles.categoryTitle}>{categoryName}</Text>
 
-        {/* Add phrase button - Praat tile */}
+        {/* Action button: Zin Toevoegen */}
         {onAddPhrase && (
-          <View style={styles.addRow}>
-            <TouchableOpacity 
-              style={[styles.addPhraseTile, styles.addRowMain]}
-              onPress={onAddPhrase}
-              activeOpacity={0.8}
-            >
-              <View style={styles.addPhraseIcon}>
-                <Feather name="plus" size={24} color="#000" />
-              </View>
-              <Text style={styles.addPhraseText}>Zin Toevoegen</Text>
-            </TouchableOpacity>
-
-            {(onManageLocations || onManagePeople) && (
-              <View style={styles.manageColumn}>
-                {onManageLocations && (
-                  <TouchableOpacity
-                    style={styles.manageButton}
-                    onPress={onManageLocations}
-                    activeOpacity={0.8}
-                  >
-                    <Feather name="map-pin" size={18} color={theme.primary} />
-                    <Text style={styles.manageButtonText}>Locaties</Text>
-                  </TouchableOpacity>
-                )}
-                {onManagePeople && (
-                  <TouchableOpacity
-                    style={[styles.manageButton, styles.manageButtonLast]}
-                    onPress={onManagePeople}
-                  >
-                    <Feather name="users" size={18} color={theme.accent} />
-                    <Text style={styles.manageButtonText}>Mensen</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-          </View>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.actionButtonPrimary]}
+            onPress={onAddPhrase}
+            activeOpacity={0.8}
+          >
+            <Feather name="plus" size={20} color="#000" />
+            <Text style={styles.actionButtonTextDark}>Zin Toevoegen</Text>
+          </TouchableOpacity>
         )}
 
         {/* Photos section - only show if photos exist */}
@@ -158,27 +214,27 @@ const SimpleCategoryView = ({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Zinnen</Text>
           <View style={styles.phrasesGrid}>
-            {phrases.map((phrase, i) => (
+            {visiblePhrases.map((phraseData) => (
               <TouchableOpacity
-                key={i}
+                key={phraseData.originalIndex}
                 style={styles.phraseTile}
-                onPress={() => onPhrasePress(phrase)}
-                onLongPress={() => onPhraseLongPress && onPhraseLongPress(phrase, i)}
+                onPress={() => onPhrasePress(phraseData.rendered)}
+                onLongPress={() => onPhraseLongPress && onPhraseLongPress(phraseData.original, phraseData.originalIndex)}
                 delayLongPress={500}
                 activeOpacity={0.8}
               >
                 <View style={styles.phraseIcon}>
                   <Feather name="volume-2" size={20} color={theme.primary} />
                 </View>
-                <Text style={styles.phraseText}>{phrase}</Text>
+                <Text style={styles.phraseText}>{phraseData.rendered}</Text>
               </TouchableOpacity>
             ))}
           </View>
           
-          {phrases.length === 0 && (
+          {visiblePhrases.length === 0 && (
             <View style={styles.emptyState}>
               <Feather name="message-circle" size={32} color={theme.textDim} />
-              <Text style={styles.emptyText}>Nog geen zinnen</Text>
+              <Text style={styles.emptyText}>Geen zinnen voor deze context</Text>
             </View>
           )}
         </View>
@@ -216,6 +272,41 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 24,
   },
+  // Action buttons row styles
+  actionButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 20,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    gap: 6,
+  },
+  actionButtonPrimary: {
+    backgroundColor: theme.accent,
+  },
+  actionButtonLocations: {
+    backgroundColor: theme.catPlace,
+  },
+  actionButtonPeople: {
+    backgroundColor: theme.primary,
+  },
+  actionButtonText: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  actionButtonTextDark: {
+    color: '#000',
+    fontSize: 13,
+    fontWeight: '600',
+  },
   addPhraseTile: {
     backgroundColor: theme.accent,
     borderRadius: 16,
@@ -223,38 +314,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-  },
-  addRow: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    gap: 12,
-    marginBottom: 20,
-  },
-  addRowMain: {
-    flex: 2,
-  },
-  manageColumn: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
-  manageButton: {
-    backgroundColor: theme.surface,
-    borderRadius: 12,
-    paddingVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    marginBottom: 10,
-    marginRight: 6,
-  },
-  manageButtonText: {
-    color: '#FFF',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  manageButtonLast: {
-    marginBottom: 0,
   },
   addPhraseIcon: {
     width: 44,
@@ -374,6 +433,48 @@ const styles = StyleSheet.create({
     color: theme.textDim,
     fontSize: 16,
     marginTop: 12,
+  },
+  /* Context button styles */
+  contextBar: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+    gap: 10,
+  },
+  contextButton: {
+    flex: 1,
+    backgroundColor: theme.surface,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  contextButtonActive: {
+    borderColor: theme.primary,
+    backgroundColor: theme.surfaceHighlight,
+  },
+  contextIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.surfaceHighlight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contextButtonLabel: {
+    flex: 1,
+    color: theme.textDim,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  contextButtonLabelActive: {
+    color: theme.text,
+    fontWeight: '700',
   },
 });
 

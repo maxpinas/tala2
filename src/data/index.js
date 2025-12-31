@@ -1,5 +1,17 @@
 // Data constants voor Tala app
 
+// Exporteer ook context variabelen
+export { 
+  LOCATIONS, 
+  PEOPLE, 
+  renderPhrase, 
+  hasPlaceholders, 
+  shouldShowPhrase,
+  getLocationById,
+  getPersonById,
+  generatePersonVariants 
+} from './contextVariables';
+
 export const WORD_CATEGORIES = {
   WIE:  ["Ik", "Jij", "Wij", "Zij", "De dokter", "Iemand", "Bezoek"],
   DOE:  ["Wil", "Ga", "Heb", "Ben", "Moet", "Kan", "Vind", "Zie"],
@@ -18,20 +30,38 @@ export const INITIAL_CATEGORIES = {
       'Ik woon in Utrecht',
       'Ik gebruik deze app om te praten',
       'Ik ben 42 jaar',
-      'Sanne is mijn partner',
-      'Mijn kinderen zijn Tom en Eva',
-      'Ik draag een bril',
+      '{persoon} is mijn partner',
       'Ik heb een lichte afasie',
       'Ik heb soms meer tijd nodig',
-      'Ik ben gek op muziek',
-      'Ik hou van wandelen',
-      'Ik rook niet',
-      'Ik drink graag thee',
       'Ik wil graag rustig praten',
       'Ik wil zelf beslissingen nemen',
     ],
   },
   Aangepast: { icon: 'edit-3', items: [] },
+  Verplaatsen: {
+    icon: 'navigation',
+    items: [
+      // Locatie zinnen
+      'Ik ben {locatie:bij}',
+      'Ik ga naar {locatie:naar}',
+      'Ik wil naar {locatie:naar}',
+      'Ik kom van {locatie:van}',
+      'Breng me naar {locatie:naar}',
+      'Hoe laat gaan we naar {locatie:naar}?',
+      // Persoon zinnen
+      'Ik wil met {persoon} praten',
+      '{persoon} komt eraan',
+      'Bel {persoon}',
+      'Waar is {persoon}?',
+      // Combinatie
+      'Ik ga met {persoon} naar {locatie:naar}',
+      // Zonder placeholders
+      'Ik wil naar buiten',
+      'Kunnen we even stoppen?',
+      'Ik wil terug',
+      'Hoe lang duurt het nog?',
+    ],
+  },
   Thuis: {
     icon: 'home',
     items: [
@@ -46,7 +76,7 @@ export const INITIAL_CATEGORIES = {
       'Ik wil douchen',
       'Pak alsjeblieft een glas water',
       'Ik ben moe, ik wil rusten',
-      'Zet mijn bril klaar',
+      '{persoon}, kun je me helpen?',
       'Ik wil de deur op slot',
       'Kun je de gordijnen dichtdoen?',
       'Ik wil naar de slaapkamer',
@@ -86,7 +116,7 @@ export const INITIAL_CATEGORIES = {
       'Kun je mijn bloeddruk meten?',
       'Ik wil even liggen',
       'Ik heb mijn medicatie nodig',
-      'Kunt u de dokter bellen?',
+      'Kunt u {persoon} bellen?',
       'Ik wil een ijscompres',
       'Ik voel me benauwd',
       'Ik heb ondersteuning om te lopen',
@@ -104,9 +134,8 @@ export const INITIAL_CATEGORIES = {
       'Ik wil mijn rolstoel',
       'Ik heb een taxi nodig',
       'Waar zijn we nu?',
-      'Ik wil terug naar huis',
-      'Ik wil naar de winkel',
-      'Ik wil naar de apotheek',
+      'Ik wil terug naar {locatie:naar}',
+      'Ik wil naar {locatie:naar}',
       'Kun je navigatie aanzetten?',
       'Hoe lang duurt het nog?',
       'Ik wil naar Aruba kijken',
