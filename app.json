@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Tala2",
+    "name": "Tala",
     "slug": "tala2",
     "version": "1.1.0",
     "orientation": "portrait",
@@ -14,13 +14,29 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.tala2"
+      "bundleIdentifier": "nl.tala.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Tala gebruikt de microfoon voor spraakherkenning",
+        "NSSpeechRecognitionUsageDescription": "Tala gebruikt spraakherkenning om te helpen met communicatie",
+        "NSPhotoLibraryUsageDescription": "Tala kan foto's toevoegen aan je communicatieboek",
+        "NSCameraUsageDescription": "Tala kan foto's maken voor je communicatieboek",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#1a1a2e"
       }
     },
-    "web": {}
+    "web": {},
+    "plugins": [
+      "expo-asset"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "528ff0cc-46c9-455a-9b8c-e9f1a4576b39"
+      }
+    }
   }
 }
