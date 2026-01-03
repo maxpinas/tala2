@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius, typography, shadows } from '../../theme';
+import { useTheme, spacing, borderRadius, typography, shadows } from '../../theme';
 
 /**
  * Tile Component
@@ -24,9 +24,9 @@ const Tile = ({
   label,
   sublabel,
   icon,
-  backgroundColor = theme.surfaceHighlight,
-  iconColor = theme.textInverse,
-  textColor = theme.textInverse,
+  backgroundColor,
+  iconColor,
+  textColor,
   onPress,
   onLongPress,
   square = true,
@@ -35,6 +35,12 @@ const Tile = ({
   style,
   children,
 }) => {
+  const { theme } = useTheme();
+  
+  // Use theme defaults if not provided
+  const bgColor = backgroundColor || theme.surfaceHighlight;
+  const iconClr = iconColor || theme.textInverse;
+  const txtClr = textColor || theme.textInverse;
   const sizeStyles = {
     small: {
       padding: spacing.md,
@@ -60,7 +66,7 @@ const Tile = ({
       style={[
         styles.tile,
         {
-          backgroundColor,
+          backgroundColor: bgColor,
           padding: currentSize.padding,
         },
         square && styles.square,
@@ -71,14 +77,14 @@ const Tile = ({
       activeOpacity={0.7}
     >
       {badge !== undefined && (
-        <View style={styles.badgeContainer}>
-          <Text style={styles.badgeText}>{badge}</Text>
+        <View style={[styles.badgeContainer, { backgroundColor: theme.primary }]}>
+          <Text style={[styles.badgeText, { color: theme.textInverse }]}>{badge}</Text>
         </View>
       )}
 
       {icon && (
         <View style={styles.iconContainer}>
-          <Feather name={icon} size={currentSize.iconSize} color={iconColor} />
+          <Feather name={icon} size={currentSize.iconSize} color={iconClr} />
         </View>
       )}
 
@@ -88,7 +94,7 @@ const Tile = ({
         <Text 
           style={[
             styles.label, 
-            { color: textColor, fontSize: currentSize.fontSize }
+            { color: txtClr, fontSize: currentSize.fontSize }
           ]}
           numberOfLines={2}
         >
@@ -97,7 +103,7 @@ const Tile = ({
       )}
 
       {sublabel && (
-        <Text style={[styles.sublabel, { color: textColor }]} numberOfLines={1}>
+        <Text style={[styles.sublabel, { color: txtClr }]} numberOfLines={1}>
           {sublabel}
         </Text>
       )}
@@ -132,7 +138,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: spacing.sm,
     right: spacing.sm,
-    backgroundColor: theme.primary,
     borderRadius: borderRadius.full,
     minWidth: 24,
     height: 24,
@@ -141,7 +146,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
   },
   badgeText: {
-    color: theme.textInverse,
     fontSize: 12,
     fontWeight: 'bold',
   },

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius, typography, shadows } from '../../theme';
+import { useTheme, spacing, borderRadius, typography, shadows } from '../../theme';
 import { t } from '../../i18n';
 import Grid from './Grid';
 import Tile from './Tile';
@@ -31,6 +31,7 @@ const FilterModal = ({
   onLocationSelect,
   onPersonSelect,
 }) => {
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState(initialTab);
 
   const handleSelect = (item) => {
@@ -60,11 +61,11 @@ const FilterModal = ({
       transparent={true}
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
+      <View style={[styles.overlay, { backgroundColor: theme.modalOverlay }]}>
+        <View style={[styles.container, { backgroundColor: theme.bg }]}>
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>{t('filter.title')}</Text>
+          <View style={[styles.header, { borderBottomColor: theme.surfaceHighlight }]}>
+            <Text style={[styles.title, { color: theme.text }]}>{t('filter.title')}</Text>
             <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Feather name="x" size={24} color={theme.text} />
             </TouchableOpacity>
@@ -73,7 +74,10 @@ const FilterModal = ({
           {/* Tabs */}
           <View style={styles.tabs}>
             <TouchableOpacity
-              style={[styles.tab, activeTab === 'locatie' && styles.tabActive]}
+              style={[
+                styles.tab, 
+                { backgroundColor: activeTab === 'locatie' ? theme.primary : theme.surface }
+              ]}
               onPress={() => setActiveTab('locatie')}
             >
               <Feather 
@@ -83,14 +87,17 @@ const FilterModal = ({
               />
               <Text style={[
                 styles.tabLabel,
-                activeTab === 'locatie' && styles.tabLabelActive
+                { color: activeTab === 'locatie' ? theme.textInverse : theme.textDim }
               ]}>
                 {t('filter.location')}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.tab, activeTab === 'persoon' && styles.tabActive]}
+              style={[
+                styles.tab,
+                { backgroundColor: activeTab === 'persoon' ? theme.primary : theme.surface }
+              ]}
               onPress={() => setActiveTab('persoon')}
             >
               <Feather 
@@ -100,7 +107,7 @@ const FilterModal = ({
               />
               <Text style={[
                 styles.tabLabel,
-                activeTab === 'persoon' && styles.tabLabelActive
+                { color: activeTab === 'persoon' ? theme.textInverse : theme.textDim }
               ]}>
                 {t('filter.person')}
               </Text>
@@ -131,7 +138,7 @@ const FilterModal = ({
                     }}
                     style={[
                       styles.tile,
-                      isActive && styles.tileActive,
+                      { borderColor: isActive ? theme.primary : theme.surfaceHighlight },
                     ]}
                   />
                 );
@@ -147,11 +154,9 @@ const FilterModal = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
   container: {
-    backgroundColor: theme.bg,
     borderTopLeftRadius: borderRadius.lg,
     borderTopRightRadius: borderRadius.lg,
     maxHeight: '80%',
@@ -163,12 +168,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: theme.surfaceHighlight,
   },
   title: {
     fontSize: typography.title.fontSize,
     fontWeight: typography.title.fontWeight,
-    color: theme.text,
   },
   tabs: {
     flexDirection: 'row',
@@ -184,18 +187,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderRadius: borderRadius.md,
-    backgroundColor: theme.surface,
-  },
-  tabActive: {
-    backgroundColor: theme.primary,
   },
   tabLabel: {
     fontSize: typography.body.fontSize,
     fontWeight: '500',
-    color: theme.textDim,
-  },
-  tabLabelActive: {
-    color: theme.textInverse,
   },
   content: {
     flex: 1,
@@ -205,10 +200,6 @@ const styles = StyleSheet.create({
   },
   tile: {
     borderWidth: 1,
-    borderColor: theme.surfaceHighlight,
-  },
-  tileActive: {
-    borderColor: theme.primary,
   },
 });
 

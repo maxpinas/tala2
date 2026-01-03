@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, StatusBar } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius, typography } from '../../theme';
+import { useTheme, spacing, borderRadius, typography } from '../../theme';
 
 /**
  * Header Component
@@ -28,6 +28,8 @@ const Header = ({
   onFilter,
   onMenu,
 }) => {
+  const { theme } = useTheme();
+  
   // Bepaal begroeting op basis van tijdstip
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -39,11 +41,11 @@ const Header = ({
   const displayTitle = title || (userName ? `${getGreeting()}, ${userName}` : 'Welkom');
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.bg }]}>
       <View style={styles.leftSection}>
         {showBack ? (
           <TouchableOpacity 
-            style={styles.iconButton}
+            style={[styles.iconButton, { backgroundColor: theme.surface }]}
             onPress={onBack}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
@@ -51,13 +53,13 @@ const Header = ({
           </TouchableOpacity>
         ) : (
           <View style={styles.logoContainer}>
-            <Text style={styles.logo}>Tala</Text>
+            <Text style={[styles.logo, { color: theme.primary }]}>Tala</Text>
           </View>
         )}
       </View>
 
       <View style={styles.centerSection}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
           {displayTitle}
         </Text>
       </View>
@@ -65,7 +67,10 @@ const Header = ({
       <View style={styles.rightSection}>
         {showFilter && (
           <TouchableOpacity 
-            style={[styles.iconButton, filterActive && styles.iconButtonActive]}
+            style={[
+              styles.iconButton, 
+              { backgroundColor: filterActive ? theme.primary : theme.surface }
+            ]}
             onPress={onFilter}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
@@ -79,7 +84,7 @@ const Header = ({
         
         {showMenu && (
           <TouchableOpacity 
-            style={styles.iconButton}
+            style={[styles.iconButton, { backgroundColor: theme.surface }]}
             onPress={onMenu}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
@@ -99,7 +104,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + spacing.md : spacing.md,
     paddingBottom: spacing.md,
-    backgroundColor: theme.bg,
   },
   leftSection: {
     minWidth: 60,
@@ -122,12 +126,10 @@ const styles = StyleSheet.create({
   logo: {
     fontSize: 22,
     fontWeight: '800',
-    color: theme.primary,
   },
   title: {
     fontSize: typography.title.fontSize,
     fontWeight: typography.title.fontWeight,
-    color: theme.text,
   },
   iconButton: {
     width: 40,
@@ -135,10 +137,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.surface,
-  },
-  iconButtonActive: {
-    backgroundColor: theme.primary,
   },
 });
 

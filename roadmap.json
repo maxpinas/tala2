@@ -29,18 +29,18 @@
         {
           "id": "phase-1",
           "title": "FASE 1: Basis Componenten Migreren",
-          "status": "not-started",
+          "status": "completed",
           "description": "Alle basis componenten gebruiken useTheme() hook",
           "tasks": [
-            { "id": "1.1", "task": "Migreer Tile.js naar useTheme()", "done": false },
-            { "id": "1.2", "task": "Migreer Header.js naar useTheme()", "done": false },
-            { "id": "1.3", "task": "Migreer SubNavigation.js naar useTheme()", "done": false },
-            { "id": "1.4", "task": "Migreer FloatingActionButton.js naar useTheme()", "done": false },
-            { "id": "1.5", "task": "Migreer FilterModal.js naar useTheme()", "done": false },
-            { "id": "1.6", "task": "Migreer QuickActionTile.js naar useTheme()", "done": false },
-            { "id": "1.7", "task": "Migreer HistoryItem.js naar useTheme()", "done": false },
-            { "id": "1.8", "task": "Migreer Grid.js naar useTheme()", "done": false },
-            { "id": "1.9", "task": "Test dark mode op alle componenten", "done": false }
+            { "id": "1.1", "task": "Migreer Tile.js naar useTheme()", "done": true },
+            { "id": "1.2", "task": "Migreer Header.js naar useTheme()", "done": true },
+            { "id": "1.3", "task": "Migreer SubNavigation.js naar useTheme()", "done": true },
+            { "id": "1.4", "task": "Migreer FloatingActionButton.js naar useTheme()", "done": true },
+            { "id": "1.5", "task": "Migreer FilterModal.js naar useTheme()", "done": true },
+            { "id": "1.6", "task": "Migreer QuickActionTile.js naar useTheme()", "done": true },
+            { "id": "1.7", "task": "Migreer HistoryItem.js naar useTheme()", "done": true },
+            { "id": "1.8", "task": "Migreer Grid.js naar useTheme()", "done": true, "note": "Grid.js had geen theme-afhankelijke kleuren" },
+            { "id": "1.9", "task": "Test dark mode op alle componenten", "done": true }
           ],
           "definitionOfDone": [
             "Alle basis componenten gebruiken useTheme()",

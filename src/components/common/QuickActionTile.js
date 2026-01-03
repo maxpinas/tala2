@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius, typography } from '../../theme';
+import { useTheme, spacing, borderRadius, typography } from '../../theme';
 
 /**
  * QuickActionTile Component
@@ -20,6 +20,8 @@ const QuickActionTile = ({
   onPress,
   onLongPress,
 }) => {
+  const { theme } = useTheme();
+  
   // Bepaal kleur op basis van label
   const getColor = () => {
     if (color) return color;
@@ -60,7 +62,7 @@ const QuickActionTile = ({
       <View style={styles.iconContainer}>
         <Feather name={iconName} size={28} color={theme.textInverse} />
       </View>
-      <Text style={styles.label} numberOfLines={2}>
+      <Text style={[styles.label, { color: theme.textInverse }]} numberOfLines={2}>
         {label}
       </Text>
     </TouchableOpacity>
@@ -85,7 +87,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   label: {
-    color: theme.textInverse,
     fontSize: typography.tileLabel.fontSize,
     fontWeight: typography.tileLabel.fontWeight,
     textAlign: 'center',

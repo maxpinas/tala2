@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Pressable } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius, typography, shadows } from '../../theme';
+import { useTheme, spacing, borderRadius, typography, shadows } from '../../theme';
 import { t } from '../../i18n';
 
 /**
@@ -21,6 +21,7 @@ const FloatingActionButton = ({
   onArts,
   onNood,
 }) => {
+  const { theme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
 
@@ -111,8 +112,8 @@ const FloatingActionButton = ({
                 <Feather name={item.icon} size={22} color={theme.textInverse} />
               </TouchableOpacity>
               
-              <Animated.View style={[styles.labelContainer, { opacity }]}>
-                <Text style={styles.menuLabel}>{item.label}</Text>
+              <Animated.View style={[styles.labelContainer, { opacity, backgroundColor: theme.surface }]}>
+                <Text style={[styles.menuLabel, { color: theme.text }]}>{item.label}</Text>
               </Animated.View>
             </Animated.View>
           );
@@ -120,7 +121,7 @@ const FloatingActionButton = ({
 
         {/* Main FAB */}
         <TouchableOpacity
-          style={styles.fab}
+          style={[styles.fab, { backgroundColor: theme.primary }]}
           onPress={toggleMenu}
           activeOpacity={0.8}
         >
@@ -153,7 +154,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: theme.primary,
     justifyContent: 'center',
     alignItems: 'center',
     ...shadows.lg,
@@ -177,14 +177,12 @@ const styles = StyleSheet.create({
   labelContainer: {
     position: 'absolute',
     right: 60,
-    backgroundColor: theme.surface,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: borderRadius.sm,
     ...shadows.sm,
   },
   menuLabel: {
-    color: theme.text,
     fontSize: typography.bodySmall.fontSize,
     fontWeight: '500',
   },

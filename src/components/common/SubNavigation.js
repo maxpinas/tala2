@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius, typography } from '../../theme';
+import { useTheme, spacing, borderRadius, typography } from '../../theme';
 import { t } from '../../i18n';
 
 /**
@@ -17,6 +17,8 @@ const SubNavigation = ({
   onTabChange,
   badges = {},
 }) => {
+  const { theme } = useTheme();
+  
   const tabs = [
     { id: 'praat', label: t('navigation.praat'), icon: 'message-square' },
     { id: 'zien', label: t('navigation.zien'), icon: 'image' },
@@ -25,7 +27,7 @@ const SubNavigation = ({
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.bg, borderBottomColor: theme.surfaceHighlight }]}>
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const badge = badges[tab.id];
@@ -45,19 +47,22 @@ const SubNavigation = ({
               />
               <Text style={[
                 styles.tabLabel,
+                { color: isActive ? theme.tab.active : theme.tab.inactive },
                 isActive && styles.tabLabelActive
               ]}>
                 {tab.label}
               </Text>
               
               {badge !== undefined && badge > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{badge > 99 ? '99+' : badge}</Text>
+                <View style={[styles.badge, { backgroundColor: theme.primary }]}>
+                  <Text style={[styles.badgeText, { color: theme.textInverse }]}>
+                    {badge > 99 ? '99+' : badge}
+                  </Text>
                 </View>
               )}
             </View>
             
-            {isActive && <View style={styles.indicator} />}
+            {isActive && <View style={[styles.indicator, { backgroundColor: theme.tab.indicator }]} />}
           </TouchableOpacity>
         );
       })}
@@ -68,9 +73,7 @@ const SubNavigation = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: theme.bg,
     borderBottomWidth: 1,
-    borderBottomColor: theme.surfaceHighlight,
   },
   tab: {
     flex: 1,
@@ -89,10 +92,8 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: typography.nav.fontSize,
     fontWeight: typography.nav.fontWeight,
-    color: theme.tab.inactive,
   },
   tabLabelActive: {
-    color: theme.tab.active,
     fontWeight: '600',
   },
   indicator: {
@@ -101,12 +102,10 @@ const styles = StyleSheet.create({
     left: spacing.lg,
     right: spacing.lg,
     height: 3,
-    backgroundColor: theme.tab.indicator,
     borderTopLeftRadius: 2,
     borderTopRightRadius: 2,
   },
   badge: {
-    backgroundColor: theme.primary,
     borderRadius: borderRadius.full,
     minWidth: 18,
     height: 18,
@@ -116,7 +115,6 @@ const styles = StyleSheet.create({
     marginLeft: spacing.xs,
   },
   badgeText: {
-    color: theme.textInverse,
     fontSize: 10,
     fontWeight: 'bold',
   },
