@@ -4,7 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import { Feather } from '@expo/vector-icons';
 
 // --- THEMA ---
-import { theme } from './src/theme';
+import { theme, ThemeProvider, useTheme } from './src/theme';
 
 // --- DATA ---
 import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK, LOCATIONS, PEOPLE, renderPhrase, shouldShowPhrase, getLocationById, getPersonById } from './src/data';
@@ -1123,11 +1123,29 @@ export default function App() {
     setAppKey(prev => prev + 1); // Force re-mount
   };
 
+  // Wrap everything in ThemeProvider for consistent theming
+  return (
+    <ThemeProvider>
+      <AppContent 
+        onboarded={onboarded}
+        setOnboarded={setOnboarded}
+        appKey={appKey}
+        handleReset={handleReset}
+      />
+    </ThemeProvider>
+  );
+}
+
+// Separate component that can use useTheme
+const AppContent = ({ onboarded, setOnboarded, appKey, handleReset }) => {
+  const { theme: currentTheme, isDark } = useTheme();
+
   // Show loading while checking onboarding status
   if (onboarded === null) {
     return (
-      <SafeAreaView style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
-        <ActivityIndicator size="large" color={theme.primary} />
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg, justifyContent: 'center', alignItems: 'center' }]}>
+        <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+        <ActivityIndicator size="large" color={currentTheme.primary} />
       </SafeAreaView>
     );
   }
@@ -1147,10 +1165,11 @@ export default function App() {
   // Profile data is now loaded from AsyncStorage in AppContext
   return (
     <AppProviders key={appKey}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <MainAppWrapper onReset={handleReset} />
     </AppProviders>
   );
-}
+};
 
 // --- STYLES ---
 const styles = StyleSheet.create({

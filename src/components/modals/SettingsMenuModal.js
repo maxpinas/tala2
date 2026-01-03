@@ -1,28 +1,33 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Alert, Switch } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
+import { useTheme, spacing, borderRadius } from '../../theme';
 import styles from '../../styles';
 import { clearAllData } from '../../storage';
 import { createBackupObject, encryptBackup, saveAndShareBackup } from '../../utils/backup';
 import { useApp, APP_MODES } from '../../context';
 
-const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger }) => (
-  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger, theme, rightElement }) => (
+  <TouchableOpacity style={[styles.menuItem, { backgroundColor: theme.surface }]} onPress={onPress} disabled={!onPress}>
     <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
       <View style={[styles.selectorIcon, {backgroundColor: iconBg || theme.primary}]}>
-        <Feather name={icon} size={22} color={danger ? theme.textInverse : (iconBg === theme.accent || iconBg === theme.danger ? theme.textInverse : theme.text)} />
+        <Feather name={icon} size={22} color={danger ? theme.textInverse : (iconBg === theme.accent || iconBg === theme.danger ? theme.textInverse : theme.textInverse)} />
       </View>
       <View style={{flex: 1, marginLeft: spacing.lg}}>
-        <Text style={[styles.menuItemTitle, {marginLeft: 0}, danger && {color: theme.danger}]}>{title}</Text>
+        <Text style={[styles.menuItemTitle, {marginLeft: 0, color: theme.text}, danger && {color: theme.danger}]}>{title}</Text>
         {subtitle && <Text style={{color: theme.textDim, fontSize: 12, marginTop: 2}}>{subtitle}</Text>}
       </View>
-      <Feather name="chevron-right" size={20} color={theme.textDim} />
+      {rightElement ? rightElement : (
+        onPress && <Feather name="chevron-right" size={20} color={theme.textDim} />
+      )}
     </View>
   </TouchableOpacity>
 );
 
 const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset, onSpeechTest, onVoiceSettings }) => {
+    // Get theme from context
+    const { theme, isDark, toggleTheme } = useTheme();
+    
     // Backup handler
     const handleBackup = async () => {
       try {
@@ -109,14 +114,31 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
 
   return (
   <Modal visible={visible} transparent animationType="slide">
-    <View style={styles.modalOverlay}>
-      <View style={styles.selectorContainer}>
+    <View style={[styles.modalOverlay, { backgroundColor: theme.modalOverlay }]}>
+      <View style={[styles.selectorContainer, { backgroundColor: theme.bg }]}>
         <View style={styles.selectorHeader}>
-          <Text style={styles.selectorTitle}>Instellingen</Text>
+          <Text style={[styles.selectorTitle, { color: theme.text }]}>Instellingen</Text>
           <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.surface, borderRadius: borderRadius.full}}>
             <Feather name="x" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>
+        
+        {/* Dark Mode Toggle - altijd zichtbaar */}
+        <MenuItem
+          icon={isDark ? "moon" : "sun"}
+          iconBg={isDark ? theme.primary : theme.accent}
+          title="Donkere modus"
+          subtitle={isDark ? "Aan" : "Uit"}
+          theme={theme}
+          rightElement={
+            <Switch
+              value={isDark}
+              onValueChange={toggleTheme}
+              trackColor={{ false: theme.surfaceHighlight, true: theme.primary }}
+              thumbColor={theme.surface}
+            />
+          }
+        />
         
         {isGebruikMode ? (
           // Simplified menu for 'gebruik' mode
@@ -126,6 +148,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.primary}
               title="Instellingen"
               subtitle="Algemene instellingen"
+              theme={theme}
               onPress={() => { onClose(); onContentMenu ? onContentMenu() : onProfileMenu(); }}
             />
             <MenuItem
@@ -133,6 +156,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.surfaceHighlight}
               title="Profiel"
               subtitle="Wizzard & teksten"
+              theme={theme}
               onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
             />
             <MenuItem
@@ -140,6 +164,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.accent}
               title="Stem"
               subtitle="Kies of test de spraak"
+              theme={theme}
               onPress={() => { onClose(); if(onVoiceSettings) onVoiceSettings(); }}
             />
             <MenuItem
@@ -147,6 +172,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.surfaceHighlight}
               title="Wijzig naar Expert"
               subtitle="Schakel naar Expertmodus"
+              theme={theme}
               onPress={() => { onClose(); handleModeSwitch(); }}
             />
           </>
@@ -158,6 +184,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.surfaceHighlight}
               title="Persoonlijke gegevens"
               subtitle="Beheer je profiel"
+              theme={theme}
               onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
             />
             <MenuItem
@@ -165,6 +192,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.primary}
               title="Inhoud beheren"
               subtitle="Zinnen, onderwerpen en foto's"
+              theme={theme}
               onPress={() => { onClose(); if (onContentMenu) onContentMenu(); }}
             />
             <MenuItem
@@ -172,6 +200,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.accent}
               title="Stem"
               subtitle="Kies of test de spraak"
+              theme={theme}
               onPress={() => { onClose(); if(onVoiceSettings) onVoiceSettings(); }}
             />
             <MenuItem
@@ -180,6 +209,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="App resetten"
               subtitle="Verwijder alle data"
               danger
+              theme={theme}
               onPress={() => { onClose(); handleReset(); }}
             />
             <MenuItem
@@ -187,6 +217,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.accent}
               title="Backup maken"
               subtitle="Versleutelde backup exporteren"
+              theme={theme}
               onPress={() => { onClose(); handleBackup(); }}
             />
             <MenuItem
@@ -194,6 +225,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               iconBg={theme.surfaceHighlight}
               title="Wijzig naar Gebruikersmodus"
               subtitle="Schakel naar Gebruikersmodus"
+              theme={theme}
               onPress={() => { onClose(); handleModeSwitch(); }}
             />
           </>
