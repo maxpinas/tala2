@@ -1,0 +1,100 @@
+{
+  "inProgress": [
+    {
+      "id": "ui-redesign-2026",
+      "title": "UI Redesign: Donker naar Licht Thema",
+      "date": "Januari 2026",
+      "description": "Volledige visuele overhaul van donker (#0B1120) naar warm licht thema (#F5F0E8). Alleen 'Gewone modus' - Expert modus blijft ongewijzigd.",
+      "phases": [
+        {
+          "id": "phase-1",
+          "title": "Foundation - Theme Systeem",
+          "status": "completed",
+          "tasks": [
+            { "id": "1.1", "task": "Nieuw kleurenpalet in src/theme/colors.js", "done": true },
+            { "id": "1.2", "task": "Design tokens toevoegen (spacing, typography, borderRadius)", "done": true },
+            { "id": "1.3", "task": "i18n structuur opzetten (src/i18n/nl.json)", "done": true },
+            { "id": "1.4", "task": "Hardcoded kleuren vervangen in src/styles/index.js", "done": true }
+          ]
+        },
+        {
+          "id": "phase-2",
+          "title": "Basis Componenten",
+          "status": "completed",
+          "tasks": [
+            { "id": "2.1", "task": "Grid.js - Herbruikbare 2-koloms grid", "done": true },
+            { "id": "2.2", "task": "Tile.js - Base tile component", "done": true },
+            { "id": "2.3", "task": "QuickActionTile.js - Favoriet tiles", "done": true },
+            { "id": "2.4", "task": "HistoryItem.js - Horizontale geschiedenis items", "done": true },
+            { "id": "2.5", "task": "Header.js - Nieuwe header met logo, filter, hamburger", "done": true },
+            { "id": "2.6", "task": "SubNavigation.js - Praat/Zien/Herhaal/Favoriet tabs", "done": true },
+            { "id": "2.7", "task": "FloatingActionButton.js - FAB met expand menu", "done": true },
+            { "id": "2.8", "task": "FilterModal.js - Context selectie met 2 tabs", "done": true }
+          ]
+        },
+        {
+          "id": "phase-3",
+          "title": "Core Screens Redesign",
+          "status": "completed",
+          "tasks": [
+            { "id": "3.1", "task": "SimpleHome.js - Volledig nieuw met tab navigatie", "done": true },
+            { "id": "3.2", "task": "Praat tab (zinnen per categorie)", "done": true },
+            { "id": "3.3", "task": "Zien tab (foto galerij grid)", "done": true },
+            { "id": "3.4", "task": "Herhaal tab (geschiedenis)", "done": true },
+            { "id": "3.5", "task": "Favoriet tab (quick responses grid)", "done": true },
+            { "id": "3.6", "task": "SimpleCategoryView.js - Aanpassen aan nieuw design", "done": true }
+          ]
+        },
+        {
+          "id": "phase-4",
+          "title": "Polish & Integratie",
+          "status": "completed",
+          "tasks": [
+            { "id": "4.1", "task": "Modals updaten naar licht thema", "done": true },
+            { "id": "4.2", "task": "Animaties toevoegen", "done": true },
+            { "id": "4.3", "task": "Edge cases afhandelen", "done": true },
+            { "id": "4.4", "task": "Testen en bugfixes", "done": true },
+            { "id": "4.5", "task": "Second pass voor consistentie", "done": true }
+          ]
+        }
+      ],
+      "architectureChanges": [
+        "Echte tab navigatie (geen modals voor Praat/Zien/Herhaal/Favoriet)",
+        "Quick Responses → eigen Favoriet tab (2-koloms grid)",
+        "FAB vervangt Praat/Laten Zien/Snel knoppen",
+        "Context selectie via Filter knop → modal met 2 tabs (Locatie/Persoon)"
+      ]
+    }
+  ],
+  "completed": [
+    {
+      "id": "menu-restructure-2024",
+      "title": "Gebruikersmodus Menu & Selectie UX Herstructurering (v2)",
+      "date": "December 2024",
+      "tasks": [
+        "Menu-items hernoemd: 'Persoonlijke instellingen' → 'Profiel'",
+        "ProfileMenuModal aangepast: 'Persoonlijke Gegevens' → 'Gegevens', 'Snel Reageren' verwijderd",
+        "TopicSelectorRow toegevoegd met 3 knoppen: 'Zin Bouwen', 'Locaties', 'Mensen'",
+        "Selectie-flow voor Locaties/Mensen met standaard zinnen",
+        "Long-press menu met Bewerken, Tonen, Kopiëren opties",
+        "Losse Locaties/Mensen knoppen verwijderd uit SimpleCategoryView"
+      ]
+    },
+    {
+      "id": "secure-storage-2024",
+      "title": "Secure Storage & Voice Fallback",
+      "date": "December 2024",
+      "tasks": [
+        "Expo SecureStore implementatie",
+        "AES-256 encryptie voor gevoelige data",
+        "Voice fallback naar standaard stem als enhanced niet beschikbaar",
+        "iOS development build werkend"
+      ]
+    }
+  ],
+  "backlog": [
+    { "id": "b1", "task": "Foto's koppelen aan zinnen" },
+    { "id": "b2", "task": "Spraakherkenning voor input" },
+    { "id": "b3", "task": "Export naar PDF van medisch paspoort" }
+  ]
+}

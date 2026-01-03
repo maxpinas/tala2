@@ -1,15 +1,15 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { theme, spacing, borderRadius } from '../../theme';
 
 const CustomPopup = ({ visible, title, message, onClose, type = 'info' }) => (
   <Modal visible={visible} transparent animationType="fade">
     <View style={styles.modalOverlay}>
       <View style={[styles.popupCard, type === 'danger' && {borderColor: theme.danger}]}>
-        <View style={{alignItems: 'center', marginBottom: 15}}>
+        <View style={{alignItems: 'center', marginBottom: spacing.lg}}>
            <View style={[styles.popupIcon, {backgroundColor: type === 'danger' ? theme.danger : theme.primary}]}>
-             <Feather name={type === 'danger' ? "alert-circle" : type === 'copy' ? "copy" : "volume-2"} size={32} color="#FFF" />
+             <Feather name={type === 'danger' ? "alert-circle" : type === 'copy' ? "copy" : "volume-2"} size={32} color={type === 'danger' ? theme.textInverse : theme.text} />
            </View>
         </View>
         <Text style={styles.popupTitle}>{title}</Text>
@@ -25,47 +25,47 @@ const CustomPopup = ({ visible, title, message, onClose, type = 'info' }) => (
 const styles = StyleSheet.create({
   modalOverlay: { 
     flex: 1, 
-    backgroundColor: 'rgba(0,0,0,0.8)', 
+    backgroundColor: 'rgba(0,0,0,0.5)', 
     justifyContent: 'flex-end' 
   },
   popupCard: { 
-    backgroundColor: theme.surface, 
+    backgroundColor: theme.bg, 
     width: '90%', 
     alignSelf: 'center', 
-    padding: 24, 
-    borderRadius: 24, 
+    padding: spacing.xl, 
+    borderRadius: borderRadius.lg, 
     alignItems: 'center', 
     borderWidth: 1, 
     borderColor: theme.surfaceHighlight, 
     marginBottom: '50%' 
   },
   popupTitle: { 
-    color: '#FFF', 
+    color: theme.text, 
     fontSize: 24, 
     fontWeight: 'bold', 
-    marginBottom: 8, 
+    marginBottom: spacing.sm, 
     textAlign: 'center' 
   },
   popupMessage: { 
     color: theme.textDim, 
     fontSize: 18, 
     textAlign: 'center', 
-    marginBottom: 24 
+    marginBottom: spacing.xl 
   },
   popupBtn: { 
-    backgroundColor: theme.surfaceHighlight, 
-    paddingVertical: 12, 
-    paddingHorizontal: 32, 
-    borderRadius: 30 
+    backgroundColor: theme.primary, 
+    paddingVertical: spacing.md, 
+    paddingHorizontal: spacing.xxl, 
+    borderRadius: borderRadius.full 
   },
   popupBtnText: { 
-    color: '#FFF', 
+    color: theme.text, 
     fontWeight: 'bold' 
   },
   popupIcon: { 
     width: 64, 
     height: 64, 
-    borderRadius: 32, 
+    borderRadius: borderRadius.full, 
     justifyContent: 'center', 
     alignItems: 'center' 
   },

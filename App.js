@@ -635,7 +635,7 @@ const MainApp = ({ onReset }) => {
       {showSpeechTest && <SpeechTest onClose={() => setShowSpeechTest(false)} />}
       {showVoiceSettings && <VoiceSettingsScreen currentVoiceId={profile.voiceId} onSave={handleSaveVoice} onClose={() => { setShowVoiceSettings(false); setShowProfileMenu(true); }} onSaveAndClose={() => { setShowVoiceSettings(false); setShowProfileMenu(false); setShowSettingsMenu(false); }} />}
       <QuickAccessModal visible={showQuickAccess} onClose={() => setShowQuickAccess(false)} onNavigate={(v) => { if(v === 'PARTNER_SCREEN') setShowPartnerScreen(true); else if(v === 'MEDICAL_SCREEN') setShowMedicalScreen(true); else if(v === 'EMERGENCY') setShowEmergency(true); }} />
-      <EmergencyModal visible={showEmergency} onClose={() => setShowEmergency(false)} profile={profile} extended={extendedProfile} onTriggerPopup={triggerPopup} />
+      <EmergencyModal visible={showEmergency} onClose={() => setShowEmergency(false)} profile={profile} extended={extendedProfile} onTriggerPopup={triggerPopup} onShowMedical={() => setShowMedicalScreen(true)} />
       <PartnerScreen visible={showPartnerScreen} onClose={() => setShowPartnerScreen(false)} text={profile.customPartnerText} name={profile.name} />
       <MedicalScreen visible={showMedicalScreen} onClose={() => setShowMedicalScreen(false)} profile={profile} extended={extendedProfile} text={profile.customMedicalText} />
       {showFullScreen && <FullScreenShow text={fullScreenText || sentence.join(' ')} onClose={() => { setShowFullScreen(false); setFullScreenText(''); }} />}
@@ -872,9 +872,14 @@ const MainApp = ({ onReset }) => {
         {/* Gewoon modus: SimpleHome en SimpleCategoryView buiten de ScrollView */}
         {isGebruikMode && currentView === 'HOME' && !isBuilding && (
           <SimpleHome
+            // Data
             quickResponses={quickResponses}
             categories={categories}
             history={history}
+            gallery={gallery}
+            userName={profile?.name}
+            
+            // Original handlers
             onQuickResponse={handlePhrasePress}
             onQuickResponseLongPress={handlePhraseLongPress}
             onPraat={() => setShowSimpleSentenceBuilder(true)}
@@ -882,14 +887,47 @@ const MainApp = ({ onReset }) => {
             onCategory={(catKey) => { setActiveCategory(catKey); setCurrentView('CATEGORY'); setIsEditingCategory(false); }}
             onHerhaal={() => setCurrentView('HISTORY')}
             onSettings={() => setShowSettingsMenu(true)}
-            onSnel={() => {
-              // Open quick access (Over mij, Medisch, Nood)
-              setShowQuickAccess(true);
+            onSnel={(type) => {
+              // Handle different quick access types from FAB
+              if (type === 'nood') {
+                setShowEmergency(true);
+              } else if (type === 'arts') {
+                setShowMedicalScreen(true);
+              } else if (type === 'toon') {
+                // Show full screen text of last spoken
+                if (history.length > 0) {
+                  setFullScreenText(history[0].text);
+                  setShowFullScreen(true);
+                }
+              } else {
+                // Default: open quick access modal
+                setShowQuickAccess(true);
+              }
             }}
+            
+            // Photo handlers
+            onPhotoPress={handlePhotoShow}
+            onPhotoLongPress={handlePhotoLongPress}
+            
+            // History handlers
+            onHistoryItemPress={(item) => handlePhrasePress(item.text)}
+            onHistoryItemLongPress={(item) => handleHistoryLongPress(item)}
+            
+            // Context - original props
             activeLocation={activeLocationObject}
             activePerson={activePersonObject}
             onLocationPress={() => setShowContextModal(true)}
             onPersonPress={() => setShowPartnerModal(true)}
+            
+            // Context - new props for FilterModal
+            locations={contexts}
+            persons={activePartners}
+            onLocationSelect={(loc) => {
+              setCurrentContext(loc?.id || 'geen');
+            }}
+            onPersonSelect={(person) => {
+              setCurrentPartner(person?.id || 'geen');
+            }}
           />
         )}
 

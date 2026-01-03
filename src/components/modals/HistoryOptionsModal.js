@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { theme, spacing, borderRadius } from '../../theme';
 import styles from '../../styles';
 
 const HistoryOptionsModal = ({ visible, item, onClose, onAction }) => (
@@ -10,24 +10,30 @@ const HistoryOptionsModal = ({ visible, item, onClose, onAction }) => (
             <View style={styles.selectorContainer}>
                 <View style={styles.selectorHeader}>
                     <Text style={styles.selectorTitle}>Kies een actie</Text>
-                    <TouchableOpacity onPress={onClose}>
-                      <Feather name="x" size={24} color="#FFF"/>
+                    <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.surface, borderRadius: borderRadius.full}}>
+                      <Feather name="x" size={24} color={theme.text}/>
                     </TouchableOpacity>
                 </View>
-                <View style={{backgroundColor: theme.surfaceHighlight, padding: 16, borderRadius: 12, marginBottom: 20}}>
-                     <Text style={{color: '#FFF', fontStyle:'italic', fontSize: 18}}>"{item?.text}"</Text>
+                <View style={{backgroundColor: theme.surface, padding: spacing.lg, borderRadius: borderRadius.md, marginBottom: spacing.xl, borderWidth: 1, borderColor: theme.surfaceHighlight}}>
+                     <Text style={{color: theme.text, fontStyle:'italic', fontSize: 18}}>"{item?.text}"</Text>
                 </View>
                 <TouchableOpacity style={styles.menuItem} onPress={() => onAction('speak')}>
-                    <Feather name="volume-2" size={24} color={theme.primary} />
-                    <Text style={styles.menuItemTitle}>Opnieuw uitspreken</Text>
+                    <View style={{width: 44, height: 44, borderRadius: borderRadius.full, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md}}>
+                      <Feather name="volume-2" size={22} color={theme.text} />
+                    </View>
+                    <Text style={[styles.menuItemTitle, {marginLeft: 0}]}>Opnieuw uitspreken</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.menuItem} onPress={() => onAction('copy')}>
-                    <Feather name="copy" size={24} color={theme.primary} />
-                    <Text style={styles.menuItemTitle}>Kopiëren</Text>
+                    <View style={{width: 44, height: 44, borderRadius: borderRadius.full, backgroundColor: theme.categories.thuis, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md}}>
+                      <Feather name="copy" size={22} color={theme.text} />
+                    </View>
+                    <Text style={[styles.menuItemTitle, {marginLeft: 0}]}>Kopiëren</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.menuItem} onPress={() => onAction('show')}>
-                    <Feather name="monitor" size={24} color={theme.primary} />
-                    <Text style={styles.menuItemTitle}>Groot tonen</Text>
+                    <View style={{width: 44, height: 44, borderRadius: borderRadius.full, backgroundColor: theme.accent, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md}}>
+                      <Feather name="monitor" size={22} color={theme.textInverse} />
+                    </View>
+                    <Text style={[styles.menuItemTitle, {marginLeft: 0}]}>Groot tonen</Text>
                 </TouchableOpacity>
             </View>
         </View>

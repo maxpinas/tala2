@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { theme, spacing, borderRadius } from '../../theme';
 
 const SelectorModal = ({ visible, title, options, selectedId, onSelect, onClose, onManage }) => (
   <Modal visible={visible} transparent animationType="slide">
@@ -9,14 +9,14 @@ const SelectorModal = ({ visible, title, options, selectedId, onSelect, onClose,
       <View style={styles.selectorContainer}>
         <View style={styles.selectorHeader}>
           <Text style={styles.selectorTitle}>{title}</Text>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: 16}}>
+          <View style={{flexDirection: 'row', alignItems: 'center', gap: spacing.lg}}>
             {onManage && (
               <TouchableOpacity onPress={onManage} style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Feather name="edit-2" size={18} color={theme.primary} />
-                <Text style={{color: theme.primary, marginLeft: 6, fontWeight: '600'}}>Aanpassen</Text>
+                <Text style={{color: theme.primary, marginLeft: spacing.xs, fontWeight: '600'}}>Aanpassen</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.surface, borderRadius: borderRadius.full}}>
               <Feather name="x" size={24} color={theme.text} />
             </TouchableOpacity>
           </View>
@@ -29,7 +29,7 @@ const SelectorModal = ({ visible, title, options, selectedId, onSelect, onClose,
               onPress={() => { onSelect(opt.id); onClose(); }}
             >
               <View style={[styles.selectorIcon, selectedId === opt.id && {backgroundColor: theme.primary}]}>
-                <Feather name={opt.icon} size={24} color={selectedId === opt.id ? '#000' : theme.text} />
+                <Feather name={opt.icon} size={24} color={theme.text} />
               </View>
               <Text style={styles.selectorLabel}>{opt.label}</Text>
             </TouchableOpacity>
@@ -43,30 +43,30 @@ const SelectorModal = ({ visible, title, options, selectedId, onSelect, onClose,
 const styles = StyleSheet.create({
   modalOverlay: { 
     flex: 1, 
-    backgroundColor: 'rgba(0,0,0,0.8)', 
+    backgroundColor: 'rgba(0,0,0,0.5)', 
     justifyContent: 'flex-end' 
   },
   selectorContainer: { 
     backgroundColor: theme.bg, 
-    borderTopLeftRadius: 24, 
-    borderTopRightRadius: 24, 
-    padding: 24, 
+    borderTopLeftRadius: borderRadius.lg, 
+    borderTopRightRadius: borderRadius.lg, 
+    padding: spacing.xl, 
     maxHeight: '80%' 
   },
   selectorHeader: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
     alignItems: 'center', 
-    marginBottom: 24 
+    marginBottom: spacing.xl 
   },
   selectorTitle: { 
-    color: '#FFF', 
+    color: theme.text, 
     fontSize: 20, 
     fontWeight: 'bold' 
   },
   selectorItem: { 
     alignItems: 'center', 
-    marginRight: 24, 
+    marginRight: spacing.xl, 
     opacity: 0.5 
   },
   selectorItemActive: { 
@@ -75,14 +75,14 @@ const styles = StyleSheet.create({
   selectorIcon: { 
     width: 60, 
     height: 60, 
-    borderRadius: 30, 
-    backgroundColor: theme.surfaceHighlight, 
+    borderRadius: borderRadius.full, 
+    backgroundColor: theme.surface, 
     justifyContent: 'center', 
     alignItems: 'center', 
-    marginBottom: 8 
+    marginBottom: spacing.sm 
   },
   selectorLabel: { 
-    color: '#FFF', 
+    color: theme.text, 
     fontWeight: 'bold' 
   },
 });

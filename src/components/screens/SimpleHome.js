@@ -1,20 +1,59 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Animated } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { theme, spacing, borderRadius, typography } from '../../theme';
+import { t } from '../../i18n';
+import { 
+  Header, 
+  SubNavigation, 
+  FloatingActionButton, 
+  FilterModal,
+  Grid,
+  Tile,
+  QuickActionTile,
+  HistoryItem,
+} from '../common';
 
 /**
- * SimpleHome - Ultra-simplified home screen for Gewoon modus
- * Only shows: Snel Reageren, Praat, Laten Zien, Onderwerpen
- * No header clutter, no sentence bar, no complex UI
+ * SimpleHome - Redesigned home screen for Gewoon modus
+ * New tab-based navigation: Praat | Zien | Herhaal | Favoriet
+ * Features:
+ * - Header with filter and menu
+ * - Tab navigation
+ * - FAB with expandable menu
+ * - Filter modal for location/person context
  */
-// Speciale categorieën die bovenaan moeten staan
-const SPECIAL_CATEGORIES = ['Persoonlijk', 'Aangepast', 'Herhaal'];
+
+// Categorie kleuren mapping
+const CATEGORY_COLORS = {
+  'Thuis': theme.categories.thuis,
+  'Boodschappen': theme.categories.boodschappen,
+  'Eten en drinken': theme.categories.etenDrinken,
+  'Eten & Drinken': theme.categories.etenDrinken,
+  'Pijn en zorg': theme.categories.pijnZorg,
+  'Pijn & Zorg': theme.categories.pijnZorg,
+  'Vervoer': theme.categories.vervoer,
+  'Verplaatsen': theme.categories.vervoer,
+  'Onderweg': theme.categories.vervoer,
+  'Ontspanning': theme.categories.ontspanning,
+  'Ontspannen': theme.categories.ontspanning,
+  'Persoonlijk': theme.categories.persoonlijk,
+  'Aangepast': theme.categories.aangepast,
+};
+
+const getCategoryColor = (categoryName) => {
+  return CATEGORY_COLORS[categoryName] || theme.categories.default;
+};
 
 const SimpleHome = ({
-  quickResponses,
-  categories,
+  // Data
+  quickResponses = [],
+  categories = {},
   history = [],
+  gallery = [], // Photos from App.js
+  userName,
+  
+  // Original handlers (backwards compatible)
   onQuickResponse,
   onQuickResponseLongPress,
   onPraat,
@@ -22,446 +61,398 @@ const SimpleHome = ({
   onCategory,
   onHerhaal,
   onSettings,
-  onSnel, // New: handler for Snel options (Over mij, Medisch, Nood)
-  // Context props (hele objecten)
-  activeLocation, // { id, label, icon, ... }
-  activePerson, // { id, label, icon, name, ... }
+  onSnel,
+  
+  // Photo handlers
+  onPhotoPress,
+  onPhotoLongPress,
+  
+  // History handlers (new)
+  onHistoryItemPress,
+  onHistoryItemLongPress,
+  
+  // Context - original props
+  activeLocation,
+  activePerson,
   onLocationPress,
   onPersonPress,
+  
+  // Context - new props for FilterModal
+  locations = [],
+  persons = [],
+  onLocationSelect,
+  onPersonSelect,
 }) => {
-  // Filter normale categorieën (zonder speciale)
+  // State
+  const [activeTab, setActiveTab] = useState('praat');
+  const [filterVisible, setFilterVisible] = useState(false);
+  
+  // Animation
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  // Check if filter is active
+  const isFilterActive = activeLocation?.id !== 'geen' || activePerson?.id !== 'geen';
+
+  // Filter categories - exclude special ones for main grid
+  const SPECIAL_CATEGORIES = ['Persoonlijk', 'Aangepast', 'Herhaal'];
   const normalCategories = Object.keys(categories).filter(
     key => !SPECIAL_CATEGORIES.includes(key)
   );
-  return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      {/* Header - app title left, settings right */}
-      <View style={{ 
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        paddingHorizontal: 16, 
-        paddingTop: 16,
-        paddingBottom: 8
-      }}>
-        <Text style={{ color: theme.text, fontSize: 18, fontWeight: '700' }}>Tala</Text>
-        <TouchableOpacity 
-          onPress={onSettings}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 22,
-            backgroundColor: theme.surface,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <Feather name="menu" size={24} color={theme.text} />
-        </TouchableOpacity>
-      </View>
 
-      {/* Context Knoppen - Grote, duidelijke knoppen voor Locatie en Persoon */}
-      <View style={styles.contextBar}>
-        <TouchableOpacity 
-          style={[
-            styles.contextButton,
-            activeLocation?.id !== 'geen' && styles.contextButtonActive
-          ]}
-          onPress={onLocationPress}
-          activeOpacity={0.7}
-        >
-          <View style={[
-            styles.contextIconCircle,
-            activeLocation?.id !== 'geen' && { backgroundColor: theme.primary }
-          ]}>
-            <Feather 
-              name={activeLocation?.icon || 'map-pin'} 
-              size={28} 
-              color={activeLocation?.id !== 'geen' ? '#000' : theme.textDim} 
-            />
-          </View>
-          <Text style={[
-            styles.contextButtonLabel,
-            activeLocation?.id !== 'geen' && styles.contextButtonLabelActive
-          ]}>
-            {activeLocation?.id !== 'geen' ? activeLocation?.label : 'Waar?'}
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[
-            styles.contextButton,
-            activePerson?.id !== 'geen' && styles.contextButtonActive
-          ]}
-          onPress={onPersonPress}
-          activeOpacity={0.7}
-        >
-          <View style={[
-            styles.contextIconCircle,
-            activePerson?.id !== 'geen' && { backgroundColor: theme.accent }
-          ]}>
-            <Feather 
-              name={activePerson?.icon || 'user'} 
-              size={28} 
-              color={activePerson?.id !== 'geen' ? '#000' : theme.textDim} 
-            />
-          </View>
-          <Text style={[
-            styles.contextButtonLabel,
-            activePerson?.id !== 'geen' && styles.contextButtonLabelActive
-          ]}>
-            {activePerson?.id !== 'geen' ? (activePerson?.name || activePerson?.label) : 'Met wie?'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+  // Handlers
+  const handleTabChange = (tab) => {
+    // Animate tab transition
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0.3,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    
+    setActiveTab(tab);
+    // Backwards compatibility: trigger original handlers for certain tabs
+    if (tab === 'herhaal' && onHerhaal) {
+      // Don't navigate away, just switch tab
+    }
+  };
 
-      <ScrollView 
-        contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* SNEL REAGEREN - Horizontal scroll of big tiles */}
-        <View style={{ marginBottom: 24 }}>
-          <Text style={styles.sectionTitle}>Snel Reageren</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 8 }}
+  const handleFilterPress = () => {
+    // If we have the new FilterModal props, show it
+    // Otherwise fall back to original location/person press handlers
+    if (locations.length > 0 || persons.length > 0) {
+      setFilterVisible(true);
+    } else {
+      // Fallback: show location selector
+      onLocationPress && onLocationPress();
+    }
+  };
+
+  const handleHistoryPress = (item) => {
+    if (onHistoryItemPress) {
+      onHistoryItemPress(item);
+    } else if (onQuickResponse) {
+      // Fallback: use quick response handler to speak
+      onQuickResponse(item.text);
+    }
+  };
+
+  const handleHistoryLongPress = (item) => {
+    if (onHistoryItemLongPress) {
+      onHistoryItemLongPress(item);
+    }
+  };
+
+  // Render Praat Tab (Categories)
+  const renderPraatTab = () => (
+    <ScrollView 
+      style={styles.tabContent}
+      contentContainerStyle={styles.tabContentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Section Title */}
+      <Text style={styles.sectionTitle}>Onderwerpen</Text>
+
+      {/* Categories Grid */}
+      <Grid columns={2}>
+        {normalCategories.map((catKey) => (
+          <Tile
+            key={catKey}
+            label={catKey}
+            icon={categories[catKey].icon || 'grid'}
+            backgroundColor={getCategoryColor(catKey)}
+            textColor={theme.textInverse}
+            iconColor={theme.textInverse}
+            onPress={() => onCategory(catKey)}
+          />
+        ))}
+      </Grid>
+    </ScrollView>
+  );
+
+  // Render Zien Tab (Photos/Kijken style - focus on text)
+  const renderZienTab = () => (
+    <ScrollView 
+      style={styles.tabContent}
+      contentContainerStyle={styles.tabContentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {gallery.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Feather name="image" size={48} color={theme.textDim} />
+          <Text style={styles.emptyStateText}>{t('gallery.empty')}</Text>
+          <TouchableOpacity 
+            style={styles.emptyStateButton}
+            onPress={onLatenZien}
           >
-            {quickResponses.map((qr, i) => (
-              <QuickTile 
-                key={i} 
-                label={qr} 
-                icon={getQuickIcon(qr)}
-                onPress={() => onQuickResponse(qr)}
-                onLongPress={() => onQuickResponseLongPress && onQuickResponseLongPress(qr)}
-              />
-            ))}
-          </ScrollView>
+            <Feather name="plus" size={18} color={theme.textInverse} />
+            <Text style={styles.emptyStateButtonText}>{t('gallery.addPhoto')}</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Large Praat/Laten Zien removed — replaced by action row above */}
-
-        {/* SNEL - Quick access to important info */}
-              {/* ACTION ROW - Praat, Laten Zien, Snel (single tile) */}
-              <View style={styles.actionRow}>
-                <TouchableOpacity
-                  style={[styles.actionTile, { backgroundColor: theme.surface }]}
-                  onPress={onPraat}
-                  activeOpacity={0.8}
-                >
-                  <View style={[styles.actionIcon, { backgroundColor: theme.primary }]}> 
-                    <Feather name="volume-2" size={22} color="#000" />
-                  </View>
-                  <Text style={styles.actionText}>Praat</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.actionTile, { backgroundColor: theme.surface }]}
-                  onPress={onLatenZien}
-                  activeOpacity={0.8}
-                >
-                  <View style={[styles.actionIcon, { backgroundColor: '#60A5FA' }]}> 
-                    <Feather name="image" size={22} color="#000" />
-                  </View>
-                  <Text style={styles.actionText}>Laten Zien</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.actionTile, { backgroundColor: theme.surface }]}
-                  onPress={() => onSnel && onSnel()}
-                  activeOpacity={0.8}
-                >
-                  <View style={[styles.actionIcon, { backgroundColor: '#F59E0B' }]}> 
-                    <Feather name="zap" size={22} color="#000" />
-                  </View>
-                  <Text style={styles.actionText}>Snel</Text>
-                </TouchableOpacity>
-              </View>
-
-        {/* ONDERWERPEN */}
-        <View style={{ marginTop: 24 }}>
-          <Text style={styles.sectionTitle}>Onderwerpen</Text>
-          
-          {/* SPECIALE TILES - 3 naast elkaar bovenaan */}
-          <View style={styles.specialRow}>
-            {/* Persoonlijk */}
-            {categories['Persoonlijk'] && (
-              <SpecialTile
-                label="Persoonlijk"
-                icon="user"
-                color={theme.primary}
-                count={categories['Persoonlijk'].items?.length || 0}
-                onPress={() => onCategory('Persoonlijk')}
-              />
-            )}
-            
-            {/* Aangepast */}
-            {categories['Aangepast'] && (
-              <SpecialTile
-                label="Aangepast"
-                icon="edit-3"
-                color={theme.accent}
-                count={categories['Aangepast'].items?.length || 0}
-                onPress={() => onCategory('Aangepast')}
-              />
-            )}
-            
-            {/* Herhaal (Geschiedenis) */}
-            <SpecialTile
-              label="Herhaal"
-              icon="rotate-ccw"
-              color="#F59E0B"
-              count={history.length}
-              onPress={onHerhaal}
+      ) : (
+        gallery.map((photo, index) => (
+          <TouchableOpacity
+            key={photo.id || index}
+            style={styles.photoListItem}
+            onPress={() => onPhotoPress && onPhotoPress(photo)}
+            onLongPress={() => onPhotoLongPress && onPhotoLongPress(photo)}
+            activeOpacity={0.7}
+          >
+            <Image 
+              source={{ uri: photo.uri }} 
+              style={styles.photoListImage}
+              resizeMode="cover"
             />
-          </View>
-          
-          {/* NORMALE CATEGORIEËN - 2 koloms */}
-          <View style={styles.categoryGrid}>
-            {normalCategories.map((catKey) => (
-              <CategoryTile
-                key={catKey}
-                label={catKey}
-                icon={categories[catKey].icon || 'grid'}
-                onPress={() => onCategory(catKey)}
-              />
-            ))}
-          </View>
+            <View style={styles.photoListTextContainer}>
+              <Text style={styles.photoListCaption} numberOfLines={2}>
+                {photo.caption || t('gallery.noCaption')}
+              </Text>
+            </View>
+            <Feather name="chevron-right" size={24} color={theme.textDim} />
+          </TouchableOpacity>
+        ))
+      )}
+    </ScrollView>
+  );
+
+  // Render Herhaal Tab (History)
+  const renderHerhaalTab = () => (
+    <ScrollView 
+      style={styles.tabContent}
+      contentContainerStyle={styles.tabContentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {history.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Feather name="clock" size={48} color={theme.textDim} />
+          <Text style={styles.emptyStateText}>{t('history.empty')}</Text>
         </View>
-      </ScrollView>
+      ) : (
+        history.map((item, index) => (
+          <HistoryItem
+            key={item.timestamp || index}
+            text={item.text}
+            time={item.time}
+            onPress={() => handleHistoryPress(item)}
+            onLongPress={() => handleHistoryLongPress(item)}
+          />
+        ))
+      )}
+    </ScrollView>
+  );
+
+  // Render Favoriet Tab (Quick Responses)
+  const renderFavorietTab = () => (
+    <ScrollView 
+      style={styles.tabContent}
+      contentContainerStyle={styles.tabContentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {quickResponses.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Feather name="star" size={48} color={theme.textDim} />
+          <Text style={styles.emptyStateText}>{t('favorites.empty')}</Text>
+        </View>
+      ) : (
+        <Grid columns={2}>
+          {quickResponses.map((qr, index) => (
+            <QuickActionTile
+              key={index}
+              label={qr}
+              onPress={() => onQuickResponse && onQuickResponse(qr)}
+              onLongPress={() => onQuickResponseLongPress && onQuickResponseLongPress(qr)}
+            />
+          ))}
+        </Grid>
+      )}
+    </ScrollView>
+  );
+
+  // Render active tab content
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'praat':
+        return renderPraatTab();
+      case 'zien':
+        return renderZienTab();
+      case 'herhaal':
+        return renderHerhaalTab();
+      case 'favoriet':
+        return renderFavorietTab();
+      default:
+        return renderPraatTab();
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <Header
+        userName={userName}
+        showFilter={true}
+        showMenu={true}
+        filterActive={isFilterActive}
+        onFilter={handleFilterPress}
+        onMenu={onSettings}
+      />
+
+      {/* Sub Navigation Tabs */}
+      <SubNavigation
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        badges={{
+          herhaal: history.length,
+          favoriet: quickResponses.length,
+        }}
+      />
+
+      {/* Tab Content with Animation */}
+      <Animated.View style={{flex: 1, opacity: fadeAnim}}>
+        {renderTabContent()}
+      </Animated.View>
+
+      {/* Floating Action Button */}
+      <FloatingActionButton
+        onZin={onPraat}
+        onKijken={onLatenZien}
+        onToon={() => onSnel && onSnel('toon')}
+        onArts={() => onSnel && onSnel('arts')}
+        onNood={() => onSnel && onSnel('nood')}
+      />
+
+      {/* Filter Modal */}
+      <FilterModal
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        locations={locations}
+        persons={persons}
+        activeLocation={activeLocation}
+        activePerson={activePerson}
+        onLocationSelect={(loc) => {
+          if (onLocationSelect) {
+            onLocationSelect(loc);
+          }
+        }}
+        onPersonSelect={(person) => {
+          if (onPersonSelect) {
+            onPersonSelect(person);
+          }
+        }}
+      />
     </View>
   );
 };
 
-// Quick response tile
-const QuickTile = ({ label, icon, onPress, onLongPress }) => (
-  <TouchableOpacity 
-    style={styles.quickTile}
-    onPress={onPress}
-    onLongPress={onLongPress}
-    delayLongPress={500}
-    activeOpacity={0.8}
-  >
-    <View style={styles.quickTileIcon}>
-      <Feather name={icon} size={24} color={theme.primary} />
-    </View>
-    <Text style={styles.quickTileText}>{label}</Text>
-  </TouchableOpacity>
-);
-
-// Special tile (Persoonlijk, Aangepast, Herhaal) - 3 in a row
-const SpecialTile = ({ label, icon, color, count, onPress }) => (
-  <TouchableOpacity 
-    style={[styles.specialTile, { backgroundColor: color }]}
-    onPress={onPress}
-    activeOpacity={0.8}
-  >
-    <View style={styles.specialTileIcon}>
-      <Feather name={icon} size={20} color={color} />
-    </View>
-    <Text style={styles.specialTileText}>{label}</Text>
-    {count > 0 && (
-      <View style={styles.specialTileBadge}>
-        <Text style={styles.specialTileBadgeText}>{count}</Text>
-      </View>
-    )}
-  </TouchableOpacity>
-);
-
-// Category tile
-const CategoryTile = ({ label, icon, onPress }) => (
-  <TouchableOpacity 
-    style={styles.categoryTile}
-    onPress={onPress}
-    activeOpacity={0.8}
-  >
-    <View style={styles.categoryTileIcon}>
-      <Feather name={icon} size={28} color={theme.primary} />
-    </View>
-    <Text style={styles.categoryTileText}>{label}</Text>
-  </TouchableOpacity>
-);
-
-// Get icon for quick response
-const getQuickIcon = (text) => {
-  const lower = text.toLowerCase();
-  if (lower === 'ja') return 'check';
-  if (lower === 'nee') return 'x';
-  if (lower === 'moment' || lower === 'wacht') return 'clock';
-  if (lower === 'misschien') return 'help-circle';
-  return 'message-circle';
-};
-
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.bg,
+  },
+  tabContent: {
+    flex: 1,
+  },
+  tabContentContainer: {
+    padding: spacing.lg,
+    paddingBottom: 100, // Space for FAB
+  },
   sectionTitle: {
     color: theme.textDim,
-    fontSize: 14,
+    fontSize: typography.caption.fontSize,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: spacing.md,
+    marginTop: spacing.lg,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  quickTile: {
-    width: 90,
-    height: 100,
-    backgroundColor: '#0369A1',
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  quickTileIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  quickTileText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  categoryTile: {
-    width: '47%',
-    backgroundColor: theme.surfaceHighlight,
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-  },
-  categoryTileIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: theme.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  categoryTileText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  // Special tiles row (3 in a row)
   specialRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
+    gap: spacing.md,
+    marginBottom: spacing.md,
   },
   specialTile: {
     flex: 1,
-    borderRadius: 16,
-    padding: 12,
-    alignItems: 'center',
-    minHeight: 90,
-    justifyContent: 'center',
+    paddingVertical: spacing.lg,
+    aspectRatio: undefined,
+    minHeight: 100,
   },
-  specialTileIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  specialTileText: {
-    color: '#000',
-    fontSize: 13,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  specialTileBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  specialTileBadgeText: {
-    color: '#FFF',
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  /* New action row styles */
-  actionRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  actionTile: {
+  emptyState: {
     flex: 1,
-    borderRadius: 16,
-    padding: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    paddingVertical: 60,
   },
-  actionText: {
-    color: theme.text,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  /* Context button styles - grote, duidelijke knoppen */
-  contextBar: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    gap: 12,
-  },
-  contextButton: {
-    flex: 1,
-    backgroundColor: theme.surface,
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  contextButtonActive: {
-    borderColor: theme.primary,
-    backgroundColor: theme.surfaceHighlight,
-  },
-  contextIconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: theme.surfaceHighlight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  contextButtonLabel: {
+  emptyStateText: {
     color: theme.textDim,
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontSize: typography.body.fontSize,
+    marginTop: spacing.md,
+    fontStyle: 'italic',
   },
-  contextButtonLabelActive: {
+  emptyStateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.primary,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.lg,
+    gap: spacing.sm,
+  },
+  emptyStateButtonText: {
+    color: theme.textInverse,
+    fontSize: typography.body.fontSize,
+    fontWeight: '600',
+  },
+  photoTile: {
+    aspectRatio: 1,
+    backgroundColor: theme.surface,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+    marginBottom: spacing.tileGap,
+  },
+  photoImage: {
+    flex: 1,
+    width: '100%',
+  },
+  photoCaptionContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: spacing.sm,
+  },
+  photoCaption: {
+    color: theme.textInverse,
+    fontSize: typography.caption.fontSize,
+  },
+  // New list style for Kijken/Zien tab
+  photoListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.surface,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.md,
+  },
+  photoListImage: {
+    width: 64,
+    height: 64,
+    borderRadius: borderRadius.sm,
+  },
+  photoListTextContainer: {
+    flex: 1,
+  },
+  photoListCaption: {
     color: theme.text,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '500',
+    lineHeight: 24,
   },
 });
 

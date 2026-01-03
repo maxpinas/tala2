@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: theme.textDim,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   modeTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: theme.text,
     marginBottom: 4,
   },
   modeSubtitle: {
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   },
   rememberText: {
     fontSize: 15,
-    color: '#FFFFFF',
+    color: theme.text,
     marginLeft: 12,
   },
   confirmButton: {
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 13,
-    color: '#FFFFFF',
+    color: theme.textDim,
     textAlign: 'center',
     lineHeight: 18,
   },

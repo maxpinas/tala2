@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, Modal, StyleSheet, StatusBar } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { theme, spacing, borderRadius } from '../../theme';
 
 const PhotoFullScreenShow = ({ photo, onClose, onSpeak, isMuted, onToggleMute }) => {
   // Auto-speak on open if not muted
@@ -17,7 +17,7 @@ const PhotoFullScreenShow = ({ photo, onClose, onSpeak, isMuted, onToggleMute })
       <View style={styles.container}>
         {/* Close button */}
         <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-          <Feather name="x" size={32} color="#FFF" />
+          <Feather name="x" size={32} color={theme.text} />
         </TouchableOpacity>
 
         {/* Mute toggle button */}
@@ -28,7 +28,7 @@ const PhotoFullScreenShow = ({ photo, onClose, onSpeak, isMuted, onToggleMute })
           <Feather 
             name={isMuted ? "volume-x" : "volume-2"} 
             size={24} 
-            color={isMuted ? "#FFF" : "#000"} 
+            color={isMuted ? theme.textInverse : theme.text} 
           />
         </TouchableOpacity>
 
@@ -59,7 +59,7 @@ const PhotoFullScreenShow = ({ photo, onClose, onSpeak, isMuted, onToggleMute })
           style={styles.speakBtn}
           onPress={() => photo.text && onSpeak(photo.text)}
         >
-          <Feather name="volume-2" size={28} color="#000" />
+          <Feather name="volume-2" size={28} color={theme.text} />
         </TouchableOpacity>
       </View>
     </Modal>
@@ -69,7 +69,7 @@ const PhotoFullScreenShow = ({ photo, onClose, onSpeak, isMuted, onToggleMute })
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: theme.bg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -78,18 +78,18 @@ const styles = StyleSheet.create({
     top: 50,
     right: 20,
     zIndex: 10,
-    padding: 8,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 24,
+    padding: spacing.md,
+    backgroundColor: theme.surface,
+    borderRadius: borderRadius.full,
   },
   muteBtn: {
     position: 'absolute',
     top: 50,
     left: 20,
     zIndex: 10,
-    padding: 12,
+    padding: spacing.md,
     backgroundColor: theme.primary,
-    borderRadius: 24,
+    borderRadius: borderRadius.full,
     minWidth: 48,
     minHeight: 48,
     justifyContent: 'center',
@@ -112,21 +112,23 @@ const styles = StyleSheet.create({
   placeholder: {
     width: '80%',
     aspectRatio: 1,
-    borderRadius: 24,
+    borderRadius: borderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   captionContainer: {
     position: 'absolute',
     bottom: 100,
-    left: 20,
-    right: 20,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    padding: 20,
-    borderRadius: 16,
+    left: spacing.xl,
+    right: spacing.xl,
+    backgroundColor: theme.surface,
+    padding: spacing.xl,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: theme.surfaceHighlight,
   },
   caption: {
-    color: '#FFF',
+    color: theme.text,
     fontSize: 28,
     fontWeight: '600',
     textAlign: 'center',
@@ -139,14 +141,10 @@ const styles = StyleSheet.create({
     backgroundColor: theme.primary,
     width: 64,
     height: 64,
-    borderRadius: 32,
+    borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    ...theme.shadows?.md,
   },
 });
 

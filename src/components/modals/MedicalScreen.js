@@ -1,47 +1,69 @@
 import React from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { theme, spacing, borderRadius } from '../../theme';
 import styles from '../../styles';
 
 const MedicalScreen = ({ visible, onClose, profile, text, extended }) => (
   <Modal visible={visible} animationType="fade" transparent={false}>
-    <SafeAreaView style={{flex:1, backgroundColor: '#FFF'}}>
-      <View style={{padding: 20, alignItems: 'flex-end'}}>
-        <TouchableOpacity onPress={onClose} style={{padding: 10, backgroundColor:'#EEE', borderRadius: 20}}>
-          <Feather name="x" size={32} color="#000" />
+    <SafeAreaView style={{flex:1, backgroundColor: theme.bg}}>
+      <View style={{padding: spacing.xl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{width: 48, height: 48, borderRadius: borderRadius.full, backgroundColor: theme.danger, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md}}>
+            <Feather name="activity" size={24} color={theme.textInverse} />
+          </View>
+          <Text style={{fontSize: 24, fontWeight: 'bold', color: theme.text}}>Medisch Paspoort</Text>
+        </View>
+        <TouchableOpacity onPress={onClose} style={{padding: spacing.md, backgroundColor: theme.surface, borderRadius: borderRadius.full, borderWidth: 1, borderColor: theme.surfaceHighlight}}>
+          <Feather name="x" size={24} color={theme.text} />
         </TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={{padding: 30}}>
-        <Text style={{fontSize: 28, fontWeight: 'bold', color: theme.danger, marginBottom: 20}}>MEDISCHE INFO</Text>
-        <Text style={{fontSize: 16, color: '#444', marginBottom: 20}}>{text || "Dit zijn mijn medische gegevens."}</Text>
+      
+      <ScrollView contentContainerStyle={{padding: spacing.xl}}>
+        <View style={{backgroundColor: theme.surface, padding: spacing.lg, borderRadius: borderRadius.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: theme.surfaceHighlight}}>
+          <Text style={{fontSize: 16, color: theme.textDim, lineHeight: 24}}>{text || "Dit zijn mijn medische gegevens."}</Text>
+        </View>
         
-        <Text style={styles.medLabel}>NAAM</Text>
-        <Text style={styles.medValue}>{profile.name} {extended?.dob ? `(${extended.dob})` : ''}</Text>
-        
-        <Text style={styles.medLabel}>ADRES</Text>
-        <Text style={styles.medValue}>{profile.address || extended?.address || "Niet opgegeven"}</Text>
-        
-        <Text style={styles.medLabel}>BLOEDGROEP</Text>
-        <Text style={styles.medValue}>{extended?.bloodType || "Onbekend"}</Text>
-        
-        <Text style={styles.medLabel}>MEDICATIE</Text>
-        <Text style={styles.medValue}>{profile.medication || "Geen basislijst"}</Text>
-        {extended?.meds && extended.meds.map((m,i) => (
-          <Text key={i} style={styles.medValue}>- {m}</Text>
-        ))}
-        
-        <Text style={styles.medLabel}>ALLERGIEËN</Text>
-        <Text style={styles.medValue}>{profile.allergies || "Geen bekend"}</Text>
-        
-        <Text style={styles.medLabel}>CONTACTPERSONEN</Text>
-        <Text style={styles.medValue}>1. {profile.partnerName} ({profile.partnerPhone})</Text>
-        {(profile.contact2Name || extended?.emergencyName2) && (
-          <Text style={styles.medValue}>2. {profile.contact2Name || extended?.emergencyName2} ({profile.contact2Phone || extended?.emergencyPhone2})</Text>
-        )}
-        {profile.hospitalName && (
-          <Text style={styles.medValue}>Arts: {profile.hospitalName} ({profile.doctorPhone})</Text>
-        )}
+        <View style={{backgroundColor: theme.surface, borderRadius: borderRadius.lg, padding: spacing.lg, borderWidth: 1, borderColor: theme.surfaceHighlight}}>
+          <View style={{marginBottom: spacing.lg}}>
+            <Text style={{color: theme.danger, fontWeight: 'bold', fontSize: 12, marginBottom: spacing.xs}}>NAAM</Text>
+            <Text style={{color: theme.text, fontSize: 18, fontWeight: '600'}}>{profile.name} {extended?.dob ? `(${extended.dob})` : ''}</Text>
+          </View>
+          
+          <View style={{marginBottom: spacing.lg}}>
+            <Text style={{color: theme.danger, fontWeight: 'bold', fontSize: 12, marginBottom: spacing.xs}}>ADRES</Text>
+            <Text style={{color: theme.text, fontSize: 16}}>{profile.address || extended?.address || "Niet opgegeven"}</Text>
+          </View>
+          
+          <View style={{marginBottom: spacing.lg}}>
+            <Text style={{color: theme.danger, fontWeight: 'bold', fontSize: 12, marginBottom: spacing.xs}}>BLOEDGROEP</Text>
+            <Text style={{color: theme.text, fontSize: 16}}>{extended?.bloodType || "Onbekend"}</Text>
+          </View>
+          
+          <View style={{marginBottom: spacing.lg}}>
+            <Text style={{color: theme.danger, fontWeight: 'bold', fontSize: 12, marginBottom: spacing.xs}}>MEDICATIE</Text>
+            <Text style={{color: theme.text, fontSize: 16}}>{profile.medication || "Geen basislijst"}</Text>
+            {extended?.meds && extended.meds.map((m,i) => (
+              <Text key={i} style={{color: theme.text, fontSize: 16, marginTop: spacing.xs}}>• {m}</Text>
+            ))}
+          </View>
+          
+          <View style={{marginBottom: spacing.lg}}>
+            <Text style={{color: theme.danger, fontWeight: 'bold', fontSize: 12, marginBottom: spacing.xs}}>ALLERGIEËN</Text>
+            <Text style={{color: theme.text, fontSize: 16}}>{profile.allergies || "Geen bekend"}</Text>
+          </View>
+          
+          <View>
+            <Text style={{color: theme.danger, fontWeight: 'bold', fontSize: 12, marginBottom: spacing.xs}}>CONTACTPERSONEN</Text>
+            <Text style={{color: theme.text, fontSize: 16}}>1. {profile.partnerName} ({profile.partnerPhone})</Text>
+            {(profile.contact2Name || extended?.emergencyName2) && (
+              <Text style={{color: theme.text, fontSize: 16, marginTop: spacing.xs}}>2. {profile.contact2Name || extended?.emergencyName2} ({profile.contact2Phone || extended?.emergencyPhone2})</Text>
+            )}
+            {profile.hospitalName && (
+              <Text style={{color: theme.text, fontSize: 16, marginTop: spacing.xs}}>Arts: {profile.hospitalName} ({profile.doctorPhone})</Text>
+            )}
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   </Modal>

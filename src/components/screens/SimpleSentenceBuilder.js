@@ -79,7 +79,7 @@ const SimpleSentenceBuilder = ({
   const handleSpeak = useCallback(() => {
     const textToSpeak = customText.trim() || sentenceText;
     if (textToSpeak) {
-      speechService.speak(textToSpeak);
+      // Let the parent handle speaking via callback to avoid double-speak
       if (onSpeak) onSpeak(textToSpeak);
     }
   }, [customText, sentenceText, onSpeak]);

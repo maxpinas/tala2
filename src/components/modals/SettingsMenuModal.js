@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { theme, spacing, borderRadius } from '../../theme';
 import styles from '../../styles';
 import { clearAllData } from '../../storage';
 import { createBackupObject, encryptBackup, saveAndShareBackup } from '../../utils/backup';
@@ -11,9 +11,9 @@ const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger }) => (
   <TouchableOpacity style={styles.menuItem} onPress={onPress}>
     <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
       <View style={[styles.selectorIcon, {backgroundColor: iconBg || theme.primary}]}>
-        <Feather name={icon} size={22} color={danger ? '#FFF' : '#000'} />
+        <Feather name={icon} size={22} color={danger ? theme.textInverse : (iconBg === theme.accent || iconBg === theme.danger ? theme.textInverse : theme.text)} />
       </View>
-      <View style={{flex: 1, marginLeft: 16}}>
+      <View style={{flex: 1, marginLeft: spacing.lg}}>
         <Text style={[styles.menuItemTitle, {marginLeft: 0}, danger && {color: theme.danger}]}>{title}</Text>
         {subtitle && <Text style={{color: theme.textDim, fontSize: 12, marginTop: 2}}>{subtitle}</Text>}
       </View>
@@ -113,7 +113,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
       <View style={styles.selectorContainer}>
         <View style={styles.selectorHeader}>
           <Text style={styles.selectorTitle}>Instellingen</Text>
-          <TouchableOpacity onPress={onClose}>
+          <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.surface, borderRadius: borderRadius.full}}>
             <Feather name="x" size={24} color={theme.text} />
           </TouchableOpacity>
         </View>

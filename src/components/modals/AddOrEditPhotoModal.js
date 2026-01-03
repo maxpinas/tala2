@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { theme, spacing, borderRadius } from '../../theme';
 import styles from '../../styles';
 
 const AddOrEditPhotoModal = ({ visible, onClose, onSave, categories, initialData, onTriggerPopup }) => {
@@ -21,18 +21,18 @@ const AddOrEditPhotoModal = ({ visible, onClose, onSave, categories, initialData
         <View style={styles.selectorContainer}>
           <View style={styles.selectorHeader}>
             <Text style={styles.selectorTitle}>{initialData ? "Foto Bewerken" : "Foto Toevoegen"}</Text>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.surface, borderRadius: borderRadius.full}}>
               <Feather name="x" size={24} color={theme.text}/>
             </TouchableOpacity>
           </View>
           <ScrollView>
             {!initialData && (
                 <View style={styles.photoSourceRow}>
-                   <TouchableOpacity style={styles.photoSourceBtn} onPress={() => onTriggerPopup("Camera", "Klik! (Simulatie)", "info")}>
+                   <TouchableOpacity style={[styles.photoSourceBtn, {borderWidth: 1, borderColor: theme.surfaceHighlight}]} onPress={() => onTriggerPopup("Camera", "Klik! (Simulatie)", "info")}>
                       <Feather name="camera" size={32} color={theme.primary} />
                       <Text style={styles.sourceText}>Camera</Text>
                    </TouchableOpacity>
-                   <TouchableOpacity style={styles.photoSourceBtn} onPress={() => onTriggerPopup("Fotorol", "Galerij opent... (Simulatie)", "info")}>
+                   <TouchableOpacity style={[styles.photoSourceBtn, {borderWidth: 1, borderColor: theme.surfaceHighlight}]} onPress={() => onTriggerPopup("Fotorol", "Galerij opent... (Simulatie)", "info")}>
                       <Feather name="image" size={32} color={theme.primary} />
                       <Text style={styles.sourceText}>Fotorol</Text>
                    </TouchableOpacity>
@@ -46,12 +46,12 @@ const AddOrEditPhotoModal = ({ visible, onClose, onSave, categories, initialData
                   style={[styles.tagChip, selectedTag === cat && styles.tagChipActive]} 
                   onPress={() => setSelectedTag(cat)}
                 >
-                   <Feather name={categories[cat].icon} size={14} color={selectedTag === cat ? '#000' : theme.textDim} style={{marginRight:6}}/>
-                   <Text style={[styles.tagText, selectedTag === cat && {color:'#000', fontWeight:'bold'}]}>{cat}</Text>
+                   <Feather name={categories[cat].icon} size={14} color={selectedTag === cat ? theme.textInverse : theme.textDim} style={{marginRight: spacing.xs}}/>
+                   <Text style={[styles.tagText, selectedTag === cat && {color: theme.textInverse, fontWeight:'bold'}]}>{cat}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-            <Text style={[styles.label, {marginTop: 20}]}>BIJSCHRIFT</Text>
+            <Text style={[styles.label, {marginTop: spacing.xl}]}>BIJSCHRIFT</Text>
             <TextInput 
               style={styles.builderInput} 
               placeholder="Bijv. Onze hond Max..." 
@@ -62,7 +62,7 @@ const AddOrEditPhotoModal = ({ visible, onClose, onSave, categories, initialData
             <TouchableOpacity style={styles.saveBtn} onPress={() => { onSave(caption, selectedTag); onClose(); }}>
               <Text style={styles.saveBtnText}>Opslaan</Text>
             </TouchableOpacity>
-            <View style={{height:40}}/>
+            <View style={{height: spacing.xxl}}/>
           </ScrollView>
         </View>
       </View>

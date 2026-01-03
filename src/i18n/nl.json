@@ -1,0 +1,111 @@
+{
+  "common": {
+    "yes": "Ja",
+    "no": "Nee",
+    "maybe": "Misschien",
+    "hello": "Hallo",
+    "wait": "Even wachten",
+    "thanks": "Dank je",
+    "please": "Alsjeblieft",
+    "sorry": "Sorry",
+    "help": "Help",
+    "back": "Terug",
+    "close": "Sluiten",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "add": "Toevoegen",
+    "copy": "Kopiëren",
+    "speak": "Uitspreken",
+    "show": "Tonen",
+    "filter": "Filteren"
+  },
+  "navigation": {
+    "praat": "Praat",
+    "zien": "Zien",
+    "herhaal": "Herhaal",
+    "favoriet": "Favoriet"
+  },
+  "home": {
+    "welcome": "Welkom",
+    "welcomeBack": "Welkom terug",
+    "goodMorning": "Goedemorgen",
+    "goodAfternoon": "Goedemiddag",
+    "goodEvening": "Goedenavond"
+  },
+  "filter": {
+    "title": "Filteren",
+    "location": "Locatie",
+    "person": "Persoon",
+    "where": "Waar?",
+    "withWhom": "Met wie?",
+    "noLocation": "Geen locatie",
+    "noPerson": "Geen persoon"
+  },
+  "categories": {
+    "thuis": "Thuis",
+    "boodschappen": "Boodschappen",
+    "etenDrinken": "Eten & Drinken",
+    "pijnZorg": "Pijn & Zorg",
+    "vervoer": "Vervoer",
+    "ontspanning": "Ontspanning",
+    "persoonlijk": "Persoonlijk",
+    "aangepast": "Aangepast"
+  },
+  "fab": {
+    "zin": "Zin",
+    "kijken": "Kijken",
+    "toon": "Toon",
+    "arts": "Arts",
+    "nood": "Nood"
+  },
+  "history": {
+    "title": "Geschiedenis",
+    "empty": "Nog geen geschiedenis",
+    "clear": "Wissen",
+    "today": "Vandaag",
+    "yesterday": "Gisteren",
+    "thisWeek": "Deze week",
+    "older": "Ouder"
+  },
+  "gallery": {
+    "title": "Foto's",
+    "empty": "Nog geen foto's",
+    "addPhoto": "Foto toevoegen",
+    "fromCamera": "Camera",
+    "fromLibrary": "Bibliotheek"
+  },
+  "favorites": {
+    "title": "Favorieten",
+    "empty": "Nog geen favorieten",
+    "addFavorite": "Favoriet toevoegen"
+  },
+  "sentenceBuilder": {
+    "title": "Zin bouwen",
+    "placeholder": "Tik om te beginnen...",
+    "suggestions": "Suggesties",
+    "clear": "Wissen"
+  },
+  "emergency": {
+    "title": "Noodgeval",
+    "call112": "Bel 112",
+    "myName": "Mijn naam",
+    "myAddress": "Mijn adres",
+    "myCondition": "Mijn aandoening",
+    "contactPerson": "Contactpersoon"
+  },
+  "settings": {
+    "title": "Instellingen",
+    "profile": "Profiel",
+    "voice": "Stem",
+    "content": "Inhoud",
+    "about": "Over Tala"
+  },
+  "accessibility": {
+    "tapToSpeak": "Tik om uit te spreken",
+    "longPressForOptions": "Houd ingedrukt voor opties",
+    "selected": "Geselecteerd",
+    "notSelected": "Niet geselecteerd"
+  }
+}
