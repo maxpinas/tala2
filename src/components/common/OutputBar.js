@@ -1,29 +1,33 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 
-const OutputBar = ({ onSpeak, onCopy, onShow, onClear }) => (
-  <View style={styles.outputBar}>
-    <TouchableOpacity style={styles.outputBtnDestructive} onPress={onClear}>
-      <Feather name="trash-2" size={24} color={theme.textDim} />
-    </TouchableOpacity>
-    <View style={styles.outputActions}>
-      <TouchableOpacity style={[styles.outputBtn, {backgroundColor: theme.primary}]} onPress={onSpeak}>
-        <Feather name="volume-2" size={24} color="#000" />
-        <Text style={styles.outputBtnTextDark}>Spreek</Text>
+const OutputBar = ({ onSpeak, onCopy, onShow, onClear }) => {
+  const { theme } = useTheme();
+  
+  return (
+    <View style={styles.outputBar}>
+      <TouchableOpacity style={[styles.outputBtnDestructive, { backgroundColor: theme.surfaceHighlight }]} onPress={onClear}>
+        <Feather name="trash-2" size={24} color={theme.textDim} />
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.outputBtn, {backgroundColor: theme.surfaceHighlight}]} onPress={onCopy}>
-        <Feather name="copy" size={24} color="#FFF" />
-        <Text style={styles.outputBtnText}>Kopieer</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.outputBtn, {backgroundColor: theme.surfaceHighlight}]} onPress={onShow}>
-        <Feather name="monitor" size={24} color="#FFF" />
-        <Text style={styles.outputBtnText}>Toon</Text>
-      </TouchableOpacity>
+      <View style={styles.outputActions}>
+        <TouchableOpacity style={[styles.outputBtn, {backgroundColor: theme.primary}]} onPress={onSpeak}>
+          <Feather name="volume-2" size={24} color="#000" />
+          <Text style={styles.outputBtnTextDark}>Spreek</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.outputBtn, {backgroundColor: theme.surfaceHighlight}]} onPress={onCopy}>
+          <Feather name="copy" size={24} color="#FFF" />
+          <Text style={styles.outputBtnText}>Kopieer</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.outputBtn, {backgroundColor: theme.surfaceHighlight}]} onPress={onShow}>
+          <Feather name="monitor" size={24} color="#FFF" />
+          <Text style={styles.outputBtnText}>Toon</Text>
+        </TouchableOpacity>
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   outputBar: { 
@@ -68,7 +72,6 @@ const styles = StyleSheet.create({
     width: 50, 
     height: 50, 
     borderRadius: 25, 
-    backgroundColor: theme.surfaceHighlight, 
     justifyContent: 'center', 
     alignItems: 'center' 
   },

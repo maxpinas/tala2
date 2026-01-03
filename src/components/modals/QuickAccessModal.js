@@ -1,11 +1,14 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
+import { useTheme, spacing, borderRadius } from '../../theme';
 import styles from '../../styles';
 
-const QuickAccessModal = ({ visible, onClose, onNavigate }) => (
-  <Modal visible={visible} transparent animationType="slide">
+const QuickAccessModal = ({ visible, onClose, onNavigate }) => {
+  const { theme } = useTheme();
+  
+  return (
+    <Modal visible={visible} transparent animationType="slide">
     <View style={styles.modalOverlay}>
       <View style={styles.selectorContainer}>
         <View style={styles.selectorHeader}>
@@ -53,6 +56,7 @@ const QuickAccessModal = ({ visible, onClose, onNavigate }) => (
       </View>
     </View>
   </Modal>
-);
+  );
+};
 
 export default QuickAccessModal;

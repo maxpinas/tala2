@@ -1,23 +1,26 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../../../theme';
+import { useTheme } from '../../../../theme';
 
-const ActionButton = ({ icon, label, onPress, color = theme.surface }) => (
+const ActionButton = ({ icon, label, onPress, color, theme }) => (
   <TouchableOpacity onPress={onPress} style={[styles.actionButton, { backgroundColor: color }]} activeOpacity={0.8} accessibilityRole="button">
     <Feather name={icon} size={22} color={theme.text} />
-    {label && <Text style={styles.actionLabel}>{label}</Text>}
+    {label && <Text style={[styles.actionLabel, { color: theme.text }]}>{label}</Text>}
   </TouchableOpacity>
 );
 
-const BigActionBar = ({ onBack, onPreview, onSpeak, onCopy }) => (
-  <View style={styles.container}>
-    <ActionButton icon="arrow-left" label="Terug" onPress={onBack} color={theme.card} />
-    <ActionButton icon="eye" label="Voorbeeld" onPress={onPreview} color={theme.primary} />
-    <ActionButton icon="volume-2" label="Spreek" onPress={onSpeak} color={theme.accent} />
-    <ActionButton icon="copy" label="Kopieer" onPress={onCopy} color={theme.card} />
-  </View>
-);
+const BigActionBar = ({ onBack, onPreview, onSpeak, onCopy }) => {
+  const { theme } = useTheme();
+  return (
+    <View style={styles.container}>
+      <ActionButton icon="arrow-left" label="Terug" onPress={onBack} color={theme.card} theme={theme} />
+      <ActionButton icon="eye" label="Voorbeeld" onPress={onPreview} color={theme.primary} theme={theme} />
+      <ActionButton icon="volume-2" label="Spreek" onPress={onSpeak} color={theme.accent} theme={theme} />
+      <ActionButton icon="copy" label="Kopieer" onPress={onCopy} color={theme.card} theme={theme} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -40,7 +43,6 @@ const styles = StyleSheet.create({
   actionLabel: {
     marginTop: 6,
     fontSize: 13,
-    color: theme.text,
     fontWeight: '700',
   },
 });

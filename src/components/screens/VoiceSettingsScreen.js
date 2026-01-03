@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Modal, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 import speechService from '../../services/speechService';
 
 const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose, onSaveAndClose }) => {
+  const { theme } = useTheme();
   const [selectedVoice, setSelectedVoice] = useState(currentVoiceId || null);
   const [isPlaying, setIsPlaying] = useState(null);
   const [availableVoices, setAvailableVoices] = useState([]);
@@ -86,35 +87,49 @@ const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose, onSaveAndClose }
 
   return (
     <Modal visible animationType="slide">
-      <View style={styles.fullScreen}>
+      <View style={{ flex: 1, backgroundColor: theme.bg }}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.backButton}>
+        <View style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: 20,
+          paddingTop: 60,
+          backgroundColor: theme.surface,
+          borderBottomWidth: 1,
+          borderBottomColor: theme.border,
+        }}>
+          <TouchableOpacity onPress={onClose} style={{ padding: 8 }}>
             <Feather name="arrow-left" size={24} color={theme.text} />
           </TouchableOpacity>
-          <Text style={styles.title}>Stem Kiezen</Text>
-          <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>Opslaan</Text>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', color: theme.text }}>Stem Kiezen</Text>
+          <TouchableOpacity onPress={handleSave} style={{
+            backgroundColor: theme.primary,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            borderRadius: 8,
+          }}>
+            <Text style={{ color: '#000', fontWeight: '600', fontSize: 14 }}>Opslaan</Text>
           </TouchableOpacity>
         </View>
 
         {/* Content */}
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <Text style={styles.sectionTitle}>Kies je stem</Text>
-          <Text style={styles.description}>
+        <ScrollView style={{ flex: 1, padding: 20 }} showsVerticalScrollIndicator={false}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.text, marginBottom: 8 }}>Kies je stem</Text>
+          <Text style={{ fontSize: 14, color: theme.textDim, marginBottom: 24, lineHeight: 20 }}>
             {availableVoices.length} Nederlandse stemmen gevonden op dit apparaat.
           </Text>
 
           {loading ? (
-            <View style={styles.loadingContainer}>
+            <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 40 }}>
               <ActivityIndicator size="large" color={theme.primary} />
-              <Text style={styles.loadingText}>Stemmen laden...</Text>
+              <Text style={{ color: theme.textDim, marginTop: 12, fontSize: 14 }}>Stemmen laden...</Text>
             </View>
           ) : availableVoices.length === 0 ? (
-            <View style={styles.emptyContainer}>
+            <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 40 }}>
               <Feather name="alert-circle" size={48} color={theme.textDim} />
-              <Text style={styles.emptyText}>Geen Nederlandse stemmen gevonden</Text>
-              <Text style={styles.emptySubtext}>
+              <Text style={{ color: theme.text, fontSize: 16, fontWeight: '600', marginTop: 12 }}>Geen Nederlandse stemmen gevonden</Text>
+              <Text style={{ color: theme.textDim, fontSize: 14, textAlign: 'center', marginTop: 8, lineHeight: 20 }}>
                 Ga naar Instellingen → Toegankelijkheid → Gesproken inhoud → Stemmen → Nederlands om stemmen te downloaden.
               </Text>
             </View>
@@ -123,16 +138,34 @@ const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose, onSaveAndClose }
               <TouchableOpacity
                 key={voice.identifier}
                 style={[
-                  styles.voiceCard,
-                  selectedVoice === voice.identifier && styles.voiceCardSelected,
+                  {
+                    backgroundColor: theme.surface,
+                    borderRadius: 16,
+                    padding: 16,
+                    marginBottom: 12,
+                    borderWidth: 2,
+                    borderColor: 'transparent',
+                  },
+                  selectedVoice === voice.identifier && {
+                    borderColor: theme.primary,
+                    backgroundColor: theme.primary + '15',
+                  },
                 ]}
                 onPress={() => setSelectedVoice(voice.identifier)}
               >
-                <View style={styles.voiceInfo}>
-                  <View style={styles.voiceHeader}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                     <View style={[
-                      styles.voiceIcon,
-                      selectedVoice === voice.identifier && styles.voiceIconSelected
+                      {
+                        width: 48,
+                        height: 48,
+                        borderRadius: 24,
+                        backgroundColor: theme.surfaceHighlight,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginRight: 12,
+                      },
+                      selectedVoice === voice.identifier && { backgroundColor: theme.primary }
                     ]}>
                       <Feather 
                         name="user" 
@@ -140,14 +173,14 @@ const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose, onSaveAndClose }
                         color={selectedVoice === voice.identifier ? '#000' : theme.text} 
                       />
                     </View>
-                    <View style={styles.voiceText}>
+                    <View style={{ flex: 1 }}>
                       <Text style={[
-                        styles.voiceName,
-                        selectedVoice === voice.identifier && styles.voiceNameSelected
+                        { fontSize: 18, fontWeight: '600', color: theme.text },
+                        selectedVoice === voice.identifier && { color: theme.primary }
                       ]}>
                         {voice.name}
                       </Text>
-                      <Text style={styles.voiceDescription}>{getQualityLabel(voice)}</Text>
+                      <Text style={{ fontSize: 13, color: theme.textDim, marginTop: 2 }}>{getQualityLabel(voice)}</Text>
                     </View>
                   </View>
                   
@@ -158,8 +191,16 @@ const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose, onSaveAndClose }
 
                 <TouchableOpacity
                   style={[
-                    styles.testButton,
-                    isPlaying === voice.identifier && styles.testButtonPlaying
+                    {
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: theme.surfaceHighlight,
+                      paddingVertical: 10,
+                      paddingHorizontal: 16,
+                      borderRadius: 8,
+                    },
+                    isPlaying === voice.identifier && { backgroundColor: theme.primary + '30' }
                   ]}
                   onPress={() => handleTestVoice(voice.identifier)}
                 >
@@ -169,8 +210,8 @@ const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose, onSaveAndClose }
                     color={isPlaying === voice.identifier ? theme.primary : theme.text} 
                   />
                   <Text style={[
-                    styles.testButtonText,
-                    isPlaying === voice.identifier && styles.testButtonTextPlaying
+                    { fontSize: 14, color: theme.text, marginLeft: 6, fontWeight: '500' },
+                    isPlaying === voice.identifier && { color: theme.primary }
                   ]}>
                     {isPlaying === voice.identifier ? "Speelt..." : "Test"}
                   </Text>
@@ -179,9 +220,18 @@ const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose, onSaveAndClose }
             ))
           )}
 
-          <View style={styles.futureSection}>
-            <Text style={styles.futureSectionTitle}>🔮 Binnenkort beschikbaar</Text>
-            <Text style={styles.futureSectionText}>
+          <View style={{
+            backgroundColor: theme.surface,
+            borderRadius: 16,
+            padding: 16,
+            marginTop: 24,
+            marginBottom: 40,
+            borderWidth: 1,
+            borderColor: theme.border,
+            borderStyle: 'dashed',
+          }}>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: theme.textDim, marginBottom: 8 }}>🔮 Binnenkort beschikbaar</Text>
+            <Text style={{ fontSize: 13, color: theme.textDim, lineHeight: 22 }}>
               • Google Cloud TTS (WaveNet stemmen){'\n'}
               • ElevenLabs (Ultra-realistische stemmen){'\n'}
               • Eigen stem klonen
@@ -192,178 +242,5 @@ const VoiceSettingsScreen = ({ currentVoiceId, onSave, onClose, onSaveAndClose }
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-    backgroundColor: theme.bg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    paddingTop: 60,
-    backgroundColor: theme.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.border,
-  },
-  backButton: {
-    padding: 8,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: theme.text,
-  },
-  saveButton: {
-    backgroundColor: theme.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  saveButtonText: {
-    color: '#000',
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: theme.text,
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    color: theme.textDim,
-    marginBottom: 24,
-    lineHeight: 20,
-  },
-  voiceCard: {
-    backgroundColor: theme.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  voiceCardSelected: {
-    borderColor: theme.primary,
-    backgroundColor: theme.primary + '15',
-  },
-  voiceInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  voiceHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  voiceIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: theme.surfaceHighlight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  voiceIconSelected: {
-    backgroundColor: theme.primary,
-  },
-  voiceText: {
-    flex: 1,
-  },
-  voiceName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: theme.text,
-  },
-  voiceNameSelected: {
-    color: theme.primary,
-  },
-  voiceDescription: {
-    fontSize: 13,
-    color: theme.textDim,
-    marginTop: 2,
-  },
-  testButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.surfaceHighlight,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
-  testButtonPlaying: {
-    backgroundColor: theme.primary + '30',
-  },
-  testButtonText: {
-    fontSize: 14,
-    color: theme.text,
-    marginLeft: 6,
-    fontWeight: '500',
-  },
-  testButtonTextPlaying: {
-    color: theme.primary,
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-  },
-  loadingText: {
-    color: theme.textDim,
-    marginTop: 12,
-    fontSize: 14,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-  },
-  emptyText: {
-    color: theme.text,
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 12,
-  },
-  emptySubtext: {
-    color: theme.textDim,
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 8,
-    lineHeight: 20,
-  },
-  futureSection: {
-    backgroundColor: theme.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginTop: 24,
-    marginBottom: 40,
-    borderWidth: 1,
-    borderColor: theme.border,
-    borderStyle: 'dashed',
-  },
-  futureSectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: theme.textDim,
-    marginBottom: 8,
-  },
-  futureSectionText: {
-    fontSize: 13,
-    color: theme.textDim,
-    lineHeight: 22,
-  },
-});
 
 export default VoiceSettingsScreen;

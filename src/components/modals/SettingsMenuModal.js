@@ -2,12 +2,12 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Modal, Alert, Switch } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme, spacing, borderRadius } from '../../theme';
-import styles from '../../styles';
+import { useStyles } from '../../styles';
 import { clearAllData } from '../../storage';
 import { createBackupObject, encryptBackup, saveAndShareBackup } from '../../utils/backup';
 import { useApp, APP_MODES } from '../../context';
 
-const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger, theme, rightElement }) => (
+const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger, theme, rightElement, styles }) => (
   <TouchableOpacity style={[styles.menuItem, { backgroundColor: theme.surface }]} onPress={onPress} disabled={!onPress}>
     <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
       <View style={[styles.selectorIcon, {backgroundColor: iconBg || theme.primary}]}>
@@ -27,6 +27,7 @@ const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger, theme, right
 const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset, onSpeechTest, onVoiceSettings }) => {
     // Get theme from context
     const { theme, isDark, toggleTheme } = useTheme();
+    const styles = useStyles();
     
     // Backup handler
     const handleBackup = async () => {
@@ -130,6 +131,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
           title="Donkere modus"
           subtitle={isDark ? "Aan" : "Uit"}
           theme={theme}
+          styles={styles}
           rightElement={
             <Switch
               value={isDark}
@@ -149,6 +151,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="Instellingen"
               subtitle="Algemene instellingen"
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); onContentMenu ? onContentMenu() : onProfileMenu(); }}
             />
             <MenuItem
@@ -157,6 +160,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="Profiel"
               subtitle="Wizzard & teksten"
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
             />
             <MenuItem
@@ -165,6 +169,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="Stem"
               subtitle="Kies of test de spraak"
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); if(onVoiceSettings) onVoiceSettings(); }}
             />
             <MenuItem
@@ -173,6 +178,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="Wijzig naar Expert"
               subtitle="Schakel naar Expertmodus"
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); handleModeSwitch(); }}
             />
           </>
@@ -185,6 +191,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="Persoonlijke gegevens"
               subtitle="Beheer je profiel"
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
             />
             <MenuItem
@@ -193,6 +200,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="Inhoud beheren"
               subtitle="Zinnen, onderwerpen en foto's"
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); if (onContentMenu) onContentMenu(); }}
             />
             <MenuItem
@@ -201,6 +209,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="Stem"
               subtitle="Kies of test de spraak"
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); if(onVoiceSettings) onVoiceSettings(); }}
             />
             <MenuItem
@@ -210,6 +219,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               subtitle="Verwijder alle data"
               danger
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); handleReset(); }}
             />
             <MenuItem
@@ -218,6 +228,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="Backup maken"
               subtitle="Versleutelde backup exporteren"
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); handleBackup(); }}
             />
             <MenuItem
@@ -226,6 +237,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               title="Wijzig naar Gebruikersmodus"
               subtitle="Schakel naar Gebruikersmodus"
               theme={theme}
+              styles={styles}
               onPress={() => { onClose(); handleModeSwitch(); }}
             />
           </>

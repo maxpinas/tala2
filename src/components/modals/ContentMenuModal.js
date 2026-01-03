@@ -1,18 +1,34 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
-import styles from '../../styles';
+import { useTheme, spacing, borderRadius } from '../../theme';
 
 const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShowLocations }) => {
+  const { theme } = useTheme();
+
   const MenuItem = ({ icon, title, subtitle, onPress, iconBg }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+    <TouchableOpacity 
+      style={{
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.lg,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border
+      }} 
+      onPress={onPress}
+    >
       <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
-        <View style={[styles.selectorIcon, {backgroundColor: iconBg || theme.primary}]}>
+        <View style={{
+          width: 44,
+          height: 44,
+          borderRadius: borderRadius.lg,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: iconBg || theme.primary
+        }}>
           <Feather name={icon} size={22} color={iconBg === theme.accent || iconBg === theme.categories.etenDrinken ? theme.textInverse : theme.text} />
         </View>
         <View style={{flex: 1, marginLeft: spacing.lg}}>
-          <Text style={[styles.menuItemTitle, {marginLeft: 0}]}>{title}</Text>
+          <Text style={{fontSize: 17, fontWeight: '600', color: theme.text}}>{title}</Text>
           {subtitle && <Text style={{color: theme.textDim, fontSize: 12, marginTop: 2}}>{subtitle}</Text>}
         </View>
         <Feather name="chevron-right" size={20} color={theme.textDim} />
@@ -22,10 +38,28 @@ const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShow
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.modalOverlay}>
-        <View style={[styles.selectorContainer, {maxHeight: '85%'}]}>
-          <View style={styles.selectorHeader}>
-            <Text style={styles.selectorTitle}>Inhoud Beheren</Text>
+      <View style={{
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end'
+      }}>
+        <View style={{
+          backgroundColor: theme.surface,
+          borderTopLeftRadius: borderRadius.xl,
+          borderTopRightRadius: borderRadius.xl,
+          paddingTop: spacing.lg,
+          maxHeight: '85%'
+        }}>
+          <View style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingHorizontal: spacing.lg,
+            paddingBottom: spacing.md,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.border
+          }}>
+            <Text style={{fontSize: 20, fontWeight: '700', color: theme.text}}>Inhoud Beheren</Text>
             <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.surface, borderRadius: borderRadius.full}}>
               <Feather name="x" size={24} color={theme.text} />
             </TouchableOpacity>

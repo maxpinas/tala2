@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 
 const ListManagerScreen = ({ title, items, onUpdate, onClose, type = 'object' }) => {
+    const { theme } = useTheme();
+    const styles = useStyles();
     // type 'object' expects {id, label, icon}, type 'string' expects "string"
     const [localItems, setLocalItems] = useState(items);
     const [newItemText, setNewItemText] = useState("");

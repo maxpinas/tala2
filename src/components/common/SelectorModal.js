@@ -1,44 +1,48 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
+import { useTheme, spacing, borderRadius } from '../../theme';
 
-const SelectorModal = ({ visible, title, options, selectedId, onSelect, onClose, onManage }) => (
-  <Modal visible={visible} transparent animationType="slide">
-    <View style={styles.modalOverlay}>
-      <View style={styles.selectorContainer}>
-        <View style={styles.selectorHeader}>
-          <Text style={styles.selectorTitle}>{title}</Text>
-          <View style={{flexDirection: 'row', alignItems: 'center', gap: spacing.lg}}>
-            {onManage && (
-              <TouchableOpacity onPress={onManage} style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Feather name="edit-2" size={18} color={theme.primary} />
-                <Text style={{color: theme.primary, marginLeft: spacing.xs, fontWeight: '600'}}>Aanpassen</Text>
+const SelectorModal = ({ visible, title, options, selectedId, onSelect, onClose, onManage }) => {
+  const { theme } = useTheme();
+  
+  return (
+    <Modal visible={visible} transparent animationType="slide">
+      <View style={styles.modalOverlay}>
+        <View style={[styles.selectorContainer, { backgroundColor: theme.bg }]}>
+          <View style={styles.selectorHeader}>
+            <Text style={[styles.selectorTitle, { color: theme.text }]}>{title}</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center', gap: spacing.lg}}>
+              {onManage && (
+                <TouchableOpacity onPress={onManage} style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Feather name="edit-2" size={18} color={theme.primary} />
+                  <Text style={{color: theme.primary, marginLeft: spacing.xs, fontWeight: '600'}}>Aanpassen</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.surface, borderRadius: borderRadius.full}}>
+                <Feather name="x" size={24} color={theme.text} />
               </TouchableOpacity>
-            )}
-            <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.surface, borderRadius: borderRadius.full}}>
-              <Feather name="x" size={24} color={theme.text} />
-            </TouchableOpacity>
+            </View>
           </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {options.map(opt => (
+              <TouchableOpacity 
+                key={opt.id} 
+                style={[styles.selectorItem, selectedId === opt.id && styles.selectorItemActive]} 
+                onPress={() => { onSelect(opt.id); onClose(); }}
+              >
+                <View style={[styles.selectorIcon, { backgroundColor: theme.surface }, selectedId === opt.id && {backgroundColor: theme.primary}]}>
+                  <Feather name={opt.icon} size={24} color={theme.text} />
+                </View>
+                <Text style={[styles.selectorLabel, { color: theme.text }]}>{opt.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {options.map(opt => (
-            <TouchableOpacity 
-              key={opt.id} 
-              style={[styles.selectorItem, selectedId === opt.id && styles.selectorItemActive]} 
-              onPress={() => { onSelect(opt.id); onClose(); }}
-            >
-              <View style={[styles.selectorIcon, selectedId === opt.id && {backgroundColor: theme.primary}]}>
-                <Feather name={opt.icon} size={24} color={theme.text} />
-              </View>
-              <Text style={styles.selectorLabel}>{opt.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
       </View>
-    </View>
-  </Modal>
-);
+    </Modal>
+  );
+};
 
 const styles = StyleSheet.create({
   modalOverlay: { 
@@ -47,7 +51,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end' 
   },
   selectorContainer: { 
-    backgroundColor: theme.bg, 
     borderTopLeftRadius: borderRadius.lg, 
     borderTopRightRadius: borderRadius.lg, 
     padding: spacing.xl, 
@@ -60,7 +63,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl 
   },
   selectorTitle: { 
-    color: theme.text, 
     fontSize: 20, 
     fontWeight: 'bold' 
   },
@@ -76,13 +78,11 @@ const styles = StyleSheet.create({
     width: 60, 
     height: 60, 
     borderRadius: borderRadius.full, 
-    backgroundColor: theme.surface, 
     justifyContent: 'center', 
     alignItems: 'center', 
     marginBottom: spacing.sm 
   },
   selectorLabel: { 
-    color: theme.text, 
     fontWeight: 'bold' 
   },
 });

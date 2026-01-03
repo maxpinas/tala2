@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius, typography } from '../../theme';
+import { useTheme, spacing, borderRadius, typography } from '../../theme';
 import { renderPhrase, shouldShowPhrase } from '../../data';
 import { Header, Grid, Tile } from '../common';
 
@@ -33,6 +33,7 @@ const SimpleCategoryView = ({
   onLocationPress,
   onPersonPress,
 }) => {
+  const { theme } = useTheme();
   const hasPhotos = photos.length > 0;
 
   // Filter phrases die niet getoond moeten worden (placeholder zonder context)
@@ -51,7 +52,7 @@ const SimpleCategoryView = ({
     .filter(p => p.shouldShow);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.bg }]}>
       {/* Header with back button */}
       <Header
         title={categoryName}
@@ -70,20 +71,20 @@ const SimpleCategoryView = ({
           <View style={styles.contextPills}>
             {activeLocation?.id !== 'geen' && (
               <TouchableOpacity 
-                style={styles.contextPill}
+                style={[styles.contextPill, { backgroundColor: theme.surface, borderColor: theme.primary }]}
                 onPress={onLocationPress}
               >
                 <Feather name="map-pin" size={14} color={theme.primary} />
-                <Text style={styles.contextPillText}>{activeLocation?.label}</Text>
+                <Text style={[styles.contextPillText, { color: theme.primary }]}>{activeLocation?.label}</Text>
               </TouchableOpacity>
             )}
             {activePerson?.id !== 'geen' && (
               <TouchableOpacity 
-                style={styles.contextPill}
+                style={[styles.contextPill, { backgroundColor: theme.surface, borderColor: theme.primary }]}
                 onPress={onPersonPress}
               >
                 <Feather name="user" size={14} color={theme.primary} />
-                <Text style={styles.contextPillText}>{activePerson?.name || activePerson?.label}</Text>
+                <Text style={[styles.contextPillText, { color: theme.primary }]}>{activePerson?.name || activePerson?.label}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -92,19 +93,19 @@ const SimpleCategoryView = ({
         {/* Add phrase button */}
         {onAddPhrase && (
           <TouchableOpacity 
-            style={styles.addButton}
+            style={[styles.addButton, { backgroundColor: theme.primary }]}
             onPress={onAddPhrase}
             activeOpacity={0.7}
           >
             <Feather name="plus" size={20} color={theme.textInverse} />
-            <Text style={styles.addButtonText}>Zin toevoegen</Text>
+            <Text style={[styles.addButtonText, { color: theme.textInverse }]}>Zin toevoegen</Text>
           </TouchableOpacity>
         )}
 
         {/* Photos section */}
         {hasPhotos && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Foto's</Text>
+            <Text style={[styles.sectionTitle, { color: theme.textDim }]}>Foto's</Text>
             <ScrollView 
               horizontal 
               showsHorizontalScrollIndicator={false}
@@ -113,7 +114,7 @@ const SimpleCategoryView = ({
               {photos.map((photo) => (
                 <TouchableOpacity
                   key={photo.id}
-                  style={styles.photoTile}
+                  style={[styles.photoTile, { backgroundColor: theme.surface }]}
                   onPress={() => onPhotoPress(photo)}
                   onLongPress={() => onPhotoLongPress && onPhotoLongPress(photo)}
                   delayLongPress={500}
@@ -126,13 +127,13 @@ const SimpleCategoryView = ({
                       resizeMode="cover"
                     />
                   ) : (
-                    <View style={styles.photoPlaceholder}>
+                    <View style={[styles.photoPlaceholder, { backgroundColor: theme.surfaceHighlight }]}>
                       <Feather name="image" size={32} color={theme.textDim} />
                     </View>
                   )}
                   {photo.text && (
                     <View style={styles.photoCaptionContainer}>
-                      <Text style={styles.photoCaption} numberOfLines={1}>
+                      <Text style={[styles.photoCaption, { color: theme.textInverse }]} numberOfLines={1}>
                         {photo.text}
                       </Text>
                     </View>
@@ -142,12 +143,12 @@ const SimpleCategoryView = ({
               
               {/* Add photo button */}
               <TouchableOpacity
-                style={styles.addPhotoTile}
+                style={[styles.addPhotoTile, { backgroundColor: theme.surface, borderColor: theme.primary }]}
                 onPress={onAddPhoto}
                 activeOpacity={0.7}
               >
                 <Feather name="plus" size={28} color={theme.primary} />
-                <Text style={styles.addPhotoText}>Foto</Text>
+                <Text style={[styles.addPhotoText, { color: theme.primary }]}>Foto</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -161,34 +162,34 @@ const SimpleCategoryView = ({
             activeOpacity={0.7}
           >
             <Feather name="camera" size={18} color={theme.primary} />
-            <Text style={styles.addPhotoLinkText}>Foto toevoegen</Text>
+            <Text style={[styles.addPhotoLinkText, { color: theme.primary }]}>Foto toevoegen</Text>
           </TouchableOpacity>
         )}
 
         {/* Phrases section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Zinnen</Text>
+          <Text style={[styles.sectionTitle, { color: theme.textDim }]}>Zinnen</Text>
           
           {visiblePhrases.length === 0 ? (
             <View style={styles.emptyState}>
               <Feather name="message-circle" size={40} color={theme.textDim} />
-              <Text style={styles.emptyText}>Geen zinnen voor deze context</Text>
+              <Text style={[styles.emptyText, { color: theme.textDim }]}>Geen zinnen voor deze context</Text>
             </View>
           ) : (
             <View style={styles.phrasesGrid}>
               {visiblePhrases.map((phraseData) => (
                 <TouchableOpacity
                   key={phraseData.originalIndex}
-                  style={styles.phraseTile}
+                  style={[styles.phraseTile, { backgroundColor: theme.surface }]}
                   onPress={() => onPhrasePress(phraseData.rendered)}
                   onLongPress={() => onPhraseLongPress && onPhraseLongPress(phraseData.original, phraseData.originalIndex)}
                   delayLongPress={500}
                   activeOpacity={0.7}
                 >
-                  <View style={styles.phraseIconContainer}>
+                  <View style={[styles.phraseIconContainer, { backgroundColor: theme.bg }]}>
                     <Feather name="volume-2" size={18} color={theme.primary} />
                   </View>
-                  <Text style={styles.phraseText} numberOfLines={3}>
+                  <Text style={[styles.phraseText, { color: theme.text }]} numberOfLines={3}>
                     {phraseData.rendered}
                   </Text>
                 </TouchableOpacity>
@@ -204,7 +205,6 @@ const SimpleCategoryView = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.bg,
   },
   scrollContent: {
     padding: spacing.lg,
@@ -220,15 +220,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    backgroundColor: theme.surface,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: borderRadius.full,
     borderWidth: 1,
-    borderColor: theme.primary,
   },
   contextPillText: {
-    color: theme.primary,
     fontSize: typography.bodySmall.fontSize,
     fontWeight: '500',
   },
@@ -237,13 +234,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-    backgroundColor: theme.primary,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
     marginBottom: spacing.lg,
   },
   addButtonText: {
-    color: theme.textInverse,
     fontSize: typography.body.fontSize,
     fontWeight: '600',
   },
@@ -251,7 +246,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   sectionTitle: {
-    color: theme.textDim,
     fontSize: typography.caption.fontSize,
     fontWeight: '600',
     marginBottom: spacing.md,
@@ -267,7 +261,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     marginRight: spacing.md,
     overflow: 'hidden',
-    backgroundColor: theme.surface,
   },
   photoImage: {
     width: '100%',
@@ -277,7 +270,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.surfaceHighlight,
   },
   photoCaptionContainer: {
     position: 'absolute',
@@ -288,7 +280,6 @@ const styles = StyleSheet.create({
     padding: spacing.xs,
   },
   photoCaption: {
-    color: theme.textInverse,
     fontSize: 11,
     fontWeight: '500',
   },
@@ -296,15 +287,12 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: borderRadius.md,
-    backgroundColor: theme.surface,
     borderWidth: 2,
-    borderColor: theme.primary,
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
   },
   addPhotoText: {
-    color: theme.primary,
     fontSize: typography.caption.fontSize,
     fontWeight: '600',
     marginTop: spacing.xs,
@@ -317,7 +305,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   addPhotoLinkText: {
-    color: theme.primary,
     fontSize: typography.bodySmall.fontSize,
     fontWeight: '600',
   },
@@ -325,7 +312,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   phraseTile: {
-    backgroundColor: theme.surface,
     borderRadius: borderRadius.md,
     padding: spacing.lg,
     flexDirection: 'row',
@@ -335,13 +321,11 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: theme.bg,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing.md,
   },
   phraseText: {
-    color: theme.text,
     fontSize: typography.body.fontSize,
     fontWeight: '500',
     flex: 1,
@@ -351,7 +335,6 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   emptyText: {
-    color: theme.textDim,
     fontSize: typography.body.fontSize,
     marginTop: spacing.md,
     fontStyle: 'italic',

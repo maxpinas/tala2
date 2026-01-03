@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
-import styles from '../../styles';
+import { useTheme, spacing, borderRadius } from '../../theme';
+import { useStyles } from '../../styles';
 
 const AddOrEditPhotoModal = ({ visible, onClose, onSave, categories, initialData, onTriggerPopup }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const [caption, setCaption] = useState(initialData ? initialData.text : '');
   const [selectedTag, setSelectedTag] = useState(initialData ? initialData.category : null);
   

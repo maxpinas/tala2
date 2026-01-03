@@ -53,13 +53,7 @@ const SubNavigation = ({
                 {tab.label}
               </Text>
               
-              {badge !== undefined && badge > 0 && (
-                <View style={[styles.badge, { backgroundColor: theme.primary }]}>
-                  <Text style={[styles.badgeText, { color: theme.textInverse }]}>
-                    {badge > 99 ? '99+' : badge}
-                  </Text>
-                </View>
-              )}
+              {/* A6: Badges verwijderd - tab badges niet meer tonen */}
             </View>
             
             {isActive && <View style={[styles.indicator, { backgroundColor: theme.tab.indicator }]} />}

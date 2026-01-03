@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 
 // Helper component for list editing
-const ListEditor = ({ items, onItemAdd, onItemRemove, placeholder, title }) => {
+const ListEditor = ({ items, onItemAdd, onItemRemove, placeholder, title, theme, styles }) => {
   const [text, setText] = useState("");
   return (
     <View style={{marginBottom: 20}}>
       <Text style={styles.inputLabel}>{title}</Text>
       {items.map((item, i) => (
         <View key={i} style={styles.listItemRow}>
-          <Text style={{color: '#FFF', flex: 1}}>{typeof item === 'object' ? item.name : item}</Text>
+          <Text style={{color: theme.text, flex: 1}}>{typeof item === 'object' ? item.name : item}</Text>
           <TouchableOpacity onPress={() => onItemRemove(i)}>
             <Feather name="trash-2" size={18} color={theme.danger} />
           </TouchableOpacity>
@@ -47,6 +47,8 @@ const PROFILE_STEPS = [
 ];
 
 const ProfileSetupFlow = ({ profile, extendedProfile, onSaveProfile, onSaveExtended, onClose, onTriggerPopup }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const [stepIndex, setStepIndex] = useState(0);
   const [profileData, setProfileData] = useState(profile);
   const [extendedData, setExtendedData] = useState(extendedProfile);
@@ -262,7 +264,9 @@ const ProfileSetupFlow = ({ profile, extendedProfile, onSaveProfile, onSaveExten
               items={extendedData.meds || []} 
               onItemAdd={t => addToList('meds', t)} 
               onItemRemove={i => removeFromList('meds', i)} 
-              placeholder="Naam medicijn toevoegen..." 
+              placeholder="Naam medicijn toevoegen..."
+              theme={theme}
+              styles={styles}
             />
             
             <Text style={styles.inputLabel}>Allergieën</Text>

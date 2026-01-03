@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, Alert, TextInput, Modal, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, Alert, TextInput, Modal, SafeAreaView, StatusBar, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 
 const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const [editingPhotoId, setEditingPhotoId] = useState(null);
   const [editCaption, setEditCaption] = useState('');
   const [editSize, setEditSize] = useState('medium');
@@ -149,9 +151,9 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
         <View style={localStyles.header}>
         <TouchableOpacity onPress={onClose} style={localStyles.backBtn}>
           <Feather name="arrow-left" size={20} color={theme.textDim} />
-          <Text style={localStyles.backText}>Terug</Text>
+          <Text style={[localStyles.backText, { color: theme.textDim }]}>Terug</Text>
         </TouchableOpacity>
-        <Text style={localStyles.title}>Foto's Beheren</Text>
+        <Text style={[localStyles.title, { color: theme.text }]}>Foto's Beheren</Text>
         <View style={{ width: 60 }} />
       </View>
 
@@ -159,13 +161,13 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
 
       {/* Add buttons */}
       <View style={localStyles.addButtonsRow}>
-        <TouchableOpacity style={localStyles.addBtn} onPress={pickFromCamera}>
+        <TouchableOpacity style={[localStyles.addBtn, { backgroundColor: theme.surface }]} onPress={pickFromCamera}>
           <Feather name="camera" size={24} color={theme.primary} />
-          <Text style={localStyles.addBtnText}>Camera</Text>
+          <Text style={[localStyles.addBtnText, { color: theme.text }]}>Camera</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={localStyles.addBtn} onPress={pickFromLibrary}>
+        <TouchableOpacity style={[localStyles.addBtn, { backgroundColor: theme.surface }]} onPress={pickFromLibrary}>
           <Feather name="image" size={24} color={theme.primary} />
-          <Text style={localStyles.addBtnText}>Fotorol</Text>
+          <Text style={[localStyles.addBtnText, { color: theme.text }]}>Fotorol</Text>
         </TouchableOpacity>
       </View>
 
@@ -174,16 +176,16 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
         {categoryPhotos.length === 0 ? (
           <View style={localStyles.emptyState}>
             <Feather name="image" size={48} color={theme.textDim} />
-            <Text style={localStyles.emptyText}>Nog geen foto's</Text>
-            <Text style={localStyles.emptySubtext}>Tik op Camera of Fotorol om toe te voegen</Text>
+            <Text style={[localStyles.emptyText, { color: theme.text }]}>Nog geen foto's</Text>
+            <Text style={[localStyles.emptySubtext, { color: theme.textDim }]}>Tik op Camera of Fotorol om toe te voegen</Text>
           </View>
         ) : (
           categoryPhotos.map((photo, index) => (
-            <View key={photo.id} style={localStyles.photoItem}>
+            <View key={photo.id} style={[localStyles.photoItem, { backgroundColor: theme.surface }]}>
               {editingPhotoId === photo.id ? (
                 // Edit mode
                 <View style={localStyles.editContainer}>
-                  <View style={localStyles.editPreview}>
+                  <View style={[localStyles.editPreview, { backgroundColor: theme.surfaceHighlight }]}>
                     {photo.uri ? (
                       <Image source={{ uri: photo.uri }} style={localStyles.editImage} />
                     ) : (
@@ -192,9 +194,9 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
                   </View>
                   
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={localStyles.editLabel}>BIJSCHRIFT</Text>
+                    <Text style={[localStyles.editLabel, { color: theme.textDim }]}>BIJSCHRIFT</Text>
                     <TextInput
-                      style={localStyles.editInput}
+                      style={[localStyles.editInput, { backgroundColor: theme.surfaceHighlight, color: theme.text }]}
                       value={editCaption}
                       onChangeText={setEditCaption}
                       placeholder="Wat wil je zeggen?"
@@ -202,15 +204,15 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
                       multiline
                     />
                     
-                    <Text style={[localStyles.editLabel, { marginTop: 12 }]}>GROOTTE</Text>
+                    <Text style={[localStyles.editLabel, { marginTop: 12, color: theme.textDim }]}>GROOTTE</Text>
                     <View style={localStyles.sizeRow}>
                       {['small', 'medium', 'large'].map(size => (
                         <TouchableOpacity
                           key={size}
-                          style={[localStyles.sizeChip, editSize === size && localStyles.sizeChipActive]}
+                          style={[localStyles.sizeChip, { backgroundColor: editSize === size ? theme.primary : theme.surfaceHighlight }]}
                           onPress={() => setEditSize(size)}
                         >
-                          <Text style={[localStyles.sizeText, editSize === size && { color: '#000' }]}>
+                          <Text style={[localStyles.sizeText, { color: editSize === size ? '#000' : theme.textDim }]}>
                             {size === 'small' ? 'Klein' : size === 'medium' ? 'Normaal' : 'Groot'}
                           </Text>
                         </TouchableOpacity>
@@ -218,11 +220,11 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
                     </View>
                     
                     <View style={localStyles.editActions}>
-                      <TouchableOpacity style={localStyles.saveBtn} onPress={saveEdit}>
+                      <TouchableOpacity style={[localStyles.saveBtn, { backgroundColor: theme.primary }]} onPress={saveEdit}>
                         <Text style={localStyles.saveBtnText}>Opslaan</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={localStyles.cancelBtn} onPress={() => setEditingPhotoId(null)}>
-                        <Text style={localStyles.cancelBtnText}>Annuleren</Text>
+                      <TouchableOpacity style={[localStyles.cancelBtn, { backgroundColor: theme.surfaceHighlight }]} onPress={() => setEditingPhotoId(null)}>
+                        <Text style={[localStyles.cancelBtnText, { color: theme.text }]}>Annuleren</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -230,7 +232,7 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
               ) : (
                 // View mode
                 <>
-                  <View style={localStyles.photoPreview}>
+                  <View style={[localStyles.photoPreview, { backgroundColor: theme.surfaceHighlight }]}>
                     {photo.uri ? (
                       <Image source={{ uri: photo.uri }} style={localStyles.photoImage} />
                     ) : (
@@ -241,10 +243,10 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
                   </View>
                   
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={localStyles.photoCaption} numberOfLines={2}>
+                    <Text style={[localStyles.photoCaption, { color: theme.text }]} numberOfLines={2}>
                       {photo.text || 'Geen bijschrift'}
                     </Text>
-                    <Text style={localStyles.photoSize}>
+                    <Text style={[localStyles.photoSize, { color: theme.textDim }]}>
                       {photo.size === 'small' ? 'Klein' : photo.size === 'medium' ? 'Normaal' : 'Groot'}
                     </Text>
                   </View>
@@ -292,6 +294,7 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
 
 // Move Category Modal Component
 const MoveCategoryModal = ({ visible, onClose, photo, categories, currentCategory, onMove, onCopy }) => {
+  const { theme } = useTheme();
   return (
     <Modal visible={visible} transparent animationType="fade">
       <TouchableOpacity 
@@ -299,9 +302,9 @@ const MoveCategoryModal = ({ visible, onClose, photo, categories, currentCategor
         activeOpacity={1} 
         onPress={onClose}
       >
-        <View style={localStyles.moveModal}>
+        <View style={[localStyles.moveModal, { backgroundColor: theme.surface }]}>
           <View style={localStyles.moveHeader}>
-            <Text style={localStyles.moveTitle}>Foto verplaatsen</Text>
+            <Text style={[localStyles.moveTitle, { color: theme.text }]}>Foto verplaatsen</Text>
             <TouchableOpacity onPress={onClose}>
               <Feather name="x" size={24} color={theme.text} />
             </TouchableOpacity>
@@ -314,32 +317,32 @@ const MoveCategoryModal = ({ visible, onClose, photo, categories, currentCategor
             ) : (
               <View style={[localStyles.movePhotoPlaceholder, { backgroundColor: photo.color }]} />
             )}
-            <Text style={localStyles.movePhotoCaption} numberOfLines={2}>
+            <Text style={[localStyles.movePhotoCaption, { color: theme.text }]} numberOfLines={2}>
               {photo.text || 'Geen bijschrift'}
             </Text>
           </View>
 
-          <Text style={localStyles.moveLabel}>KIES ONDERWERP</Text>
+          <Text style={[localStyles.moveLabel, { color: theme.textDim }]}>KIES ONDERWERP</Text>
           
           <ScrollView style={localStyles.categoriesList}>
             {Object.keys(categories)
               .filter(cat => cat !== currentCategory)
               .map(cat => (
-                <View key={cat} style={localStyles.categoryItem}>
+                <View key={cat} style={[localStyles.categoryItem, { backgroundColor: theme.surfaceHighlight }]}>
                   <View style={localStyles.categoryInfo}>
                     <Feather name={categories[cat].icon || 'folder'} size={20} color={theme.primary} />
-                    <Text style={localStyles.categoryName}>{cat}</Text>
+                    <Text style={[localStyles.categoryName, { color: theme.text }]}>{cat}</Text>
                   </View>
                   <View style={localStyles.categoryActions}>
                     <TouchableOpacity 
-                      style={localStyles.copyBtn}
+                      style={[localStyles.copyBtn, { backgroundColor: theme.surface }]}
                       onPress={() => onCopy(cat)}
                     >
                       <Feather name="copy" size={16} color={theme.text} />
-                      <Text style={localStyles.actionBtnText}>Kopieer</Text>
+                      <Text style={[localStyles.actionBtnText, { color: theme.text }]}>Kopieer</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
-                      style={localStyles.moveBtn}
+                      style={[localStyles.moveBtn, { backgroundColor: theme.primary }]}
                       onPress={() => onMove(cat)}
                     >
                       <Feather name="arrow-right" size={16} color="#000" />
@@ -369,12 +372,10 @@ const localStyles = {
     alignItems: 'center',
   },
   backText: {
-    color: theme.textDim,
     marginLeft: 8,
     fontWeight: '600',
   },
   title: {
-    color: theme.text,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -389,13 +390,11 @@ const localStyles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.surface,
     padding: 16,
     borderRadius: 12,
     gap: 8,
   },
   addBtnText: {
-    color: theme.text,
     fontWeight: '600',
     fontSize: 16,
   },
@@ -404,18 +403,15 @@ const localStyles = {
     paddingVertical: 60,
   },
   emptyText: {
-    color: theme.text,
     fontSize: 18,
     fontWeight: '600',
     marginTop: 16,
   },
   emptySubtext: {
-    color: theme.textDim,
     marginTop: 4,
     textAlign: 'center',
   },
   photoItem: {
-    backgroundColor: theme.surface,
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
@@ -427,7 +423,6 @@ const localStyles = {
     height: 80,
     borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: theme.surfaceHighlight,
   },
   photoImage: {
     width: '100%',
@@ -440,13 +435,11 @@ const localStyles = {
     alignItems: 'center',
   },
   photoCaption: {
-    color: theme.text,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
   },
   photoSize: {
-    color: theme.textDim,
     fontSize: 12,
   },
   actions: {
@@ -465,7 +458,6 @@ const localStyles = {
     height: 120,
     borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: theme.surfaceHighlight,
   },
   editImage: {
     width: '100%',
@@ -476,14 +468,11 @@ const localStyles = {
     height: '100%',
   },
   editLabel: {
-    color: theme.textDim,
     fontSize: 11,
     fontWeight: '600',
     marginBottom: 6,
   },
   editInput: {
-    backgroundColor: theme.surfaceHighlight,
-    color: theme.text,
     padding: 10,
     borderRadius: 8,
     fontSize: 14,
@@ -496,17 +485,12 @@ const localStyles = {
   },
   sizeChip: {
     flex: 1,
-    backgroundColor: theme.surfaceHighlight,
     paddingVertical: 6,
     paddingHorizontal: 8,
     borderRadius: 8,
     alignItems: 'center',
   },
-  sizeChipActive: {
-    backgroundColor: theme.primary,
-  },
   sizeText: {
-    color: theme.textDim,
     fontSize: 11,
     fontWeight: '600',
   },
@@ -517,7 +501,6 @@ const localStyles = {
   },
   saveBtn: {
     flex: 1,
-    backgroundColor: theme.primary,
     paddingVertical: 8,
     borderRadius: 8,
     alignItems: 'center',
@@ -529,13 +512,11 @@ const localStyles = {
   },
   cancelBtn: {
     flex: 1,
-    backgroundColor: theme.surfaceHighlight,
     paddingVertical: 8,
     borderRadius: 8,
     alignItems: 'center',
   },
   cancelBtnText: {
-    color: theme.text,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -546,7 +527,6 @@ const localStyles = {
     alignItems: 'center',
   },
   moveModal: {
-    backgroundColor: theme.surface,
     borderRadius: 24,
     padding: 24,
     width: '85%',
@@ -559,7 +539,6 @@ const localStyles = {
     marginBottom: 20,
   },
   moveTitle: {
-    color: theme.text,
     fontSize: 20,
     fontWeight: '600',
   },
@@ -580,13 +559,11 @@ const localStyles = {
     marginBottom: 8,
   },
   movePhotoCaption: {
-    color: theme.text,
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
   },
   moveLabel: {
-    color: theme.textDim,
     fontSize: 12,
     fontWeight: '600',
     marginBottom: 12,
@@ -595,7 +572,6 @@ const localStyles = {
     maxHeight: 300,
   },
   categoryItem: {
-    backgroundColor: theme.surfaceHighlight,
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
@@ -606,7 +582,6 @@ const localStyles = {
     marginBottom: 12,
   },
   categoryName: {
-    color: theme.text,
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 12,
@@ -620,7 +595,6 @@ const localStyles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.surface,
     paddingVertical: 8,
     borderRadius: 8,
     gap: 6,
@@ -630,13 +604,11 @@ const localStyles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.primary,
     paddingVertical: 8,
     borderRadius: 8,
     gap: 6,
   },
   actionBtnText: {
-    color: theme.text,
     fontWeight: '600',
     fontSize: 14,
   },

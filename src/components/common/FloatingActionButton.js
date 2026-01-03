@@ -80,7 +80,7 @@ const FloatingActionButton = ({
         {menuItems.map((item, index) => {
           const translateY = animation.interpolate({
             inputRange: [0, 1],
-            outputRange: [0, -((index + 1) * 60)],
+            outputRange: [0, -((index + 1) * 80)], // A5: Grotere spacing (was 60)
           });
 
           const scale = animation.interpolate({
@@ -151,9 +151,9 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   fab: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 72, // A5: 2x groter (was 56)
+    height: 72,
+    borderRadius: 36,
     justifyContent: 'center',
     alignItems: 'center',
     ...shadows.lg,
@@ -166,9 +166,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   menuButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 64, // A5: Groter (was 48)
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 4,

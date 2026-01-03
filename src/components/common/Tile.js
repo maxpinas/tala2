@@ -15,7 +15,8 @@ import { useTheme, spacing, borderRadius, typography, shadows } from '../../them
  * @param {string} textColor - Tekst kleur
  * @param {function} onPress - Tap handler
  * @param {function} onLongPress - Long press handler
- * @param {boolean} square - Of de tile vierkant moet zijn (aspect ratio 1:1)
+ * @param {boolean} square - Of de tile vierkant moet zijn (aspect ratio 1:1) - DEPRECATED, use wide instead
+ * @param {boolean} wide - Of de tile breed/rechthoekig moet zijn (aspect ratio 1.4:1, 30% minder hoog)
  * @param {string} size - Grootte: 'small', 'medium', 'large'
  * @param {number} badge - Optioneel badge nummer
  * @param {object} style - Extra styling
@@ -29,7 +30,8 @@ const Tile = ({
   textColor,
   onPress,
   onLongPress,
-  square = true,
+  square = false, // Changed default to false
+  wide = true, // New default: wide tiles (A1 requirement)
   size = 'medium',
   badge,
   style,
@@ -69,7 +71,8 @@ const Tile = ({
           backgroundColor: bgColor,
           padding: currentSize.padding,
         },
-        square && styles.square,
+        wide && styles.wide, // A1: 30% less height (aspect ratio ~1.4:1)
+        square && styles.square, // Legacy: perfect square
         style,
       ]}
       onPress={onPress}
@@ -117,6 +120,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...shadows.sm,
+  },
+  wide: {
+    aspectRatio: 1.43, // A1: 30% less height than square (1 / 0.7 = 1.43)
   },
   square: {
     aspectRatio: 1,

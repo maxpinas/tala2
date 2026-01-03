@@ -1,7 +1,8 @@
 import { StyleSheet, Platform } from 'react-native';
-import { theme, spacing, borderRadius } from '../theme';
+import { spacing, borderRadius, lightTheme } from '../theme';
 
-const styles = StyleSheet.create({
+// Dynamic styles factory - call with theme parameter
+export const createStyles = (theme) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.bg, paddingTop: Platform.OS === 'android' ? 35 : 0 },
   container: { flex: 1, backgroundColor: theme.bg },
   header: { padding: spacing.xl, paddingBottom: spacing.lg, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
@@ -150,4 +151,14 @@ const styles = StyleSheet.create({
   wordList: { marginTop: 10 },
 });
 
+// Default export for backwards compatibility (uses light theme)
+const styles = createStyles(lightTheme);
 export default styles;
+
+// Hook for dynamic themed styles
+export const useStyles = () => {
+  // Import inside to avoid circular dependency
+  const { useTheme } = require('../theme');
+  const { theme } = useTheme();
+  return createStyles(theme);
+};

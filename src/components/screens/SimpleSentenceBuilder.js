@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 import { WORD_CATEGORIES } from '../../data';
 import speechService from '../../services/speechService';
 
@@ -19,13 +19,13 @@ const STEPS = {
   CATEGORY: 'category',
 };
 
-const CATEGORY_CONFIG = {
+const getCategoryConfig = (theme) => ({
   WIE: { label: 'Wie', icon: 'user', color: theme.catPeople, description: 'Personen' },
   DOE: { label: 'Doe', icon: 'zap', color: theme.catAction, description: 'Acties' },
   WAT: { label: 'Wat', icon: 'box', color: theme.catThing, description: 'Dingen' },
   WAAR: { label: 'Waar', icon: 'map-pin', color: theme.catPlace, description: 'Plaatsen' },
   EMOJI: { label: 'Emoji', icon: 'smile', color: '#FFD166', description: 'Emoticons' },
-};
+});
 
 const SimpleSentenceBuilder = ({
   visible,
@@ -41,6 +41,10 @@ const SimpleSentenceBuilder = ({
   const [customText, setCustomText] = useState('');
   const [showCategorySelector, setShowCategorySelector] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  
+  // Get theme from context
+  const { theme } = useTheme();
+  const CATEGORY_CONFIG = getCategoryConfig(theme);
   
   // Ref for timeout cleanup
   const timeoutRef = useRef(null);
@@ -116,10 +120,10 @@ const SimpleSentenceBuilder = ({
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.bg }]}>
           {/* Success message - Opgeslagen */}
           {saveSuccess && (
-            <View style={styles.successBanner}>
+            <View style={[styles.successBanner, { backgroundColor: theme.primary }]}>
               <Feather name="check-circle" size={20} color="#000" />
               <Text style={styles.successText}>Opgeslagen!</Text>
             </View>
@@ -129,12 +133,12 @@ const SimpleSentenceBuilder = ({
             // OVERVIEW - Show sentence and category buttons
             <>
               {/* Header with back pill */}
-              <View style={styles.header}>
-                <TouchableOpacity onPress={onClose} style={styles.backPill}>
+              <View style={[styles.header, { borderBottomColor: theme.border }]}>
+                <TouchableOpacity onPress={onClose} style={[styles.backPill, { backgroundColor: theme.surface }]}>
                   <Feather name="arrow-left" size={20} color={theme.text} />
-                  <Text style={styles.backPillText}>Terug</Text>
+                  <Text style={[styles.backPillText, { color: theme.text }]}>Terug</Text>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Zin Bouwen</Text>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>Zin Bouwen</Text>
                 <View style={{ width: 80 }} />
               </View>
 
@@ -149,9 +153,9 @@ const SimpleSentenceBuilder = ({
                 >
                   {/* Custom text input */}
                   <View style={styles.inputSection}>
-                    <Text style={styles.inputLabel}>Typ je zin</Text>
+                    <Text style={[styles.inputLabel, { color: theme.text }]}>Typ je zin</Text>
                     <TextInput
-                      style={styles.textInput}
+                      style={[styles.textInput, { backgroundColor: theme.surface, color: theme.text }]}
                       placeholder="Of kies woorden hieronder..."
                       placeholderTextColor={theme.textDim}
                       value={customText}
@@ -163,15 +167,15 @@ const SimpleSentenceBuilder = ({
                   {/* Current sentence preview */}
                   {sentence.length > 0 && (
                     <View style={styles.previewSection}>
-                      <Text style={styles.previewLabel}>Gekozen woorden</Text>
+                      <Text style={[styles.previewLabel, { color: theme.textDim }]}>Gekozen woorden</Text>
                       <View style={styles.wordsRow}>
                         {sentence.map((word, i) => (
                           <TouchableOpacity
                             key={i}
-                            style={styles.wordChip}
+                            style={[styles.wordChip, { backgroundColor: theme.surface }]}
                             onPress={() => handleWordRemove(i)}
                           >
-                            <Text style={styles.wordChipText}>{word}</Text>
+                            <Text style={[styles.wordChipText, { color: theme.text }]}>{word}</Text>
                             <Feather name="x" size={14} color={theme.textDim} />
                           </TouchableOpacity>
                         ))}
@@ -180,12 +184,12 @@ const SimpleSentenceBuilder = ({
                   )}
 
                   {/* Word category tiles */}
-                  <Text style={styles.sectionTitle}>Kies woorden</Text>
+                  <Text style={[styles.sectionTitle, { color: theme.text }]}>Kies woorden</Text>
                   <View style={styles.categoryGrid}>
                     {Object.entries(CATEGORY_CONFIG).map(([key, config]) => (
                       <TouchableOpacity
                         key={key}
-                        style={[styles.categoryTile, { borderColor: config.color }]}
+                        style={[styles.categoryTile, { backgroundColor: theme.surface, borderColor: config.color }]}
                         onPress={() => {
                           setActiveCategory(key);
                           setStep(STEPS.CATEGORY);
@@ -195,18 +199,18 @@ const SimpleSentenceBuilder = ({
                         <View style={[styles.categoryIcon, { backgroundColor: config.color }]}>
                           <Feather name={config.icon} size={24} color="#000" />
                         </View>
-                        <Text style={styles.categoryLabel}>{config.label}</Text>
-                        <Text style={styles.categoryDesc}>{config.description}</Text>
+                        <Text style={[styles.categoryLabel, { color: theme.text }]}>{config.label}</Text>
+                        <Text style={[styles.categoryDesc, { color: theme.textDim }]}>{config.description}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
                 </ScrollView>
 
                 {/* Action bar */}
-                <View style={styles.actionBar}>
+                <View style={[styles.actionBar, { backgroundColor: theme.bg, borderTopColor: theme.border }]}>
                   {(customText.trim() || sentence.length > 0) && (
                     <TouchableOpacity 
-                      style={styles.clearButton}
+                      style={[styles.clearButton, { backgroundColor: theme.surface }]}
                       onPress={handleClear}
                     >
                       <Feather name="trash-2" size={20} color={theme.danger} />
@@ -214,17 +218,18 @@ const SimpleSentenceBuilder = ({
                   )}
                   
                   <TouchableOpacity 
-                    style={styles.saveButton}
+                    style={[styles.saveButton, { backgroundColor: theme.surface }]}
                     onPress={() => setShowCategorySelector(true)}
                     disabled={!customText.trim() && sentence.length === 0}
                   >
                     <Feather name="folder-plus" size={20} color="#000" />
-                    <Text style={styles.saveButtonText}>Opslaan</Text>
+                    <Text style={[styles.saveButtonText, { color: theme.text }]}>Opslaan</Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity 
                     style={[
                       styles.speakButton,
+                      { backgroundColor: theme.primary },
                       (!customText.trim() && sentence.length === 0) && styles.speakButtonDisabled
                     ]}
                     onPress={handleSpeak}
@@ -239,15 +244,15 @@ const SimpleSentenceBuilder = ({
           ) : step === STEPS.CATEGORY ? (
             // CATEGORY - Show words from selected category
             <>
-              <View style={styles.header}>
+              <View style={[styles.header, { borderBottomColor: theme.border }]}>
                 <TouchableOpacity 
                   onPress={() => setStep(STEPS.OVERVIEW)} 
-                  style={styles.backPill}
+                  style={[styles.backPill, { backgroundColor: theme.surface }]}
                 >
                   <Feather name="arrow-left" size={20} color={theme.text} />
-                  <Text style={styles.backPillText}>Terug</Text>
+                  <Text style={[styles.backPillText, { color: theme.text }]}>Terug</Text>
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>
                   {CATEGORY_CONFIG[activeCategory]?.label || 'Woorden'}
                 </Text>
                 <View style={{ width: 80 }} />
@@ -261,14 +266,14 @@ const SimpleSentenceBuilder = ({
                   {wordCategories[activeCategory]?.map((word, i) => (
                     <TouchableOpacity
                       key={i}
-                      style={styles.wordTile}
+                      style={[styles.wordTile, { backgroundColor: theme.surface }]}
                       onPress={() => {
                         handleWordSelect(word);
                         setStep(STEPS.OVERVIEW);
                       }}
                       activeOpacity={0.8}
                     >
-                      <Text style={styles.wordTileText}>{word}</Text>
+                      <Text style={[styles.wordTileText, { color: theme.text }]}>{word}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -289,8 +294,8 @@ const SimpleSentenceBuilder = ({
                 activeOpacity={1}
                 onPress={() => setShowCategorySelector(false)}
               />
-              <View style={styles.categorySheet}>
-                <Text style={styles.categorySheetTitle}>Opslaan in onderwerp</Text>
+              <View style={[styles.categorySheet, { backgroundColor: theme.surface }]}>
+                <Text style={[styles.categorySheetTitle, { color: theme.text }]}>Opslaan in onderwerp</Text>
                 <ScrollView style={styles.categoryList} showsVerticalScrollIndicator={false}>
                   {/* Aangepast eerst */}
                   <TouchableOpacity
@@ -301,7 +306,7 @@ const SimpleSentenceBuilder = ({
                     <View style={[styles.categoryOptionIcon, { backgroundColor: theme.accent }]}>
                       <Feather name="edit-3" size={24} color="#000" />
                     </View>
-                    <Text style={styles.categoryOptionLabel}>Aangepast (eigen zinnen)</Text>
+                    <Text style={[styles.categoryOptionLabel, { color: theme.text }]}>Aangepast (eigen zinnen)</Text>
                   </TouchableOpacity>
                   
                   {/* Andere categorieën */}
@@ -317,7 +322,7 @@ const SimpleSentenceBuilder = ({
                       <View style={[styles.categoryOptionIcon, { backgroundColor: theme.surfaceHighlight }]}>
                         <Feather name={cat.icon || 'folder'} size={24} color={theme.primary} />
                       </View>
-                      <Text style={styles.categoryOptionLabel}>{cat.label || key}</Text>
+                      <Text style={[styles.categoryOptionLabel, { color: theme.text }]}>{cat.label || key}</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -325,7 +330,7 @@ const SimpleSentenceBuilder = ({
                   style={styles.cancelButton}
                   onPress={() => setShowCategorySelector(false)}
                 >
-                  <Text style={styles.cancelButtonText}>Annuleren</Text>
+                  <Text style={[styles.cancelButtonText, { color: theme.textDim }]}>Annuleren</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -339,11 +344,9 @@ const SimpleSentenceBuilder = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.bg,
     paddingTop: Platform.OS === 'ios' ? 50 : 0,
   },
   successBanner: {
-    backgroundColor: theme.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -362,24 +365,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: theme.border,
   },
   backPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.surface,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     gap: 6,
   },
   backPillText: {
-    color: theme.text,
     fontSize: 14,
     fontWeight: '500',
   },
   headerTitle: {
-    color: theme.text,
     fontSize: 18,
     fontWeight: '600',
   },
@@ -387,16 +386,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputLabel: {
-    color: theme.text,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
   },
   textInput: {
-    backgroundColor: theme.surface,
     borderRadius: 12,
     padding: 16,
-    color: theme.text,
     fontSize: 18,
     minHeight: 80,
     textAlignVertical: 'top',
@@ -405,7 +401,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   previewLabel: {
-    color: theme.textDim,
     fontSize: 14,
     marginBottom: 8,
   },
@@ -417,18 +412,15 @@ const styles = StyleSheet.create({
   wordChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.surface,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 16,
     gap: 6,
   },
   wordChipText: {
-    color: theme.text,
     fontSize: 16,
   },
   sectionTitle: {
-    color: theme.text,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 12,
@@ -440,7 +432,6 @@ const styles = StyleSheet.create({
   },
   categoryTile: {
     width: '47%',
-    backgroundColor: theme.surface,
     borderRadius: 16,
     padding: 16,
     borderWidth: 2,
@@ -454,12 +445,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryLabel: {
-    color: theme.text,
     fontSize: 18,
     fontWeight: '600',
   },
   categoryDesc: {
-    color: theme.textDim,
     fontSize: 14,
     marginTop: 2,
   },
@@ -469,13 +458,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   wordTile: {
-    backgroundColor: theme.surface,
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderRadius: 12,
   },
   wordTileText: {
-    color: theme.text,
     fontSize: 18,
     fontWeight: '500',
   },
@@ -489,37 +476,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 16,
     paddingBottom: Platform.OS === 'ios' ? 34 : 16,
-    backgroundColor: theme.bg,
     borderTopWidth: 1,
-    borderTopColor: theme.border,
     gap: 12,
   },
   clearButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: theme.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.surface,
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 28,
     gap: 8,
   },
   saveButtonText: {
-    color: theme.text,
     fontSize: 16,
     fontWeight: '600',
   },
   speakButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.primary,
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 28,
@@ -542,14 +523,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categorySheet: {
-    backgroundColor: theme.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
     maxHeight: '70%',
   },
   categorySheetTitle: {
-    color: theme.text,
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 16,
@@ -572,7 +551,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryOptionLabel: {
-    color: theme.text,
     fontSize: 18,
     fontWeight: '500',
   },
@@ -582,7 +560,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: theme.textDim,
     fontSize: 16,
   },
 });

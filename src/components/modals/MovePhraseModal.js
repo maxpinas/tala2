@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
-import styles from '../../styles';
+import { useTheme, spacing, borderRadius } from '../../theme';
+import { useStyles } from '../../styles';
 
 const MovePhraseModal = ({ visible, onClose, phrase, categories, currentCategory, onMove, onCopy }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const otherCategories = Object.keys(categories).filter(cat => cat !== currentCategory);
 
   return (

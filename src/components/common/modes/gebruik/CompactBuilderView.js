@@ -1,37 +1,38 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../../../theme';
+import { useTheme } from '../../../../theme';
 
-const StepButton = ({ label, onPress }) => (
-  <TouchableOpacity style={styles.stepButton} onPress={onPress} activeOpacity={0.8} accessibilityRole="button">
+const StepButton = ({ label, onPress, theme }) => (
+  <TouchableOpacity style={[styles.stepButton, { backgroundColor: theme.primary }]} onPress={onPress} activeOpacity={0.8} accessibilityRole="button">
     <Text style={styles.stepLabel}>{label}</Text>
   </TouchableOpacity>
 );
 
-const CompactBuilderView = ({ onWho, onDo, onWhat, onWhere }) => (
-  <View style={styles.container}>
-    <Text style={styles.title}>Zin bouwen</Text>
-    <View style={styles.row}>
-      <StepButton label="Wie" onPress={onWho} />
-      <StepButton label="Doe" onPress={onDo} />
-      <StepButton label="Wat" onPress={onWhat} />
-      <StepButton label="Waar" onPress={onWhere} />
+const CompactBuilderView = ({ onWho, onDo, onWhat, onWhere }) => {
+  const { theme } = useTheme();
+  return (
+    <View style={[styles.container, { backgroundColor: theme.card }]}>
+      <Text style={[styles.title, { color: theme.text }]}>Zin bouwen</Text>
+      <View style={styles.row}>
+        <StepButton label="Wie" onPress={onWho} theme={theme} />
+        <StepButton label="Doe" onPress={onDo} theme={theme} />
+        <StepButton label="Wat" onPress={onWhat} theme={theme} />
+        <StepButton label="Waar" onPress={onWhere} theme={theme} />
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     padding: 12,
     borderRadius: 12,
-    backgroundColor: theme.card,
     marginVertical: 8,
   },
   title: {
     fontWeight: '700',
     fontSize: 16,
-    color: theme.text,
     marginBottom: 8,
   },
   row: {
@@ -43,7 +44,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 6,
     paddingVertical: 16,
     borderRadius: 12,
-    backgroundColor: theme.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },

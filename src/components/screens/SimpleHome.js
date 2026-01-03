@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Animated } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius, typography } from '../../theme';
+import { useTheme, spacing, borderRadius, typography } from '../../theme';
 import { t } from '../../i18n';
 import { 
   Header, 
@@ -23,27 +23,6 @@ import {
  * - FAB with expandable menu
  * - Filter modal for location/person context
  */
-
-// Categorie kleuren mapping
-const CATEGORY_COLORS = {
-  'Thuis': theme.categories.thuis,
-  'Boodschappen': theme.categories.boodschappen,
-  'Eten en drinken': theme.categories.etenDrinken,
-  'Eten & Drinken': theme.categories.etenDrinken,
-  'Pijn en zorg': theme.categories.pijnZorg,
-  'Pijn & Zorg': theme.categories.pijnZorg,
-  'Vervoer': theme.categories.vervoer,
-  'Verplaatsen': theme.categories.vervoer,
-  'Onderweg': theme.categories.vervoer,
-  'Ontspanning': theme.categories.ontspanning,
-  'Ontspannen': theme.categories.ontspanning,
-  'Persoonlijk': theme.categories.persoonlijk,
-  'Aangepast': theme.categories.aangepast,
-};
-
-const getCategoryColor = (categoryName) => {
-  return CATEGORY_COLORS[categoryName] || theme.categories.default;
-};
 
 const SimpleHome = ({
   // Data
@@ -83,6 +62,19 @@ const SimpleHome = ({
   onLocationSelect,
   onPersonSelect,
 }) => {
+  const { theme } = useTheme();
+  
+  // A2: Alle home tiles krijgen dezelfde groene kleur als 'Eten en Drinken'
+  // Dit maakt de interface rustiger en uniformer
+  const getHomeTileColor = () => {
+    return theme.categories.etenDrinken; // Uniform groen voor alle home tiles
+  };
+  
+  // A3: Favoriet tiles krijgen dezelfde groene kleur (Ja tile kleur)
+  const getFavoriteTileColor = () => {
+    return theme.categories.etenDrinken; // Zelfde groen als home tiles
+  };
+  
   // State
   const [activeTab, setActiveTab] = useState('praat');
   const [filterVisible, setFilterVisible] = useState(false);
@@ -155,8 +147,7 @@ const SimpleHome = ({
       contentContainerStyle={styles.tabContentContainer}
       showsVerticalScrollIndicator={false}
     >
-      {/* Section Title */}
-      <Text style={styles.sectionTitle}>Onderwerpen</Text>
+      {/* A7: Section title removed - tiles speak for themselves */}
 
       {/* Categories Grid */}
       <Grid columns={2}>
@@ -165,7 +156,7 @@ const SimpleHome = ({
             key={catKey}
             label={catKey}
             icon={categories[catKey].icon || 'grid'}
-            backgroundColor={getCategoryColor(catKey)}
+            backgroundColor={getHomeTileColor()}
             textColor={theme.textInverse}
             iconColor={theme.textInverse}
             onPress={() => onCategory(catKey)}
@@ -185,20 +176,20 @@ const SimpleHome = ({
       {gallery.length === 0 ? (
         <View style={styles.emptyState}>
           <Feather name="image" size={48} color={theme.textDim} />
-          <Text style={styles.emptyStateText}>{t('gallery.empty')}</Text>
+          <Text style={[styles.emptyStateText, { color: theme.textDim }]}>{t('gallery.empty')}</Text>
           <TouchableOpacity 
-            style={styles.emptyStateButton}
+            style={[styles.emptyStateButton, { backgroundColor: theme.primary }]}
             onPress={onLatenZien}
           >
             <Feather name="plus" size={18} color={theme.textInverse} />
-            <Text style={styles.emptyStateButtonText}>{t('gallery.addPhoto')}</Text>
+            <Text style={[styles.emptyStateButtonText, { color: theme.textInverse }]}>{t('gallery.addPhoto')}</Text>
           </TouchableOpacity>
         </View>
       ) : (
         gallery.map((photo, index) => (
           <TouchableOpacity
             key={photo.id || index}
-            style={styles.photoListItem}
+            style={[styles.photoListItem, { backgroundColor: theme.surface }]}
             onPress={() => onPhotoPress && onPhotoPress(photo)}
             onLongPress={() => onPhotoLongPress && onPhotoLongPress(photo)}
             activeOpacity={0.7}
@@ -209,7 +200,7 @@ const SimpleHome = ({
               resizeMode="cover"
             />
             <View style={styles.photoListTextContainer}>
-              <Text style={styles.photoListCaption} numberOfLines={2}>
+              <Text style={[styles.photoListCaption, { color: theme.text }]} numberOfLines={2}>
                 {photo.caption || t('gallery.noCaption')}
               </Text>
             </View>
@@ -230,7 +221,7 @@ const SimpleHome = ({
       {history.length === 0 ? (
         <View style={styles.emptyState}>
           <Feather name="clock" size={48} color={theme.textDim} />
-          <Text style={styles.emptyStateText}>{t('history.empty')}</Text>
+          <Text style={[styles.emptyStateText, { color: theme.textDim }]}>{t('history.empty')}</Text>
         </View>
       ) : (
         history.map((item, index) => (
@@ -256,7 +247,7 @@ const SimpleHome = ({
       {quickResponses.length === 0 ? (
         <View style={styles.emptyState}>
           <Feather name="star" size={48} color={theme.textDim} />
-          <Text style={styles.emptyStateText}>{t('favorites.empty')}</Text>
+          <Text style={[styles.emptyStateText, { color: theme.textDim }]}>{t('favorites.empty')}</Text>
         </View>
       ) : (
         <Grid columns={2}>
@@ -264,6 +255,8 @@ const SimpleHome = ({
             <QuickActionTile
               key={index}
               label={qr}
+              backgroundColor={getFavoriteTileColor()}
+              textColor={theme.textInverse}
               onPress={() => onQuickResponse && onQuickResponse(qr)}
               onLongPress={() => onQuickResponseLongPress && onQuickResponseLongPress(qr)}
             />
@@ -290,7 +283,7 @@ const SimpleHome = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.bg }]}>
       {/* Header */}
       <Header
         userName={userName}
@@ -351,7 +344,6 @@ const SimpleHome = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.bg,
   },
   tabContent: {
     flex: 1,
@@ -361,7 +353,6 @@ const styles = StyleSheet.create({
     paddingBottom: 100, // Space for FAB
   },
   sectionTitle: {
-    color: theme.textDim,
     fontSize: typography.caption.fontSize,
     fontWeight: '600',
     marginBottom: spacing.md,
@@ -387,7 +378,6 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   emptyStateText: {
-    color: theme.textDim,
     fontSize: typography.body.fontSize,
     marginTop: spacing.md,
     fontStyle: 'italic',
@@ -395,7 +385,6 @@ const styles = StyleSheet.create({
   emptyStateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.primary,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
@@ -403,13 +392,11 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   emptyStateButtonText: {
-    color: theme.textInverse,
     fontSize: typography.body.fontSize,
     fontWeight: '600',
   },
   photoTile: {
     aspectRatio: 1,
-    backgroundColor: theme.surface,
     borderRadius: borderRadius.md,
     overflow: 'hidden',
     marginBottom: spacing.tileGap,
@@ -427,14 +414,12 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
   },
   photoCaption: {
-    color: theme.textInverse,
     fontSize: typography.caption.fontSize,
   },
   // New list style for Kijken/Zien tab
   photoListItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.surface,
     borderRadius: borderRadius.md,
     padding: spacing.md,
     marginBottom: spacing.md,
@@ -449,7 +434,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   photoListCaption: {
-    color: theme.text,
     fontSize: 18,
     fontWeight: '500',
     lineHeight: 24,

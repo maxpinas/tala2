@@ -1,10 +1,12 @@
 import React from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
-import styles from '../../styles';
+import { useTheme, spacing, borderRadius } from '../../theme';
 
-const MedicalScreen = ({ visible, onClose, profile, text, extended }) => (
+const MedicalScreen = ({ visible, onClose, profile, text, extended }) => {
+  const { theme } = useTheme();
+  
+  return (
   <Modal visible={visible} animationType="fade" transparent={false}>
     <SafeAreaView style={{flex:1, backgroundColor: theme.bg}}>
       <View style={{padding: spacing.xl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -67,6 +69,7 @@ const MedicalScreen = ({ visible, onClose, profile, text, extended }) => (
       </ScrollView>
     </SafeAreaView>
   </Modal>
-);
+  );
+};
 
 export default MedicalScreen;

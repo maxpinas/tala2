@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 
 const ListManagerScreenEmbedded = ({ items, onUpdate, type = 'object' }) => {
+    const { theme } = useTheme();
+    const styles = useStyles();
     const [newItemText, setNewItemText] = useState("");
     
     const move = (index, direction) => {
@@ -81,8 +83,10 @@ const ListManagerScreenEmbedded = ({ items, onUpdate, type = 'object' }) => {
 };
 
 const ManagePartnersScreen = ({ onClose, partners, setPartners }) => {
+    const { theme } = useTheme();
+    const styles = useStyles();
     return (
-        <Modal visible={true} animationType="slide">
+        <Modal visible={true} animationType="slide">)
             <SafeAreaView style={{flex: 1, backgroundColor: theme.bg}}>
                 <View style={styles.header}>
                     <Text style={styles.catHeaderSmall}>Gesprekspartners</Text>

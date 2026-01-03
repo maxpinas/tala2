@@ -1,18 +1,35 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
-import styles from '../../styles';
+import { useTheme, spacing, borderRadius } from '../../theme';
 
 const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
+  const { theme } = useTheme();
+
   const MenuItem = ({ icon, title, subtitle, onPress, iconBg }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+    <TouchableOpacity 
+      style={{ 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        paddingVertical: spacing.md, 
+        borderBottomWidth: 1, 
+        borderBottomColor: theme.border 
+      }} 
+      onPress={onPress}
+    >
       <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
-        <View style={[styles.selectorIcon, {backgroundColor: iconBg || theme.primary}]}>
+        <View style={{ 
+          width: 44, 
+          height: 44, 
+          borderRadius: borderRadius.lg, 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          backgroundColor: iconBg || theme.primary 
+        }}>
           <Feather name={icon} size={22} color={iconBg === theme.accent ? theme.textInverse : theme.text} />
         </View>
         <View style={{flex: 1, marginLeft: spacing.lg}}>
-          <Text style={[styles.menuItemTitle, {marginLeft: 0}]}>{title}</Text>
+          <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>{title}</Text>
           {subtitle && <Text style={{color: theme.textDim, fontSize: 12, marginTop: 2}}>{subtitle}</Text>}
         </View>
         <Feather name="chevron-right" size={20} color={theme.textDim} />
@@ -22,11 +39,26 @@ const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.modalOverlay}>
-        <View style={styles.selectorContainer}>
-          <View style={styles.selectorHeader}>
-            <Text style={styles.selectorTitle}>Mijn Profiel</Text>
-            <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.surface, borderRadius: borderRadius.full}}>
+      <View style={{ 
+        flex: 1, 
+        backgroundColor: 'rgba(0,0,0,0.5)', 
+        justifyContent: 'flex-end' 
+      }}>
+        <View style={{ 
+          backgroundColor: theme.surface, 
+          borderTopLeftRadius: borderRadius.xl, 
+          borderTopRightRadius: borderRadius.xl, 
+          padding: spacing.lg,
+          maxHeight: '80%'
+        }}>
+          <View style={{ 
+            flexDirection: 'row', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: spacing.lg 
+          }}>
+            <Text style={{ fontSize: 20, fontWeight: '600', color: theme.text }}>Mijn Profiel</Text>
+            <TouchableOpacity onPress={onClose} style={{padding: spacing.sm, backgroundColor: theme.background, borderRadius: borderRadius.full}}>
               <Feather name="x" size={24} color={theme.text} />
             </TouchableOpacity>
           </View>

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 import { WORD_CATEGORIES } from '../../data';
 import { getAISuggestions, getAIFullSentences } from '../../services';
 import { EditToolbar, CompactBuilderView } from '../common';
 import { useApp } from '../../context';
-import styles from '../../styles';
+import { useStyles } from '../../styles';
 
 const SmartSentenceBuilder = ({ initialSentence, mode = 'SENTENCE', onSave, onCancel }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const [sentence, setSentence] = useState([]);
   const [builderTab, setBuilderTab] = useState('WIE');
   const [customInput, setCustomInput] = useState("");

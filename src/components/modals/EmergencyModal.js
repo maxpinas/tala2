@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
-import styles from '../../styles';
+import { useTheme, spacing, borderRadius } from '../../theme';
+import { useStyles } from '../../styles';
 
-const FullScreenHelp = ({ visible, onClose }) => (
+const FullScreenHelp = ({ visible, onClose, theme }) => (
     <Modal visible={visible} animationType="slide" transparent={false}>
         <SafeAreaView style={{flex:1, backgroundColor: '#FFF000'}}>
              <View style={{flex:1, justifyContent:'center', alignItems:'center', padding: spacing.xl}}>
@@ -22,12 +22,13 @@ const FullScreenHelp = ({ visible, onClose }) => (
 );
 
 const EmergencyModal = ({ visible, onClose, profile, extended, onTriggerPopup, onShowMedical }) => {
+  const { theme } = useTheme();
   const [showHelp, setShowHelp] = useState(false);
   
   return (
     <Modal visible={visible} animationType="slide">
       <SafeAreaView style={{flex:1, backgroundColor: theme.bg}}>
-        <FullScreenHelp visible={showHelp} onClose={() => setShowHelp(false)} />
+        <FullScreenHelp visible={showHelp} onClose={() => setShowHelp(false)} theme={theme} />
         
         <View style={{padding: spacing.xl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: theme.danger}}>
           <View style={{flexDirection:'row', alignItems:'center'}}>

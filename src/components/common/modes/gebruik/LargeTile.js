@@ -1,13 +1,15 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../../../theme';
+import { useTheme } from '../../../../theme';
 
-const LargeTile = ({ icon = 'message-circle', label, onPress, background = theme.surfaceHighlight, color = '#FFFFFF', accessibilityLabel }) => {
+const LargeTile = ({ icon = 'message-circle', label, onPress, background, color = '#FFFFFF', accessibilityLabel }) => {
+  const { theme } = useTheme();
+  const bgColor = background || theme.surfaceHighlight;
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.tile, { backgroundColor: background }]}
+      style={[styles.tile, { backgroundColor: bgColor }]}
       activeOpacity={0.8}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || label}

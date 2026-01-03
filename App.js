@@ -79,6 +79,7 @@ const getQuickResponseIcon = (text) => {
 
 // --- MAIN APP WRAPPER (checks loading state and mode selection) ---
 const MainAppWrapper = ({ onReset }) => {
+  const { theme, isDark } = useTheme();
   const {
     isLoading,
     appMode,
@@ -580,8 +581,8 @@ const MainApp = ({ onReset }) => {
   const deleteWordMain = () => { if (selectedWordIndex !== null) { setSentence(sentence.filter((_, i) => i !== selectedWordIndex)); setSelectedWordIndex(null); } };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.bg} />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.bg }]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={theme.bg} />
       
       {/* Speaking indicator - Siri-achtige animatie */}
       <SpeakingIndicator visible={isSpeaking || speakingText !== ''} text={speakingText} />
@@ -1172,62 +1173,64 @@ const AppContent = ({ onboarded, setOnboarded, appKey, handleReset }) => {
 };
 
 // --- STYLES ---
+// Note: These styles use static theme for backwards compatibility.
+// Components using these should use inline styles with dynamic theme for colors.
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: theme.bg, paddingTop: Platform.OS === 'android' ? 35 : 0 },
-  container: { flex: 1, backgroundColor: theme.bg },
+  safeArea: { flex: 1, paddingTop: Platform.OS === 'android' ? 35 : 0 },
+  container: { flex: 1 },
   header: { padding: 24, paddingBottom: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  greeting: { fontSize: 26, fontWeight: '800', color: theme.text, marginBottom: 4 },
+  greeting: { fontSize: 26, fontWeight: '800', marginBottom: 4 },
   statusRowNew: { flexDirection: 'row', marginTop: 4, flexWrap: 'wrap' },
-  statusPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.surface, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginRight: 8, marginTop: 4, borderWidth: 1, borderColor: theme.surfaceHighlight },
-  statusText: { color: theme.textHighContrast, fontSize: 12, marginLeft: 6, fontWeight: '600' },
-  profileBadge: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.surface, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: theme.surfaceHighlight, marginTop: 4 },
-  profileText: { color: theme.primary, fontSize: 18, fontWeight: 'bold' },
-  phraseRow: { padding: 16, borderBottomWidth: 1, borderBottomColor: theme.surfaceHighlight, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  phraseText: { color: theme.text, fontSize: 18 },
-  sentenceContainer: { marginHorizontal: 24, marginBottom: 16, height: 70, backgroundColor: '#0F1623', borderRadius: 16, borderWidth: 1, borderColor: theme.primary, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, justifyContent:'space-between' },
-  wordBubble: { backgroundColor: theme.surfaceHighlight, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, marginRight: 8, height: 46, justifyContent: 'center' },
-  wordText: { color: theme.text, fontSize: 16, fontWeight: '600' },
-  placeholderText: { color: theme.textDim, fontStyle: 'italic', marginLeft: 8 },
+  statusPill: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, marginRight: 8, marginTop: 4, borderWidth: 1 },
+  statusText: { fontSize: 12, marginLeft: 6, fontWeight: '600' },
+  profileBadge: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', borderWidth: 1, marginTop: 4 },
+  profileText: { fontSize: 18, fontWeight: 'bold' },
+  phraseRow: { padding: 16, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  phraseText: { fontSize: 18 },
+  sentenceContainer: { marginHorizontal: 24, marginBottom: 16, height: 70, borderRadius: 16, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, justifyContent:'space-between' },
+  wordBubble: { borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, marginRight: 8, height: 46, justifyContent: 'center' },
+  wordText: { fontSize: 16, fontWeight: '600' },
+  placeholderText: { fontStyle: 'italic', marginLeft: 8 },
   scrollContent: { paddingHorizontal: 24 },
   section: { marginBottom: 32 },
-  label: { color: theme.textDim, fontSize: 12, fontWeight: '700', marginBottom: 12, letterSpacing: 1.2 },
+  label: { fontSize: 12, fontWeight: '700', marginBottom: 12, letterSpacing: 1.2 },
   
   // GALLERY & GRID FIXES
   catGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  catTile: { width: '48%', backgroundColor: theme.surface, padding: 20, borderRadius: 20, marginBottom: 16, height: 110, justifyContent: 'space-between' },
-  catTitle: { color: theme.text, fontSize: 16, fontWeight: 'bold' },
-  galleryBannerLarge: { width: '100%', backgroundColor: '#1E3A5F', borderRadius: 16, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  catTile: { width: '48%', padding: 20, borderRadius: 20, marginBottom: 16, height: 110, justifyContent: 'space-between' },
+  catTitle: { fontSize: 16, fontWeight: 'bold' },
+  galleryBannerLarge: { width: '100%', borderRadius: 16, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   galleryIconBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent:'center', alignItems:'center', marginRight: 12 },
-  galleryBannerText: { color: '#FFF', fontSize: 16, fontWeight: 'bold' },
+  galleryBannerText: { fontSize: 16, fontWeight: 'bold' },
   galleryGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  addPhotoCard: { width: '48%', aspectRatio: 1, backgroundColor: theme.surfaceHighlight, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 16, borderStyle: 'dashed', borderWidth: 2, borderColor: theme.primary },
-  photoCard: { width: '48%', aspectRatio: 1, backgroundColor: theme.surface, borderRadius: 16, padding: 8, marginBottom: 16 },
+  addPhotoCard: { width: '48%', aspectRatio: 1, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 16, borderStyle: 'dashed', borderWidth: 2 },
+  photoCard: { width: '48%', aspectRatio: 1, borderRadius: 16, padding: 8, marginBottom: 16 },
   photoPlaceholder: { flex: 1, borderRadius: 8, marginBottom: 8 },
-  photoCaption: { color: '#FFF', fontWeight: 'bold', flex: 1, marginRight: 4 },
+  photoCaption: { fontWeight: 'bold', flex: 1, marginRight: 4 },
 
-  listItemRow: { flexDirection: 'row', backgroundColor: theme.surfaceHighlight, padding: 12, borderRadius: 8, marginBottom: 8, alignItems: 'center' },
+  listItemRow: { flexDirection: 'row', padding: 12, borderRadius: 8, marginBottom: 8, alignItems: 'center' },
   
   // FIXED BOTTOM NAV (NEW)
-  fixedBottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 85, backgroundColor: '#162032', borderTopWidth: 1, borderTopColor: theme.surfaceHighlight, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingBottom: 10, paddingHorizontal: 10 },
+  fixedBottomNav: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 85, borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingBottom: 10, paddingHorizontal: 10 },
   navBtn: { alignItems: 'center', flex: 1, paddingVertical: 10 },
-  navBtnPrimary: { backgroundColor: theme.primary, borderRadius: 16, flex: 1.2, marginHorizontal: 5, paddingVertical: 10, height: 60, justifyContent: 'center', transform: [{translateY: -5}] },
+  navBtnPrimary: { borderRadius: 16, flex: 1.2, marginHorizontal: 5, paddingVertical: 10, height: 60, justifyContent: 'center', transform: [{translateY: -5}] },
   navIconContainer: { marginBottom: 4 },
-  navLabel: { fontSize: 11, color: theme.textDim, fontWeight: '600' },
-  navLabelPrimary: { fontSize: 12, color: '#000', fontWeight: 'bold' },
+  navLabel: { fontSize: 11, fontWeight: '600' },
+  navLabelPrimary: { fontSize: 12, fontWeight: 'bold' },
 
-  quickBtn: { backgroundColor: theme.surface, paddingHorizontal: 20, paddingVertical: 16, borderRadius: 12, marginRight: 10, borderWidth:1, borderColor: theme.surfaceHighlight },
-  quickText: { color: '#FFF', fontWeight:'bold', fontSize: 16 },
-  addPhraseBtn: { flexDirection:'row', alignItems:'center', backgroundColor: theme.surfaceHighlight, padding: 16, borderRadius: 12, marginBottom: 20 },
-  addPhraseText: { color: theme.text, fontWeight:'bold', marginLeft: 10 },
-  catHeaderBig: { fontSize: 28, fontWeight:'bold', color:'#FFF', marginBottom: 20 },
+  quickBtn: { paddingHorizontal: 20, paddingVertical: 16, borderRadius: 12, marginRight: 10, borderWidth:1 },
+  quickText: { fontWeight:'bold', fontSize: 16 },
+  addPhraseBtn: { flexDirection:'row', alignItems:'center', padding: 16, borderRadius: 12, marginBottom: 20 },
+  addPhraseText: { fontWeight:'bold', marginLeft: 10 },
+  catHeaderBig: { fontSize: 28, fontWeight:'bold', marginBottom: 20 },
   
   // Long-press modal styles
   longPressOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  longPressSheet: { backgroundColor: theme.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
-  longPressText: { color: theme.text, fontSize: 18, fontWeight: '600', marginBottom: 24, textAlign: 'center' },
-  longPressOption: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.surfaceHighlight, borderRadius: 16, padding: 16, marginBottom: 12 },
-  longPressIconBg: { width: 48, height: 48, borderRadius: 24, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
-  longPressLabel: { color: theme.text, fontSize: 18, fontWeight: '600' },
+  longPressSheet: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
+  longPressText: { fontSize: 18, fontWeight: '600', marginBottom: 24, textAlign: 'center' },
+  longPressOption: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, padding: 16, marginBottom: 12 },
+  longPressIconBg: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
+  longPressLabel: { fontSize: 18, fontWeight: '600' },
   longPressCancelBtn: { marginTop: 8, padding: 16, alignItems: 'center' },
-  longPressCancelText: { color: theme.textDim, fontSize: 16, fontWeight: '600' },
+  longPressCancelText: { fontSize: 16, fontWeight: '600' },
 });

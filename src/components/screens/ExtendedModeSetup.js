@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 import { EXTENDED_SECTIONS } from '../../data';
-import styles from '../../styles';
+import { useStyles } from '../../styles';
 
 // Helper component for list editing
 const ListEditor = ({ items, onItemAdd, onItemRemove, placeholder, title }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const [text, setText] = useState("");
   return (
     <View style={{marginBottom: 20}}>
@@ -39,6 +41,8 @@ const ListEditor = ({ items, onItemAdd, onItemRemove, placeholder, title }) => {
 };
 
 const ExtendedModeSetup = ({ profile, extendedProfile, onSave, onClose, onTriggerPopup }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const [stepIndex, setStepIndex] = useState(0);
   const [data, setData] = useState(extendedProfile);
   const steps = EXTENDED_SECTIONS;

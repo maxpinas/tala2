@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 
 const ManageTopicsScreen = ({ onClose, categories, setCategories }) => {
+    const { theme } = useTheme();
+    const styles = useStyles();
     // Categories is an object. To reorder, we need to convert to array of [key, val], manipulate, then reconstruct.
     const [catList, setCatList] = useState(Object.keys(categories).map(k => ({ key: k, originalKey: k, ...categories[k] })));
     const [newCatName, setNewCatName] = useState("");

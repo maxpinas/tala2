@@ -52,22 +52,22 @@
         {
           "id": "phase-2",
           "title": "FASE 2: Alle Schermen Migreren",
-          "status": "not-started",
+          "status": "completed",
           "description": "Elk scherm volledig themed met useTheme()",
           "tasks": [
-            { "id": "2.1", "task": "SimpleHome.js → useTheme()", "done": false },
-            { "id": "2.2", "task": "SimpleCategoryView.js → useTheme()", "done": false },
-            { "id": "2.3", "task": "SimpleSentenceBuilder.js → useTheme()", "done": false },
-            { "id": "2.4", "task": "GalleryScreen.js → useTheme()", "done": false },
-            { "id": "2.5", "task": "HistoryView.js → useTheme()", "done": false },
-            { "id": "2.6", "task": "SettingsMenuModal.js → useTheme()", "done": false },
-            { "id": "2.7", "task": "ProfileMenuModal.js → useTheme()", "done": false },
-            { "id": "2.8", "task": "ContentMenuModal.js → useTheme()", "done": false },
-            { "id": "2.9", "task": "EmergencyModal.js → useTheme()", "done": false },
-            { "id": "2.10", "task": "MedicalScreen.js → useTheme()", "done": false },
-            { "id": "2.11", "task": "PartnerScreen.js → useTheme()", "done": false },
-            { "id": "2.12", "task": "Alle andere modals → useTheme()", "done": false },
-            { "id": "2.13", "task": "src/styles/index.js → dynamische styles", "done": false }
+            { "id": "2.1", "task": "SimpleHome.js → useTheme()", "done": true },
+            { "id": "2.2", "task": "SimpleCategoryView.js → useTheme()", "done": true },
+            { "id": "2.3", "task": "SimpleSentenceBuilder.js → useTheme()", "done": true },
+            { "id": "2.4", "task": "GalleryScreen.js → useTheme()", "done": true },
+            { "id": "2.5", "task": "HistoryView.js → useTheme()", "done": true },
+            { "id": "2.6", "task": "SettingsMenuModal.js → useTheme()", "done": true },
+            { "id": "2.7", "task": "ProfileMenuModal.js → useTheme()", "done": true },
+            { "id": "2.8", "task": "ContentMenuModal.js → useTheme()", "done": true },
+            { "id": "2.9", "task": "EmergencyModal.js → useTheme()", "done": true },
+            { "id": "2.10", "task": "MedicalScreen.js → useTheme()", "done": true },
+            { "id": "2.11", "task": "PartnerScreen.js → useTheme()", "done": true },
+            { "id": "2.12", "task": "Alle andere modals → useTheme()", "done": true },
+            { "id": "2.13", "task": "src/styles/index.js → dynamische styles", "done": true }
           ],
           "definitionOfDone": [
             "Alle schermen getest in light mode",
@@ -79,16 +79,16 @@
         {
           "id": "phase-3",
           "title": "FASE 3: Layout Wijzigingen",
-          "status": "not-started",
+          "status": "completed",
           "description": "Visuele aanpassingen volgens requirements A1-A7",
           "tasks": [
-            { "id": "3.1", "task": "A1: Tile hoogte 30% reduceren (aspectRatio)", "done": false },
-            { "id": "3.2", "task": "A2: Home tiles allemaal zelfde groen als 'Eten en Drinken'", "done": false },
-            { "id": "3.3", "task": "A3: Favoriet tiles allemaal zelfde groen als 'Ja' tile", "done": false },
-            { "id": "3.4", "task": "A4: Logo verwijderen, welkomsttekst naar links", "done": false },
-            { "id": "3.5", "task": "A5: FAB menu 2x zo groot maken", "done": false },
-            { "id": "3.6", "task": "A6: Tab badges verwijderen", "done": false },
-            { "id": "3.7", "task": "A7: 'Onderwerpen' label verwijderen op homepage", "done": false }
+            { "id": "3.1", "task": "A1: Tile hoogte 30% reduceren (aspectRatio)", "done": true },
+            { "id": "3.2", "task": "A2: Home tiles allemaal zelfde groen als 'Eten en Drinken'", "done": true },
+            { "id": "3.3", "task": "A3: Favoriet tiles allemaal zelfde groen als 'Ja' tile", "done": true },
+            { "id": "3.4", "task": "A4: Logo verwijderen, welkomsttekst naar links", "done": true },
+            { "id": "3.5", "task": "A5: FAB menu 2x zo groot maken", "done": true },
+            { "id": "3.6", "task": "A6: Tab badges verwijderen", "done": true },
+            { "id": "3.7", "task": "A7: 'Onderwerpen' label verwijderen op homepage", "done": true }
           ],
           "definitionOfDone": [
             "Tiles zijn rechthoekig (breder dan hoog)",

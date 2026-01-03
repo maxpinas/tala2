@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 
 const SpeakingIndicator = ({ visible, text }) => {
+  const { theme } = useTheme();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   
@@ -95,13 +96,14 @@ const SpeakingIndicator = ({ visible, text }) => {
       ]}
       pointerEvents="none"
     >
-      <View style={styles.content}>
+      <View style={[styles.content, { backgroundColor: theme.surface, shadowColor: theme.primary, borderColor: theme.primary + '40' }]}>
         <View style={styles.barsContainer}>
           {bars.map((bar, index) => (
             <Animated.View
               key={index}
               style={[
                 styles.bar,
+                { backgroundColor: theme.primary },
                 {
                   transform: [{ scaleY: bar }],
                 },
@@ -109,7 +111,7 @@ const SpeakingIndicator = ({ visible, text }) => {
             />
           ))}
         </View>
-        <Text style={styles.speakingText} numberOfLines={2}>
+        <Text style={[styles.speakingText, { color: theme.text }]} numberOfLines={2}>
           {text}
         </Text>
       </View>
@@ -127,18 +129,15 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   content: {
-    backgroundColor: theme.surface,
     borderRadius: 20,
     padding: 20,
     paddingHorizontal: 24,
     alignItems: 'center',
-    shadowColor: theme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 8,
     borderWidth: 1,
-    borderColor: theme.primary + '40',
     maxWidth: '100%',
   },
   barsContainer: {
@@ -151,12 +150,10 @@ const styles = StyleSheet.create({
   bar: {
     width: 6,
     height: 40,
-    backgroundColor: theme.primary,
     borderRadius: 3,
     marginHorizontal: 3,
   },
   speakingText: {
-    color: theme.text,
     fontSize: 16,
     textAlign: 'center',
     fontWeight: '500',

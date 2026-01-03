@@ -5,8 +5,8 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 import { useApp } from '../../context';
 import { LargeTile, IconTile, BigActionBar } from '../common';
 
@@ -27,6 +27,9 @@ const GalleryScreen = ({
   onSpeak,
   isInstantMode 
 }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
+  const localStyles = getLocalStyles(theme);
   const { isGebruikMode } = useApp();
   const PINNED_HEIGHT = 200;
   const [activeFilter, setActiveFilter] = useState('all');
@@ -413,6 +416,8 @@ const GalleryScreen = ({
 
 // Edit Photo Modal Component
 const EditPhotoModal = ({ visible, photo, categories, isSimpleMode, onClose, onSave, onDelete }) => {
+  const { theme } = useTheme();
+  const localStyles = getLocalStyles(theme);
   const [caption, setCaption] = useState('');
   const [category, setCategory] = useState(null);
   const [size, setSize] = useState('medium');
@@ -691,6 +696,8 @@ const EditPhotoModal = ({ visible, photo, categories, isSimpleMode, onClose, onS
 
 // Fullscreen Viewer Component
 const FullscreenViewer = ({ visible, photos, initialIndex, playlistMode, selectedIds, onClose, onSpeak }) => {
+  const { theme } = useTheme();
+  const localStyles = getLocalStyles(theme);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const flatListRef = React.useRef(null);
 
@@ -821,8 +828,8 @@ const FullscreenViewer = ({ visible, photos, initialIndex, playlistMode, selecte
   );
 };
 
-// Local styles
-const localStyles = {
+// Local styles - function to generate theme-dependent styles
+const getLocalStyles = (theme) => ({
   pinnedContainer: {
     position: 'absolute',
     top: 0,
@@ -1353,6 +1360,6 @@ const localStyles = {
     fontWeight: '600',
     marginLeft: 8,
   },
-};
+});
 
 export default GalleryScreen;

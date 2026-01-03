@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 import { saveProfile } from '../../storage';
 
 const OnboardingFlow = ({ onComplete }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [partner, setPartner] = useState("");

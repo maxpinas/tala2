@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 import { useApp } from '../../context';
 
 const CLEAR_OPTIONS = [
@@ -13,6 +13,8 @@ const CLEAR_OPTIONS = [
 ];
 
 const HistoryView = ({ history, onBack, onSelect, onLongPress, onClear }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const { isGebruikMode } = useApp();
   const [showClearModal, setShowClearModal] = useState(false);
 

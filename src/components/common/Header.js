@@ -52,17 +52,21 @@ const Header = ({
             <Feather name="arrow-left" size={24} color={theme.text} />
           </TouchableOpacity>
         ) : (
-          <View style={styles.logoContainer}>
-            <Text style={[styles.logo, { color: theme.primary }]}>Tala</Text>
-          </View>
+          // A4: Logo verwijderd, welkomsttekst naar links
+          <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
+            {displayTitle}
+          </Text>
         )}
       </View>
 
-      <View style={styles.centerSection}>
-        <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
-          {displayTitle}
-        </Text>
-      </View>
+      {/* A4: Center section alleen voor back-mode met titel */}
+      {showBack && (
+        <View style={styles.centerSection}>
+          <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
+            {displayTitle}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.rightSection}>
         {showFilter && (

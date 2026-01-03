@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 
 // Embedded version of list manager to use inside another screen
 const ListManagerScreenEmbedded = ({ items, onUpdate, type = 'object' }) => {
+    const { theme } = useTheme();
+    const styles = useStyles();
     const [newItemText, setNewItemText] = useState("");
     
     const move = (index, direction) => {
@@ -82,6 +84,8 @@ const ListManagerScreenEmbedded = ({ items, onUpdate, type = 'object' }) => {
 };
 
 const ManagePeopleLocations = ({ onClose, contexts, setContexts, partners, setPartners }) => {
+    const { theme } = useTheme();
+    const styles = useStyles();
     const [tab, setTab] = useState('PEOPLE');
     
     return (

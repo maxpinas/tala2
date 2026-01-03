@@ -1,9 +1,12 @@
 import React from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
+import { useTheme, spacing, borderRadius } from '../../theme';
 
-const PartnerScreen = ({ visible, onClose, text, name }) => (
+const PartnerScreen = ({ visible, onClose, text, name }) => {
+  const { theme } = useTheme();
+  
+  return (
   <Modal visible={visible} animationType="fade" transparent={false}>
     <SafeAreaView style={{flex:1, backgroundColor: theme.bg}}>
       <View style={{padding: spacing.xl, alignItems: 'flex-end'}}>
@@ -29,6 +32,7 @@ const PartnerScreen = ({ visible, onClose, text, name }) => (
       </View>
     </SafeAreaView>
   </Modal>
-);
+  );
+};
 
 export default PartnerScreen;

@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
-import styles from '../../styles';
+import { useTheme } from '../../theme';
+import { useStyles } from '../../styles';
 
 const CustomTextsFlow = ({ onBack, initialData, onSave, onTriggerPopup }) => {
+  const { theme } = useTheme();
+  const styles = useStyles();
   const [data, setData] = useState(initialData);
   const update = (key, val) => setData({...data, [key]: val});
   
   return (
     <SafeAreaView style={{flex:1, backgroundColor: theme.bg}}>
-      <View style={{padding: 24, flexDirection:'row', justifyContent:'space-between', alignItems:'center', borderBottomWidth:1, borderColor:theme.surfaceHighlight}}>
+      <View style={{padding: 24, flexDirection:'row', justifyContent:'space-between', alignItems:'center', borderBottomWidth:1, borderColor: theme.surfaceHighlight}}>
         <Text style={styles.catHeaderBig}>Uitleg Teksten</Text>
         <TouchableOpacity onPress={onBack}>
-          <Feather name="x" size={32} color="#FFF"/>
+          <Feather name="x" size={32} color={theme.text}/>
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={{padding: 24}}>

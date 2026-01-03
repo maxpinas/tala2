@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme } from '../../theme';
+import { useTheme } from '../../theme';
 
 const SimpleInputModal = ({ visible, title, placeholder, onSave, onClose }) => {
+    const { theme } = useTheme();
     const [val, setVal] = useState("");
     return (
         <Modal visible={visible} transparent animationType="slide">
             <View style={styles.modalOverlay}>
-                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.selectorContainer}>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.selectorContainer, { backgroundColor: theme.bg }]}>
                     <View style={styles.selectorHeader}>
                         <Text style={styles.selectorTitle}>{title}</Text>
                         <TouchableOpacity onPress={onClose}>
@@ -16,7 +17,7 @@ const SimpleInputModal = ({ visible, title, placeholder, onSave, onClose }) => {
                         </TouchableOpacity>
                     </View>
                     <TextInput 
-                        style={styles.inputField} 
+                        style={[styles.inputField, { backgroundColor: theme.surface }]} 
                         placeholder={placeholder} 
                         placeholderTextColor={theme.textDim}
                         value={val}
@@ -24,7 +25,7 @@ const SimpleInputModal = ({ visible, title, placeholder, onSave, onClose }) => {
                         autoFocus
                     />
                     <TouchableOpacity 
-                        style={styles.saveBtn} 
+                        style={[styles.saveBtn, { backgroundColor: theme.primary }]} 
                         onPress={() => { 
                             if(val.trim()){ 
                                 onSave(val.trim()); 
@@ -48,7 +49,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end' 
   },
   selectorContainer: { 
-    backgroundColor: theme.bg, 
     borderTopLeftRadius: 24, 
     borderTopRightRadius: 24, 
     padding: 24, 
@@ -66,7 +66,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold' 
   },
   inputField: { 
-    backgroundColor: theme.surface, 
     color: '#FFF', 
     padding: 16, 
     borderRadius: 12, 
@@ -74,7 +73,6 @@ const styles = StyleSheet.create({
     marginBottom: 16 
   },
   saveBtn: { 
-    backgroundColor: theme.primary, 
     padding: 16, 
     borderRadius: 16, 
     alignItems: 'center', 

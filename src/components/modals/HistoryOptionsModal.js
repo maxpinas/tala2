@@ -1,11 +1,15 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { theme, spacing, borderRadius } from '../../theme';
-import styles from '../../styles';
+import { useTheme, spacing, borderRadius } from '../../theme';
+import { useStyles } from '../../styles';
 
-const HistoryOptionsModal = ({ visible, item, onClose, onAction }) => (
-    <Modal visible={visible} transparent animationType="fade">
+const HistoryOptionsModal = ({ visible, item, onClose, onAction }) => {
+    const { theme } = useTheme();
+    const styles = useStyles();
+    
+    return (
+        <Modal visible={visible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
             <View style={styles.selectorContainer}>
                 <View style={styles.selectorHeader}>
@@ -38,6 +42,7 @@ const HistoryOptionsModal = ({ visible, item, onClose, onAction }) => (
             </View>
         </View>
     </Modal>
-);
+    );
+};
 
 export default HistoryOptionsModal;

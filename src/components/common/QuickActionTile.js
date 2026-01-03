@@ -9,7 +9,9 @@ import { useTheme, spacing, borderRadius, typography } from '../../theme';
  * 
  * @param {string} label - Tekst label
  * @param {string} icon - Feather icon naam
- * @param {string} color - Achtergrondkleur (uit theme.quickActions)
+ * @param {string} color - Achtergrondkleur (deprecated, use backgroundColor)
+ * @param {string} backgroundColor - Achtergrondkleur override
+ * @param {string} textColor - Tekstkleur override
  * @param {function} onPress - Tap handler
  * @param {function} onLongPress - Long press handler
  */
@@ -17,21 +19,20 @@ const QuickActionTile = ({
   label,
   icon,
   color,
+  backgroundColor: bgColorProp,
+  textColor: textColorProp,
   onPress,
   onLongPress,
 }) => {
   const { theme } = useTheme();
   
-  // Bepaal kleur op basis van label
+  // A3: Gebruik provided backgroundColor als die gegeven is, anders default naar uniform groen
   const getColor = () => {
+    if (bgColorProp) return bgColorProp;
     if (color) return color;
     
-    const lowerLabel = label?.toLowerCase() || '';
-    if (lowerLabel === 'ja') return theme.quickActions.ja;
-    if (lowerLabel === 'nee') return theme.quickActions.nee;
-    if (lowerLabel === 'misschien') return theme.quickActions.misschien;
-    if (lowerLabel === 'hallo') return theme.quickActions.hallo;
-    return theme.quickActions.default;
+    // Default: uniform groen voor alle favorieten (A3 requirement)
+    return theme.categories.etenDrinken;
   };
 
   // Bepaal icoon op basis van label
@@ -49,20 +50,21 @@ const QuickActionTile = ({
     return 'message-circle';
   };
 
-  const backgroundColor = getColor();
+  const tileBackgroundColor = getColor();
   const iconName = getIcon();
+  const txtColor = textColorProp || theme.textInverse;
 
   return (
     <TouchableOpacity
-      style={[styles.tile, { backgroundColor }]}
+      style={[styles.tile, { backgroundColor: tileBackgroundColor }]}
       onPress={onPress}
       onLongPress={onLongPress}
       activeOpacity={0.7}
     >
       <View style={styles.iconContainer}>
-        <Feather name={iconName} size={28} color={theme.textInverse} />
+        <Feather name={iconName} size={28} color={txtColor} />
       </View>
-      <Text style={[styles.label, { color: theme.textInverse }]} numberOfLines={2}>
+      <Text style={[styles.label, { color: txtColor }]} numberOfLines={2}>
         {label}
       </Text>
     </TouchableOpacity>
@@ -71,7 +73,7 @@ const QuickActionTile = ({
 
 const styles = StyleSheet.create({
   tile: {
-    aspectRatio: 1,
+    aspectRatio: 1.43, // A1: 30% less height than square
     borderRadius: borderRadius.md,
     padding: spacing.md,
     justifyContent: 'center',
