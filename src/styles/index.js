@@ -1,5 +1,5 @@
 import { StyleSheet, Platform } from 'react-native';
-import { spacing, borderRadius, lightTheme } from '../theme';
+import { spacing, borderRadius, lightTheme, useTheme } from '../theme';
 
 // Dynamic styles factory - call with theme parameter
 export const createStyles = (theme) => StyleSheet.create({
@@ -157,8 +157,6 @@ export default styles;
 
 // Hook for dynamic themed styles
 export const useStyles = () => {
-  // Import inside to avoid circular dependency
-  const { useTheme } = require('../theme');
   const { theme } = useTheme();
   return createStyles(theme);
 };
