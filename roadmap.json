@@ -120,23 +120,23 @@
         {
           "id": "phase-5",
           "title": "FASE 5: Instellingen Restructuur",
-          "status": "not-started",
+          "status": "completed",
           "description": "Menu herstructurering volgens C1-C6",
           "tasks": [
-            { "id": "5.1", "task": "C1: Hernoem 'Instellingen' → 'Inhoud beheren' in menu", "done": false },
-            { "id": "5.2", "task": "C2: Verplaats Stem naar 'Inhoud beheren'", "done": false },
-            { "id": "5.3", "task": "C3: Verplaats Uitleg teksten naar 'Inhoud beheren'", "done": false },
-            { "id": "5.4", "task": "C4: Profiel direct naar wizard, geen tussenstap", "done": false },
-            { "id": "5.5", "task": "C5: Menu icons wit op groene cirkel achtergrond", "done": false },
-            { "id": "5.6", "task": "C6: Dark mode toggle direct instelbaar in instellingen", "done": false }
+            { "id": "5.1", "task": "C1: Hernoem 'Instellingen' → 'Inhoud beheren' in menu", "done": true, "note": "Eerste menu item in Gewoon modus hernoemd" },
+            { "id": "5.2", "task": "C2: Verplaats Stem naar 'Inhoud beheren'", "done": true, "note": "Stem toegevoegd aan ContentMenuModal" },
+            { "id": "5.3", "task": "C3: Verplaats Uitleg teksten naar 'Inhoud beheren'", "done": true, "note": "Uitleg Teksten toegevoegd aan ContentMenuModal" },
+            { "id": "5.4", "task": "C4: Profiel direct naar wizard, geen tussenstap", "done": true, "note": "onProfileMenu accepteert nu target parameter voor directe navigatie" },
+            { "id": "5.5", "task": "C5: Menu icons wit op groene cirkel achtergrond", "done": true, "note": "Alle MenuItem icons nu theme.textInverse (wit)" },
+            { "id": "5.6", "task": "C6: Dark mode toggle direct instelbaar in instellingen", "done": true, "note": "Was al geïmplementeerd met Switch component" }
           ],
           "definitionOfDone": [
-            "Menu heet 'Inhoud beheren'",
-            "Stem staat in Inhoud beheren",
-            "Uitleg teksten staat in Inhoud beheren",
-            "Profiel opent direct wizard",
-            "Icons zijn wit op groene cirkel",
-            "Dark mode toggle werkt"
+            "Menu heet 'Inhoud beheren' ✓",
+            "Stem staat in Inhoud beheren ✓",
+            "Uitleg teksten staat in Inhoud beheren ✓",
+            "Profiel opent direct wizard ✓",
+            "Icons zijn wit op groene cirkel ✓",
+            "Dark mode toggle werkt ✓"
           ]
         },
         {

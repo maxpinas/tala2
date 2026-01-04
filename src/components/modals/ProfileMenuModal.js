@@ -26,7 +26,8 @@ const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
           alignItems: 'center',
           backgroundColor: iconBg || theme.primary 
         }}>
-          <Feather name={icon} size={22} color={iconBg === theme.accent ? theme.textInverse : theme.text} />
+          {/* C5: Icons altijd wit op gekleurde achtergrond */}
+          <Feather name={icon} size={22} color={theme.textInverse} />
         </View>
         <View style={{flex: 1, marginLeft: spacing.lg}}>
           <Text style={{ fontSize: 16, fontWeight: '500', color: theme.text }}>{title}</Text>

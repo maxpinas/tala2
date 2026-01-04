@@ -143,38 +143,31 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
         />
         
         {isGebruikMode ? (
-          // Simplified menu for 'gebruik' mode
+          // C1-C6: Simplified menu for 'gebruik' mode with restructured navigation
           <>
+            {/* C1: Renamed to 'Inhoud beheren' */}
             <MenuItem
-              icon="settings"
-              iconBg={theme.primary}
-              title="Instellingen"
-              subtitle="Algemene instellingen"
+              icon="grid"
+              iconBg={theme.primary}  // C5: Green circle background
+              title="Inhoud beheren"
+              subtitle="Zinnen, onderwerpen en foto's"
               theme={theme}
               styles={styles}
-              onPress={() => { onClose(); onContentMenu ? onContentMenu() : onProfileMenu(); }}
+              onPress={() => { onClose(); if (onContentMenu) onContentMenu(); }}
             />
+            {/* C4: Profiel direct naar wizard (BASIC_SETUP) */}
             <MenuItem
               icon="user"
-              iconBg={theme.surfaceHighlight}
+              iconBg={theme.primary}  // C5: Green circle background
               title="Profiel"
-              subtitle="Wizzard & teksten"
+              subtitle="Gegevens aanpassen"
               theme={theme}
               styles={styles}
-              onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
-            />
-            <MenuItem
-              icon="volume-2"
-              iconBg={theme.accent}
-              title="Stem"
-              subtitle="Kies of test de spraak"
-              theme={theme}
-              styles={styles}
-              onPress={() => { onClose(); if(onVoiceSettings) onVoiceSettings(); }}
+              onPress={() => { onClose(); if (onProfileMenu) onProfileMenu('BASIC_SETUP'); }}
             />
             <MenuItem
               icon="unlock"
-              iconBg={theme.surfaceHighlight}
+              iconBg={theme.primary}  // C5: Green circle background
               title="Wijzig naar Expert"
               subtitle="Schakel naar Expertmodus"
               theme={theme}

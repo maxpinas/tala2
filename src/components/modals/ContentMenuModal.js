@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme, spacing, borderRadius } from '../../theme';
 
-const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShowLocations }) => {
+const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShowLocations, onVoiceSettings }) => {
   const { theme } = useTheme();
 
   const MenuItem = ({ icon, title, subtitle, onPress, iconBg }) => (
@@ -25,7 +25,8 @@ const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShow
           justifyContent: 'center',
           backgroundColor: iconBg || theme.primary
         }}>
-          <Feather name={icon} size={22} color={iconBg === theme.accent || iconBg === theme.categories.etenDrinken ? theme.textInverse : theme.text} />
+          {/* C5: Icons altijd wit op gekleurde achtergrond */}
+          <Feather name={icon} size={22} color={theme.textInverse} />
         </View>
         <View style={{flex: 1, marginLeft: spacing.lg}}>
           <Text style={{fontSize: 17, fontWeight: '600', color: theme.text}}>{title}</Text>
@@ -96,6 +97,24 @@ const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShow
               title="Locaties" 
               subtitle="Plaatsen en situaties beheren" 
               onPress={() => { onClose(); onShowLocations(); }} 
+            />
+            
+            {/* C2: Stem verplaatst naar Inhoud beheren */}
+            <MenuItem 
+              icon="volume-2" 
+              iconBg={theme.primary}
+              title="Stem" 
+              subtitle="Kies of test de spraak" 
+              onPress={() => { onClose(); if (onVoiceSettings) onVoiceSettings(); }} 
+            />
+            
+            {/* C3: Uitleg teksten verplaatst naar Inhoud beheren */}
+            <MenuItem 
+              icon="message-square" 
+              iconBg={theme.primary}
+              title="Uitleg Teksten" 
+              subtitle="Over mij en medisch paspoort" 
+              onPress={() => { onClose(); onNavigate('CUSTOM_TEXTS'); }} 
             />
             
             <View style={{height: spacing.xl}} />

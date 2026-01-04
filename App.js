@@ -605,7 +605,7 @@ const MainApp = ({ onReset }) => {
       />
 
       <AddOrEditPhotoModal visible={showPhotoModal} onClose={() => { setShowPhotoModal(false); setPhotoToEdit(null); }} onSave={handleSavePhoto} categories={categories} initialData={photoToEdit} onTriggerPopup={triggerPopup} />
-      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onProfileMenu={() => setShowProfileMenu(true)} onContentMenu={() => setShowContentMenu(true)} onReset={onReset} onSpeechTest={() => setShowSpeechTest(true)} onVoiceSettings={() => setShowVoiceSettings(true)} />
+      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onProfileMenu={(target) => { if (target === 'BASIC_SETUP') { openProfileSetupWizard(); } else { setShowProfileMenu(true); } }} onContentMenu={() => setShowContentMenu(true)} onReset={onReset} onSpeechTest={() => setShowSpeechTest(true)} onVoiceSettings={() => setShowVoiceSettings(true)} />
       <ProfileMenuModal
         visible={showProfileMenu}
         onClose={() => setShowProfileMenu(false)}
@@ -621,7 +621,7 @@ const MainApp = ({ onReset }) => {
           }
         }}
       />
-      <ContentMenuModal visible={showContentMenu} onClose={() => setShowContentMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onShowPartners={() => setShowPartnersScreen(true)} onShowLocations={() => setShowLocationsScreen(true)} />
+      <ContentMenuModal visible={showContentMenu} onClose={() => setShowContentMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onShowPartners={() => setShowPartnersScreen(true)} onShowLocations={() => setShowLocationsScreen(true)} onVoiceSettings={() => setShowVoiceSettings(true)} />
       {showProfileSetup && (
         <ProfileSetupFlow
           key={profileSetupKey}
