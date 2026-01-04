@@ -187,15 +187,15 @@
         {
           "id": "phase-8",
           "title": "FASE 8: Overige Features",
-          "status": "not-started",
+          "status": "completed",
           "description": "Herhaal en Medisch paspoort verbeteringen volgens F1, G1",
           "tasks": [
-            { "id": "8.1", "task": "F1: Geen dubbele entries in Herhaal (replay = tijdstip updaten)", "done": false },
-            { "id": "8.2", "task": "G1: Long press edit voor Medisch paspoort", "done": false }
+            { "id": "8.1", "task": "F1: Geen dubbele entries in Herhaal (replay = tijdstip updaten)", "done": true, "note": "addToHistory() updated om bestaande entries te vinden en verplaatsen ipv dupliceren" },
+            { "id": "8.2", "task": "G1: Long press edit voor Medisch paspoort", "done": true, "note": "EditableField component + inline editing voor alle velden" }
           ],
           "definitionOfDone": [
-            "Replay in Herhaal update alleen tijdstip",
-            "Long press medisch paspoort → edit modal"
+            "Replay in Herhaal update alleen tijdstip ✓",
+            "Long press medisch paspoort → edit modal ✓"
           ]
         },
         {

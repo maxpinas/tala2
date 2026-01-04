@@ -687,7 +687,7 @@ const MainApp = ({ onReset }) => {
       <QuickAccessModal visible={showQuickAccess} onClose={() => setShowQuickAccess(false)} onNavigate={(v) => { if(v === 'PARTNER_SCREEN') setShowPartnerScreen(true); else if(v === 'MEDICAL_SCREEN') setShowMedicalScreen(true); else if(v === 'EMERGENCY') setShowEmergency(true); }} />
       <EmergencyModal visible={showEmergency} onClose={() => setShowEmergency(false)} profile={profile} extended={extendedProfile} onTriggerPopup={triggerPopup} onShowMedical={() => setShowMedicalScreen(true)} />
       <PartnerScreen visible={showPartnerScreen} onClose={() => setShowPartnerScreen(false)} text={profile.customPartnerText} name={profile.name} />
-      <MedicalScreen visible={showMedicalScreen} onClose={() => setShowMedicalScreen(false)} profile={profile} extended={extendedProfile} text={profile.customMedicalText} />
+      <MedicalScreen visible={showMedicalScreen} onClose={() => setShowMedicalScreen(false)} profile={profile} extended={extendedProfile} text={profile.customMedicalText} onUpdateProfile={setProfile} onUpdateExtended={setExtendedProfile} />
       {showFullScreen && <FullScreenShow text={fullScreenText || sentence.join(' ')} onClose={() => { setShowFullScreen(false); setFullScreenText(''); }} />}
       {showPhotoFullScreen && fullScreenPhoto && (
         <PhotoFullScreenShow 

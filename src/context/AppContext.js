@@ -214,6 +214,7 @@ export const AppProvider = ({ children }) => {
   ];
 
   // Helper functions
+  // F1: Update timestamp if text already exists (no duplicate entries)
   const addToHistory = (text) => {
     const now = new Date();
     const newEntry = {
@@ -221,7 +222,21 @@ export const AppProvider = ({ children }) => {
       time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       timestamp: now.getTime(), // For filtering by period
     };
-    setHistory((prev) => [newEntry, ...prev]);
+    
+    setHistory((prev) => {
+      // F1: Check if this text already exists in history
+      const existingIndex = prev.findIndex(entry => entry.text === text);
+      
+      if (existingIndex !== -1) {
+        // F1: Remove the existing entry and add updated one at the top
+        const updated = [...prev];
+        updated.splice(existingIndex, 1);
+        return [newEntry, ...updated];
+      }
+      
+      // New entry - add at the top
+      return [newEntry, ...prev];
+    });
   };
 
   const clearHistory = (period = 'all') => {
