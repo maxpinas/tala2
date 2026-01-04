@@ -147,6 +147,9 @@ const MainAppWrapper = ({ onReset }) => {
 
 // --- MAIN APP ---
 const MainApp = ({ onReset }) => {
+  // Get theme from context
+  const { theme, isDark } = useTheme();
+  
   // Get shared state from AppContext
   const { 
     profile, setProfile,
