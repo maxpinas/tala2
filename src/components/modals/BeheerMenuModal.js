@@ -41,8 +41,8 @@ const BeheerMenuModal = ({ visible, onClose, onReset }) => {
 
   const handleBackup = async () => {
     onClose();
-    try {
-      // React Native prompt alternatief
+    // Kleine delay zodat modal eerst sluit
+    setTimeout(() => {
       Alert.prompt(
         'Backup-wachtwoord',
         'Kies een wachtwoord voor je backup-bestand:',
@@ -55,18 +55,24 @@ const BeheerMenuModal = ({ visible, onClose, onReset }) => {
           {
             text: 'OK',
             onPress: async (input) => {
-              if (!input) return;
-              const backupObj = await createBackupObject();
-              const encrypted = encryptBackup(backupObj, input);
-              await saveAndShareBackup(encrypted);
+              if (!input) {
+                Alert.alert('Fout', 'Vul een wachtwoord in.');
+                return;
+              }
+              try {
+                const backupObj = await createBackupObject();
+                const encrypted = encryptBackup(backupObj, input);
+                await saveAndShareBackup(encrypted);
+                // Share dialoog is gesloten - gebruiker heeft gedeeld of geannuleerd
+              } catch (e) {
+                Alert.alert('Fout', 'Backup maken is mislukt. Probeer het opnieuw.');
+              }
             },
           },
         ],
         'secure-text'
       );
-    } catch (e) {
-      Alert.alert('Fout', 'Backup maken is mislukt. Probeer het opnieuw.');
-    }
+    }, 300);
   };
 
   const handleReset = () => {

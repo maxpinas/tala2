@@ -71,6 +71,40 @@ Volledige visuele overhaul van donker (#0B1120) naar warm licht thema (#F5F0E8).
 
 ## Backlog
 
+### Centraal Kleuren Thema
+- [ ] Nieuw kleurenpalet implementeren (plan ligt klaar)
+- [ ] Consistente toepassing door hele app
+
+### Tiles Customization Modal
+- [ ] Bij tiles op homepage: eerst een menu tonen (zelfde stijl als instellingen)
+- [ ] Opties: "Aanpassen" of "Customizen"
+- [ ] "Aanpassen" opent modal voor naam/volgorde/verwijderen (zelfde als onderwerpen aanpassen)
+
+### Foto's Aanpassen Modal
+- [ ] Long-press op foto's: "Aanpassen" in plaats van direct "Verwijderen"
+- [ ] Zelfde modal stijl als tiles aanpassen
+
+### Backup & Restore
+- [ ] Restore functie implementeren (backup inlezen en herstellen)
+- [ ] UI voor restore in Beheer menu
+
+### Onboarding Help Flow
+- [ ] Onboarding bij eerste app start met highlights van belangrijkste functies
+- [ ] Uitleg over long-press functionaliteit
+- [ ] Instructies voor taal instellen (spraak)
+- [ ] Skip optie voor ervaren gebruikers
+
+### Meertaligheid (i18n)
+- [ ] Ondersteuning voor: Nederlands, Engels, Duits, Frans, Spaans
+- [ ] AI flow voor genereren van nieuwe taalbestanden
+- [ ] Inclusief vertaling van:
+  - UI teksten
+  - Initiële onderwerpen/zinnen
+  - Locaties met grammatica regels (bij/naar/van)
+  - Personen met grammatica regels
+- [ ] Taal selectie in instellingen
+
+### Overig
 - [ ] Foto's koppelen aan zinnen
 - [ ] Spraakherkenning voor input
 - [ ] Export naar PDF van medisch paspoort
