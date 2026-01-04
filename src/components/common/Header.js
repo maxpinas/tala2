@@ -24,9 +24,14 @@ const Header = ({
   showFilter = true,
   showMenu = true,
   filterActive = false,
+  showFilterOptions = false,
+  activeLocation,
+  activePerson,
   onBack,
   onFilter,
   onMenu,
+  onLocationPress,
+  onPersonPress,
 }) => {
   const { theme } = useTheme();
   
@@ -42,7 +47,8 @@ const Header = ({
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>
-      <View style={styles.leftSection}>
+      {/* Left section: back button or filter pills */}
+      <View style={[styles.leftSection, (showFilterOptions && !showBack) && styles.leftSectionExpanded]}>
         {showBack ? (
           <TouchableOpacity 
             style={[styles.iconButton, { backgroundColor: theme.surface }]}
@@ -51,6 +57,28 @@ const Header = ({
           >
             <Feather name="arrow-left" size={24} color={theme.text} />
           </TouchableOpacity>
+        ) : showFilterOptions ? (
+          // Home page: Filter options mode - show location and person buttons
+          <View style={styles.filterOptionsRow}>
+            <TouchableOpacity 
+              style={[styles.filterPill, { backgroundColor: activeLocation?.id !== 'geen' ? theme.primary : theme.surface }]}
+              onPress={onLocationPress}
+            >
+              <Feather name="map-pin" size={20} color={activeLocation?.id !== 'geen' ? theme.textInverse : theme.text} />
+              <Text style={[styles.filterPillText, { color: activeLocation?.id !== 'geen' ? theme.textInverse : theme.text }]} numberOfLines={1}>
+                {activeLocation?.id !== 'geen' ? activeLocation?.label : 'Locatie'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.filterPill, { backgroundColor: activePerson?.id !== 'geen' ? theme.primary : theme.surface }]}
+              onPress={onPersonPress}
+            >
+              <Feather name="user" size={20} color={activePerson?.id !== 'geen' ? theme.textInverse : theme.text} />
+              <Text style={[styles.filterPillText, { color: activePerson?.id !== 'geen' ? theme.textInverse : theme.text }]} numberOfLines={1}>
+                {activePerson?.id !== 'geen' ? (activePerson?.name || activePerson?.label) : 'Persoon'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         ) : (
           // A4: Logo verwijderd, welkomsttekst naar links
           <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
@@ -59,12 +87,36 @@ const Header = ({
         )}
       </View>
 
-      {/* A4: Center section alleen voor back-mode met titel */}
+      {/* Center section: filter pills when showBack is true, or title */}
       {showBack && (
-        <View style={styles.centerSection}>
-          <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
-            {displayTitle}
-          </Text>
+        <View style={[styles.centerSection, showFilterOptions && styles.centerSectionExpanded]}>
+          {showFilterOptions ? (
+            // Category page: show location and person buttons next to back button
+            <View style={styles.filterOptionsRow}>
+              <TouchableOpacity 
+                style={[styles.filterPill, { backgroundColor: activeLocation?.id !== 'geen' ? theme.primary : theme.surface }]}
+                onPress={onLocationPress}
+              >
+                <Feather name="map-pin" size={20} color={activeLocation?.id !== 'geen' ? theme.textInverse : theme.text} />
+                <Text style={[styles.filterPillText, { color: activeLocation?.id !== 'geen' ? theme.textInverse : theme.text }]} numberOfLines={1}>
+                  {activeLocation?.id !== 'geen' ? activeLocation?.label : 'Locatie'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.filterPill, { backgroundColor: activePerson?.id !== 'geen' ? theme.primary : theme.surface }]}
+                onPress={onPersonPress}
+              >
+                <Feather name="user" size={20} color={activePerson?.id !== 'geen' ? theme.textInverse : theme.text} />
+                <Text style={[styles.filterPillText, { color: activePerson?.id !== 'geen' ? theme.textInverse : theme.text }]} numberOfLines={1}>
+                  {activePerson?.id !== 'geen' ? (activePerson?.name || activePerson?.label) : 'Persoon'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Text style={[styles.title, { color: theme.text }]} numberOfLines={1}>
+              {displayTitle}
+            </Text>
+          )}
         </View>
       )}
 
@@ -113,10 +165,36 @@ const styles = StyleSheet.create({
     minWidth: 60,
     alignItems: 'flex-start',
   },
+  leftSectionExpanded: {
+    flex: 1,
+  },
+  filterOptionsRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    flex: 1,
+  },
+  filterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.lg,
+    gap: spacing.sm,
+    flex: 1,
+    minHeight: 48,
+  },
+  filterPillText: {
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+  },
   centerSection: {
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: spacing.sm,
+  },
+  centerSectionExpanded: {
+    alignItems: 'stretch',
   },
   rightSection: {
     minWidth: 90,

@@ -182,6 +182,7 @@ const SimpleHome = ({
   
   // State
   const [activeTab, setActiveTab] = useState('praat');
+  const [showFilterOptions, setShowFilterOptions] = useState(false); // Toggle filter options in header
   
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -225,13 +226,8 @@ const SimpleHome = ({
   };
 
   const handleFilterPress = () => {
-    // B2: Navigate to FilterScreen instead of showing modal
-    if (onOpenFilter) {
-      onOpenFilter();
-    } else if (onLocationPress) {
-      // Fallback: show location selector
-      onLocationPress();
-    }
+    // Toggle filter options in header
+    setShowFilterOptions(!showFilterOptions);
   };
 
   const handleHistoryPress = (item) => {
@@ -407,9 +403,14 @@ const SimpleHome = ({
         userName={userName}
         showFilter={true}
         showMenu={true}
-        filterActive={isFilterActive}
+        filterActive={isFilterActive || showFilterOptions}
+        showFilterOptions={showFilterOptions}
+        activeLocation={activeLocation}
+        activePerson={activePerson}
         onFilter={handleFilterPress}
         onMenu={onSettings}
+        onLocationPress={onLocationPress}
+        onPersonPress={onPersonPress}
       />
 
       {/* Sub Navigation Tabs */}

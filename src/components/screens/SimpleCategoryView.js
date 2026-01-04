@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme, spacing, borderRadius, typography } from '../../theme';
@@ -35,6 +35,10 @@ const SimpleCategoryView = ({
 }) => {
   const { theme } = useTheme();
   const hasPhotos = photos.length > 0;
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+  
+  // Check if filter is active
+  const isFilterActive = activeLocation?.id !== 'geen' || activePerson?.id !== 'geen';
 
   // Filter phrases die niet getoond moeten worden (placeholder zonder context)
   // en render de zichtbare phrases met placeholder vervanging
@@ -56,43 +60,26 @@ const SimpleCategoryView = ({
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>
-      {/* Header with back button */}
+      {/* Header with back button and filter toggle */}
       <Header
         title={categoryName}
         showBack={true}
-        showFilter={false}
+        showFilter={true}
         showMenu={false}
+        filterActive={isFilterActive || showFilterOptions}
+        showFilterOptions={showFilterOptions}
+        activeLocation={activeLocation}
+        activePerson={activePerson}
         onBack={onBack}
+        onFilter={() => setShowFilterOptions(!showFilterOptions)}
+        onLocationPress={onLocationPress}
+        onPersonPress={onPersonPress}
       />
 
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Context pills - show active filters */}
-        {(activeLocation?.id !== 'geen' || activePerson?.id !== 'geen') && (
-          <View style={styles.contextPills}>
-            {activeLocation?.id !== 'geen' && (
-              <TouchableOpacity 
-                style={[styles.contextPill, { backgroundColor: theme.surface, borderColor: theme.primary }]}
-                onPress={onLocationPress}
-              >
-                <Feather name="map-pin" size={14} color={theme.primary} />
-                <Text style={[styles.contextPillText, { color: theme.primary }]}>{activeLocation?.label}</Text>
-              </TouchableOpacity>
-            )}
-            {activePerson?.id !== 'geen' && (
-              <TouchableOpacity 
-                style={[styles.contextPill, { backgroundColor: theme.surface, borderColor: theme.primary }]}
-                onPress={onPersonPress}
-              >
-                <Feather name="user" size={14} color={theme.primary} />
-                <Text style={[styles.contextPillText, { color: theme.primary }]}>{activePerson?.name || activePerson?.label}</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-
         {/* Add phrase button */}
         {onAddPhrase && (
           <TouchableOpacity 
