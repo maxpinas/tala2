@@ -5,7 +5,7 @@ const DEMO_PROFILE = {
   // Personal
   name: 'Jeroen',
   phone: '06 1234 5678',
-  email: 'jeroen.demo@example.com',
+  email: 'jeroen.bakker@gmail.com',
   address: 'Vondelstraat 12',
   addressLine2: '3521 AB Utrecht',
   dob: '14-05-1982',
@@ -13,10 +13,10 @@ const DEMO_PROFILE = {
   // Partner / Contact 1
   partnerName: 'Sanne',
   partnerPhone: '06 1122 3344',
-  partnerEmail: 'sanne@example.com',
+  partnerEmail: 'sanne.bakker@gmail.com',
   
   // Contact 2
-  contact2Name: 'Dr. Bakker',
+  contact2Name: 'Dr. De Vries',
   contact2Phone: '030-1234567',
   
   // Emergency contact 3
@@ -44,7 +44,6 @@ const DEMO_PROFILE = {
 
 const DEMO_CONTEXTS = [
   ...DEFAULT_CONTEXTS,
-  { id: 'fysio', label: 'Fysio', icon: 'activity' },
 ];
 
 const DEMO_PARTNERS = [

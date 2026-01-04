@@ -5,7 +5,8 @@
  * Nederlandse grammatica, zonder dat de gebruiker iets hoeft te configureren.
  */
 
-// 10 standaard locaties + "Geen" optie
+// Standaard locaties + "Geen" optie
+// Varianten: bij = "Ik ben {locatie}", naar = "Ik ga naar {locatie}", van = "Ik kom van {locatie}"
 export const LOCATIONS = [
   { 
     id: "geen", 
@@ -20,22 +21,10 @@ export const LOCATIONS = [
     variants: { bij: "thuis", naar: "huis", van: "huis" } 
   },
   { 
-    id: "ziekenhuis", 
-    label: "Ziekenhuis", 
-    icon: "activity",
-    variants: { bij: "in het ziekenhuis", naar: "het ziekenhuis", van: "het ziekenhuis" } 
-  },
-  { 
-    id: "dokter", 
-    label: "Dokter", 
-    icon: "user-plus",
-    variants: { bij: "bij de dokter", naar: "de dokter", van: "de dokter" } 
-  },
-  { 
-    id: "apotheek", 
-    label: "Apotheek", 
-    icon: "package",
-    variants: { bij: "bij de apotheek", naar: "de apotheek", van: "de apotheek" } 
+    id: "supermarkt", 
+    label: "Supermarkt", 
+    icon: "shopping-cart",
+    variants: { bij: "in de supermarkt", naar: "de supermarkt", van: "de supermarkt" } 
   },
   { 
     id: "winkel", 
@@ -44,34 +33,34 @@ export const LOCATIONS = [
     variants: { bij: "in de winkel", naar: "de winkel", van: "de winkel" } 
   },
   { 
-    id: "boodschappen", 
-    label: "Boodschappen", 
-    icon: "shopping-cart",
-    variants: { bij: "boodschappen aan het doen", naar: "boodschappen doen", van: "het boodschappen doen" } 
+    id: "auto", 
+    label: "Auto", 
+    icon: "truck",
+    variants: { bij: "in de auto", naar: "de auto", van: "de auto" } 
   },
   { 
-    id: "werk", 
-    label: "Werk", 
-    icon: "briefcase",
-    variants: { bij: "op het werk", naar: "het werk", van: "het werk" } 
+    id: "bus", 
+    label: "Bus", 
+    icon: "navigation",
+    variants: { bij: "in de bus", naar: "de bus", van: "de bus" } 
   },
   { 
-    id: "fysio", 
-    label: "Fysiotherapie", 
-    icon: "heart",
-    variants: { bij: "bij de fysio", naar: "de fysio", van: "de fysio" } 
+    id: "tram", 
+    label: "Tram", 
+    icon: "navigation",
+    variants: { bij: "in de tram", naar: "de tram", van: "de tram" } 
   },
   { 
-    id: "logo", 
-    label: "Logopedie", 
-    icon: "message-circle",
-    variants: { bij: "bij de logopedie", naar: "de logopedie", van: "de logopedie" } 
+    id: "trein", 
+    label: "Trein", 
+    icon: "navigation",
+    variants: { bij: "in de trein", naar: "de trein", van: "de trein" } 
   },
   { 
-    id: "familie", 
-    label: "Familie", 
-    icon: "users",
-    variants: { bij: "bij familie", naar: "familie", van: "familie" } 
+    id: "stad", 
+    label: "Stad", 
+    icon: "map-pin",
+    variants: { bij: "in de stad", naar: "de stad", van: "de stad" } 
   },
   { 
     id: "buiten", 
@@ -79,10 +68,17 @@ export const LOCATIONS = [
     icon: "sun",
     variants: { bij: "buiten", naar: "buiten", van: "buiten" } 
   },
+  { 
+    id: "onderweg", 
+    label: "Onderweg", 
+    icon: "navigation",
+    variants: { bij: "onderweg", naar: "onderweg", van: "onderweg" } 
+  },
 ];
 
-// 10 persoon slots + "Niemand" optie
-// label is de display naam, name is de werkelijke naam (editable)
+// Standaard persoon slots + "Niemand" optie
+// label is de display naam, defaultName is wat gebruikt wordt in zinnen
+// Namen moeten goed werken met "Bel {persoon}" - dus eigen namen, niet "mijn zus"
 export const PEOPLE = [
   { 
     id: "geen", 
@@ -99,43 +95,35 @@ export const PEOPLE = [
     variants: null // wordt dynamisch ingevuld op basis van name
   },
   { 
-    id: "kind1", 
-    label: "Kind", 
-    icon: "smile",
-    editable: true,
-    defaultName: "Kind",
-    variants: null
-  },
-  { 
-    id: "ouder1", 
-    label: "Vader/Moeder", 
-    icon: "user",
-    editable: true,
-    defaultName: "Vader",
-    variants: null
-  },
-  { 
-    id: "broerzus", 
-    label: "Broer/Zus", 
+    id: "broer", 
+    label: "Broer", 
     icon: "users",
     editable: true,
     defaultName: "Broer",
     variants: null
   },
   { 
-    id: "vriend", 
-    label: "Vriend(in)", 
-    icon: "user-check",
+    id: "zus", 
+    label: "Zus", 
+    icon: "users",
     editable: true,
-    defaultName: "Vriend",
+    defaultName: "Zus",
     variants: null
   },
   { 
-    id: "buur", 
-    label: "Buur", 
-    icon: "home",
+    id: "vader", 
+    label: "Vader", 
+    icon: "user",
     editable: true,
-    defaultName: "Buur",
+    defaultName: "Vader",
+    variants: null
+  },
+  { 
+    id: "moeder", 
+    label: "Moeder", 
+    icon: "user",
+    editable: true,
+    defaultName: "Moeder",
     variants: null
   },
   { 
@@ -143,31 +131,23 @@ export const PEOPLE = [
     label: "Arts", 
     icon: "user-plus",
     editable: true,
-    defaultName: "Dokter",
+    defaultName: "Arts",
     variants: null
   },
   { 
-    id: "therapeut", 
-    label: "Therapeut", 
-    icon: "activity",
-    editable: true,
-    defaultName: "Therapeut",
-    variants: null
-  },
-  { 
-    id: "verzorger", 
-    label: "Verzorger", 
+    id: "thuiszorg", 
+    label: "Thuiszorg", 
     icon: "shield",
     editable: true,
-    defaultName: "Verzorger",
+    defaultName: "Thuiszorg",
     variants: null
   },
   { 
-    id: "ander", 
-    label: "Anders", 
-    icon: "user",
+    id: "huishoudster", 
+    label: "Huishoudster", 
+    icon: "home",
     editable: true,
-    defaultName: "Iemand",
+    defaultName: "Huishoudster",
     variants: null
   },
 ];

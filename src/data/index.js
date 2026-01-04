@@ -205,11 +205,15 @@ export const INITIAL_CATEGORIES = {
 
 export const DEFAULT_CONTEXTS = [
   { id: 'thuis', label: 'Thuis', icon: 'home' },
-  { id: 'zorg', label: 'Zorg', icon: 'activity' },
-  { id: 'boodschappen', label: 'Boodschappen', icon: 'shopping-bag' },
+  { id: 'supermarkt', label: 'Supermarkt', icon: 'shopping-cart' },
+  { id: 'winkel', label: 'Winkel', icon: 'shopping-bag' },
+  { id: 'auto', label: 'Auto', icon: 'truck' },
+  { id: 'bus', label: 'Bus', icon: 'navigation' },
+  { id: 'tram', label: 'Tram', icon: 'navigation' },
+  { id: 'trein', label: 'Trein', icon: 'navigation' },
+  { id: 'stad', label: 'Stad', icon: 'map-pin' },
+  { id: 'buiten', label: 'Buiten', icon: 'sun' },
   { id: 'onderweg', label: 'Onderweg', icon: 'navigation' },
-  { id: 'familie', label: 'Familie', icon: 'heart' },
-  { id: 'ontspannen', label: 'Ontspannen', icon: 'tv' },
 ];
 
 export const DEFAULT_QUICK = [

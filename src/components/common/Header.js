@@ -43,7 +43,7 @@ const Header = ({
     return 'Goedenavond';
   };
 
-  const displayTitle = title || (userName ? `${getGreeting()}, ${userName}` : 'Welkom');
+  const displayTitle = title || (userName ? `${getGreeting()}, ${userName}` : getGreeting());
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>
