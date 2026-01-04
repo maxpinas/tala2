@@ -11,7 +11,7 @@ import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK, LOCATIONS, PEOPLE,
 import { buildDemoState } from './src/demo/demoData';
 
 // --- STORAGE ---
-import { loadOnboarded, saveOnboarded, saveCategories, saveQuickResponses } from './src/storage';
+import { loadOnboarded, saveOnboarded, saveCategories, saveQuickResponses, loadTileCustomizations, saveTileCustomizations } from './src/storage';
 
 // --- CONTEXT ---
 import { AppProviders, useApp, useCategories } from './src/context';
@@ -62,7 +62,8 @@ import {
   AddOrEditPhotoModal, 
   FullScreenShow,
   PhotoFullScreenShow,
-  MovePhraseModal
+  MovePhraseModal,
+  TileCustomizationModal
 } from './src/components/modals';
 
 // --- Helper: get icon for quick responses based on text ---
@@ -225,6 +226,27 @@ const MainApp = ({ onReset }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speakingText, setSpeakingText] = useState('');
   const [toast, setToast] = useState({ visible: false, message: '', icon: 'check' });
+  
+  // D1-D8: Tile customization state
+  const [showTileCustomization, setShowTileCustomization] = useState(false);
+  const [selectedTileForCustomization, setSelectedTileForCustomization] = useState(null);
+  const [tileCustomizations, setTileCustomizations] = useState({}); // { categoryKey: { customName, colorId, darkColorId, textColor, backgroundPhotoId } }
+  const [tileCustomizationsLoaded, setTileCustomizationsLoaded] = useState(false);
+  
+  // Load tile customizations on mount
+  useEffect(() => {
+    loadTileCustomizations().then((loaded) => {
+      if (loaded) setTileCustomizations(loaded);
+      setTileCustomizationsLoaded(true);
+    });
+  }, []);
+  
+  // Save tile customizations when they change
+  useEffect(() => {
+    if (tileCustomizationsLoaded && Object.keys(tileCustomizations).length > 0) {
+      saveTileCustomizations(tileCustomizations);
+    }
+  }, [tileCustomizations, tileCustomizationsLoaded]);
   
   const [photoToEdit, setPhotoToEdit] = useState(null);
   const [showEmergency, setShowEmergency] = useState(false);
@@ -622,6 +644,31 @@ const MainApp = ({ onReset }) => {
         }}
       />
       <ContentMenuModal visible={showContentMenu} onClose={() => setShowContentMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onShowPartners={() => setShowPartnersScreen(true)} onShowLocations={() => setShowLocationsScreen(true)} onVoiceSettings={() => setShowVoiceSettings(true)} />
+      
+      {/* D1-D8: Tile Customization Modal */}
+      <TileCustomizationModal
+        visible={showTileCustomization}
+        onClose={() => {
+          setShowTileCustomization(false);
+          setSelectedTileForCustomization(null);
+        }}
+        tile={selectedTileForCustomization}
+        gallery={gallery}
+        onSave={(updatedTile) => {
+          // Save customization for this tile
+          setTileCustomizations(prev => ({
+            ...prev,
+            [updatedTile.id]: {
+              customName: updatedTile.customName,
+              colorId: updatedTile.colorId,
+              darkColorId: updatedTile.darkColorId,
+              textColor: updatedTile.textColor,
+              backgroundPhotoId: updatedTile.backgroundPhotoId,
+            }
+          }));
+        }}
+        tileType={selectedTileForCustomization?.type || 'category'}
+      />
       {showProfileSetup && (
         <ProfileSetupFlow
           key={profileSetupKey}
@@ -881,6 +928,7 @@ const MainApp = ({ onReset }) => {
             history={history}
             gallery={gallery}
             userName={profile?.name}
+            tileCustomizations={tileCustomizations}
             
             // Original handlers
             onQuickResponse={handlePhrasePress}
@@ -888,6 +936,17 @@ const MainApp = ({ onReset }) => {
             onPraat={() => setShowSimpleSentenceBuilder(true)}
             onLatenZien={() => setCurrentView('GALLERY')}
             onCategory={(catKey) => { setActiveCategory(catKey); setCurrentView('CATEGORY'); setIsEditingCategory(false); }}
+            onCategoryLongPress={(catKey) => {
+              // D1-D8: Open tile customization modal
+              const customization = tileCustomizations[catKey] || {};
+              setSelectedTileForCustomization({
+                id: catKey,
+                label: catKey,
+                type: 'category',
+                ...customization,
+              });
+              setShowTileCustomization(true);
+            }}
             onHerhaal={() => setCurrentView('HISTORY')}
             onSettings={() => setShowSettingsMenu(true)}
             onSnel={(type) => {

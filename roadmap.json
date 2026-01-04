@@ -142,28 +142,28 @@
         {
           "id": "phase-6",
           "title": "FASE 6: Tile Customization",
-          "status": "not-started",
+          "status": "completed",
           "description": "Long press functionaliteit voor tiles volgens D1-D8",
           "tasks": [
-            { "id": "6.1", "task": "Bouw TileCustomizationModal component", "done": false },
-            { "id": "6.2", "task": "D1: Naam aanpassen (home + favorieten)", "done": false },
-            { "id": "6.3", "task": "D2: Volgorde aanpassen (↑/↓ pijltjes of drag & drop)", "done": false },
-            { "id": "6.4", "task": "D3: Kleur light mode keuze", "done": false },
-            { "id": "6.5", "task": "D4: Kleur dark mode keuze (apart)", "done": false },
-            { "id": "6.6", "task": "D5: Tekstkleur wit/zwart keuze", "done": false },
-            { "id": "6.7", "task": "D6: Achtergrond foto uit Kijken/Zien (niet telefoon)", "done": false },
-            { "id": "6.8", "task": "D7: Foto cropping langwerpig, tile ratio, object-fit cover", "done": false },
-            { "id": "6.9", "task": "D8: Defaults groen + witte tekst", "done": false },
-            { "id": "6.10", "task": "Koppel aan home tiles", "done": false },
-            { "id": "6.11", "task": "Koppel aan favoriet tiles", "done": false },
-            { "id": "6.12", "task": "Persisteer customizations in storage", "done": false }
+            { "id": "6.1", "task": "Bouw TileCustomizationModal component", "done": true, "note": "TileCustomizationModal.js gemaakt met volledige UI" },
+            { "id": "6.2", "task": "D1: Naam aanpassen (home + favorieten)", "done": true, "note": "customName field met TextInput" },
+            { "id": "6.3", "task": "D2: Volgorde aanpassen (↑/↓ pijltjes of drag & drop)", "done": true, "note": "OrderButtons component met moveUp/moveDown" },
+            { "id": "6.4", "task": "D3: Kleur light mode keuze", "done": true, "note": "COLOR_OPTIONS array met 8 kleuren (light variant)" },
+            { "id": "6.5", "task": "D4: Kleur dark mode keuze (apart)", "done": true, "note": "COLOR_OPTIONS array met 8 kleuren (dark variant)" },
+            { "id": "6.6", "task": "D5: Tekstkleur wit/zwart keuze", "done": true, "note": "textColor field met white/black opties" },
+            { "id": "6.7", "task": "D6: Achtergrond foto uit Kijken/Zien (niet telefoon)", "done": true, "note": "Gallery foto selectie geïntegreerd" },
+            { "id": "6.8", "task": "D7: Foto cropping langwerpig, tile ratio, object-fit cover", "done": true, "note": "Tile.js ImageBackground met resizeMode cover" },
+            { "id": "6.9", "task": "D8: Defaults groen + witte tekst", "done": true, "note": "Default colorId=green, textColor=white" },
+            { "id": "6.10", "task": "Koppel aan home tiles", "done": true, "note": "onCategoryLongPress in SimpleHome" },
+            { "id": "6.11", "task": "Koppel aan favoriet tiles", "done": true, "note": "tileCustomizations doorgegeven en gebruikt" },
+            { "id": "6.12", "task": "Persisteer customizations in storage", "done": true, "note": "TILE_CUSTOMIZATIONS key + save/load functions" }
           ],
           "definitionOfDone": [
-            "Long press op home tile → modal",
-            "Long press op favoriet tile → ZELFDE modal",
-            "Alle opties werken en worden opgeslagen",
-            "Foto selectie uit interne gallery (niet telefoon)",
-            "Default = groen + wit"
+            "Long press op home tile → modal ✓",
+            "Long press op favoriet tile → ZELFDE modal ✓",
+            "Alle opties werken en worden opgeslagen ✓",
+            "Foto selectie uit interne gallery (niet telefoon) ✓",
+            "Default = groen + wit ✓"
           ]
         },
         {

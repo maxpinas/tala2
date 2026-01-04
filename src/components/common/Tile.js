@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ImageBackground } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme, spacing, borderRadius, typography, shadows } from '../../theme';
 
@@ -19,6 +19,7 @@ import { useTheme, spacing, borderRadius, typography, shadows } from '../../them
  * @param {boolean} wide - Of de tile breed/rechthoekig moet zijn (aspect ratio 1.4:1, 30% minder hoog)
  * @param {string} size - Grootte: 'small', 'medium', 'large'
  * @param {number} badge - Optioneel badge nummer
+ * @param {string} backgroundImage - D6-D7: Optional background image URI
  * @param {object} style - Extra styling
  */
 const Tile = ({
@@ -34,6 +35,7 @@ const Tile = ({
   wide = true, // New default: wide tiles (A1 requirement)
   size = 'medium',
   badge,
+  backgroundImage, // D6-D7: Background image support
   style,
   children,
 }) => {
@@ -63,22 +65,9 @@ const Tile = ({
 
   const currentSize = sizeStyles[size] || sizeStyles.medium;
 
-  return (
-    <TouchableOpacity
-      style={[
-        styles.tile,
-        {
-          backgroundColor: bgColor,
-          padding: currentSize.padding,
-        },
-        wide && styles.wide, // A1: 30% less height (aspect ratio ~1.4:1)
-        square && styles.square, // Legacy: perfect square
-        style,
-      ]}
-      onPress={onPress}
-      onLongPress={onLongPress}
-      activeOpacity={0.7}
-    >
+  // D6-D7: Content wrapper for both normal and image background tiles
+  const tileContent = (
+    <>
       {badge !== undefined && (
         <View style={[styles.badgeContainer, { backgroundColor: theme.primary }]}>
           <Text style={[styles.badgeText, { color: theme.textInverse }]}>{badge}</Text>
@@ -110,6 +99,57 @@ const Tile = ({
           {sublabel}
         </Text>
       )}
+    </>
+  );
+
+  // D6-D7: If we have a background image, use ImageBackground
+  if (backgroundImage) {
+    return (
+      <TouchableOpacity
+        style={[
+          styles.tile,
+          wide && styles.wide,
+          square && styles.square,
+          { overflow: 'hidden' },
+          style,
+        ]}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        activeOpacity={0.7}
+      >
+        <ImageBackground
+          source={{ uri: backgroundImage }}
+          style={styles.imageBackground}
+          imageStyle={styles.imageStyle}
+          resizeMode="cover"
+        >
+          <View style={[styles.imageOverlay, { backgroundColor: 'rgba(0,0,0,0.35)' }]}>
+            <View style={{ padding: currentSize.padding, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              {tileContent}
+            </View>
+          </View>
+        </ImageBackground>
+      </TouchableOpacity>
+    );
+  }
+
+  return (
+    <TouchableOpacity
+      style={[
+        styles.tile,
+        {
+          backgroundColor: bgColor,
+          padding: currentSize.padding,
+        },
+        wide && styles.wide, // A1: 30% less height (aspect ratio ~1.4:1)
+        square && styles.square, // Legacy: perfect square
+        style,
+      ]}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      activeOpacity={0.7}
+    >
+      {tileContent}
     </TouchableOpacity>
   );
 };
@@ -154,6 +194,19 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  // D6-D7: Image background styles
+  imageBackground: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  imageStyle: {
+    borderRadius: borderRadius.md,
+  },
+  imageOverlay: {
+    flex: 1,
+    borderRadius: borderRadius.md,
   },
 });
 

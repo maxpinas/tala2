@@ -31,6 +31,7 @@ export const STORAGE_KEYS = {
   APP_MODE: 'app_mode',
   MODE_REMEMBER: 'mode_remember',
   USER_PRESETS: 'user_presets',
+  TILE_CUSTOMIZATIONS: 'tile_customizations', // D1-D8: Tile customization data
 } as const;
 
 export type StorageKey = typeof STORAGE_KEYS[keyof typeof STORAGE_KEYS];
@@ -155,6 +156,7 @@ export const saveCurrentPartner = (partner: any) => storage.setItem(STORAGE_KEYS
 export const saveAppMode = (mode: any) => storage.setItem(STORAGE_KEYS.APP_MODE, mode);
 export const saveModeRemember = (remember: any) => storage.setItem(STORAGE_KEYS.MODE_REMEMBER, remember);
 export const saveUserPresets = (presets: any) => storage.setItem(STORAGE_KEYS.USER_PRESETS, presets);
+export const saveTileCustomizations = (customizations: any) => storage.setItem(STORAGE_KEYS.TILE_CUSTOMIZATIONS, customizations);
 
 // Specific load functions (for backwards compatibility during migration)
 export const loadProfile = (defaultValue?: any) => storage.getItem(STORAGE_KEYS.PROFILE).then(v => v ?? defaultValue);
@@ -171,6 +173,7 @@ export const loadCurrentPartner = (defaultValue?: any) => storage.getItem(STORAG
 export const loadAppMode = () => storage.getItem(STORAGE_KEYS.APP_MODE);
 export const loadModeRemember = () => storage.getItem(STORAGE_KEYS.MODE_REMEMBER).then(v => v ?? false);
 export const loadUserPresets = (defaultValue?: any) => storage.getItem(STORAGE_KEYS.USER_PRESETS).then(v => v ?? defaultValue);
+export const loadTileCustomizations = (defaultValue?: any) => storage.getItem(STORAGE_KEYS.TILE_CUSTOMIZATIONS).then(v => v ?? defaultValue);
 
 // Load all data at once
 export const loadAllData = async (defaults: Record<string, any> = {}) => {

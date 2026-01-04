@@ -37,6 +37,7 @@ const SimpleHome = ({
   onPraat,
   onLatenZien,
   onCategory,
+  onCategoryLongPress, // D1-D8: For tile customization
   onHerhaal,
   onSettings,
   onSnel,
@@ -58,13 +59,66 @@ const SimpleHome = ({
   // B2: Filter via screen navigation instead of modal
   onOpenFilter,
   
+  // D1-D8: Tile customization data
+  tileCustomizations = {},
+  
   // Context - new props for FilterModal (kept for backward compatibility)
   locations = [],
   persons = [],
   onLocationSelect,
   onPersonSelect,
 }) => {
-  const { theme } = useTheme();
+  const { theme, isDark } = useTheme();
+  
+  // Color options for tile customization (must match TileCustomizationModal)
+  const COLOR_OPTIONS = {
+    green: { light: '#4CAF50', dark: '#388E3C' },
+    blue: { light: '#2196F3', dark: '#1976D2' },
+    purple: { light: '#9C27B0', dark: '#7B1FA2' },
+    orange: { light: '#FF9800', dark: '#F57C00' },
+    red: { light: '#F44336', dark: '#D32F2F' },
+    teal: { light: '#009688', dark: '#00796B' },
+    pink: { light: '#E91E63', dark: '#C2185B' },
+    indigo: { light: '#3F51B5', dark: '#303F9F' },
+  };
+  
+  // Get tile color based on customization
+  const getTileColor = (catKey) => {
+    const customization = tileCustomizations[catKey];
+    if (customization) {
+      const colorId = isDark ? (customization.darkColorId || customization.colorId) : customization.colorId;
+      if (colorId && COLOR_OPTIONS[colorId]) {
+        return isDark ? COLOR_OPTIONS[colorId].dark : COLOR_OPTIONS[colorId].light;
+      }
+    }
+    // D8: Default groen
+    return theme.categories.etenDrinken;
+  };
+  
+  // Get tile text color based on customization
+  const getTileTextColor = (catKey) => {
+    const customization = tileCustomizations[catKey];
+    if (customization?.textColor === 'black') {
+      return '#000000';
+    }
+    // D8: Default wit
+    return theme.textInverse;
+  };
+  
+  // Get tile label (custom name or default)
+  const getTileLabel = (catKey) => {
+    const customization = tileCustomizations[catKey];
+    return customization?.customName || catKey;
+  };
+  
+  // Get tile background photo
+  const getTileBackgroundPhoto = (catKey) => {
+    const customization = tileCustomizations[catKey];
+    if (customization?.backgroundPhotoId) {
+      return gallery.find(p => p.id === customization.backgroundPhotoId);
+    }
+    return null;
+  };
   
   // A2: Alle home tiles krijgen dezelfde groene kleur als 'Eten en Drinken'
   // Dit maakt de interface rustiger en uniformer
@@ -155,19 +209,27 @@ const SimpleHome = ({
     >
       {/* A7: Section title removed - tiles speak for themselves */}
 
-      {/* Categories Grid */}
+      {/* Categories Grid - D1-D8: Apply tile customizations */}
       <Grid columns={2}>
-        {normalCategories.map((catKey) => (
-          <Tile
-            key={catKey}
-            label={catKey}
-            icon={categories[catKey].icon || 'grid'}
-            backgroundColor={getHomeTileColor()}
-            textColor={theme.textInverse}
-            iconColor={theme.textInverse}
-            onPress={() => onCategory(catKey)}
-          />
-        ))}
+        {normalCategories.map((catKey) => {
+          const bgPhoto = getTileBackgroundPhoto(catKey);
+          const tileColor = getTileColor(catKey);
+          const tileTextColor = getTileTextColor(catKey);
+          
+          return (
+            <Tile
+              key={catKey}
+              label={getTileLabel(catKey)}
+              icon={categories[catKey].icon || 'grid'}
+              backgroundColor={tileColor}
+              textColor={tileTextColor}
+              iconColor={tileTextColor}
+              backgroundImage={bgPhoto?.uri}
+              onPress={() => onCategory(catKey)}
+              onLongPress={() => onCategoryLongPress && onCategoryLongPress(catKey)}
+            />
+          );
+        })}
       </Grid>
     </ScrollView>
   );
