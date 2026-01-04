@@ -88,7 +88,7 @@ export const lightTheme = {
   // === BASIS ACHTERGRONDEN ===
   bg: '#F5F0E8',              // Warm beige/cream - hoofdachtergrond
   surface: '#FFFFFF',          // Wit - voor kaarten/modals
-  surfaceHighlight: '#9BA3A8', // Grijs - standaard tiles
+  surfaceHighlight: '#B8C0C5', // E2: Lichter grijs - standaard tiles (was #9BA3A8, nu ~20% lichter)
   surfaceSecondary: '#F0EBE3', // Iets donkerder dan bg voor sections
 
   // === TEKST KLEUREN ===
@@ -182,7 +182,7 @@ export const darkTheme = {
   // === BASIS ACHTERGRONDEN ===
   bg: '#121212',               // Donker grijs - hoofdachtergrond
   surface: '#1E1E1E',          // Iets lichter - voor kaarten/modals
-  surfaceHighlight: '#2D2D2D', // Nog lichter - voor tiles
+  surfaceHighlight: '#3D3D3D', // E2: Lichter grijs - voor tiles (was #2D2D2D, nu lichter voor leesbaarheid)
   surfaceSecondary: '#1A1A1A', // Iets donkerder dan surface
 
   // === TEKST KLEUREN ===

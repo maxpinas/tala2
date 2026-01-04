@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme, spacing, borderRadius, typography } from '../../theme';
-import { renderPhrase, shouldShowPhrase } from '../../data';
+import { renderPhrase, shouldShowPhrase, hasPlaceholders } from '../../data';
 import { Header, Grid, Tile } from '../common';
 
 /**
@@ -38,18 +38,27 @@ const SimpleCategoryView = ({
 
   // Filter phrases die niet getoond moeten worden (placeholder zonder context)
   // en render de zichtbare phrases met placeholder vervanging
+  // E3: Sorteer zinnen met variabelen naar boven
   const visiblePhrases = phrases
     .map((phrase, originalIndex) => {
       const rendered = renderPhrase(phrase, phraseContext);
       const shouldShow = shouldShowPhrase(phrase, phraseContext);
+      const hasVars = hasPlaceholders(phrase);
       return {
         original: phrase,
         rendered,
         originalIndex,
         shouldShow,
+        hasVars, // E3: Track if phrase has variables
       };
     })
-    .filter(p => p.shouldShow);
+    .filter(p => p.shouldShow)
+    .sort((a, b) => {
+      // E3: Phrases with variables go first
+      if (a.hasVars && !b.hasVars) return -1;
+      if (!a.hasVars && b.hasVars) return 1;
+      return 0; // Keep original order within groups
+    });
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>

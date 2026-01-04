@@ -44,6 +44,12 @@ export const LOCATIONS = [
     variants: { bij: "in de winkel", naar: "de winkel", van: "de winkel" } 
   },
   { 
+    id: "boodschappen", 
+    label: "Boodschappen", 
+    icon: "shopping-cart",
+    variants: { bij: "boodschappen aan het doen", naar: "boodschappen doen", van: "het boodschappen doen" } 
+  },
+  { 
     id: "werk", 
     label: "Werk", 
     icon: "briefcase",

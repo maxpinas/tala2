@@ -169,19 +169,19 @@
         {
           "id": "phase-7",
           "title": "FASE 7: Onderwerpen & Zinnen",
-          "status": "not-started",
+          "status": "completed",
           "description": "Verbeteringen in zinnen functionaliteit volgens E1-E4",
           "tasks": [
-            { "id": "7.1", "task": "E1: Variabele tonen bij long press ({locatie:naar} ipv waarde)", "done": false },
-            { "id": "7.2", "task": "E2: Grijze knoppen veel lichter maken, tekst leesbaar", "done": false },
-            { "id": "7.3", "task": "E3: Sortering zinnen met variabele naar boven", "done": false },
-            { "id": "7.4", "task": "E4: Fix contextgevoelige aanvulling ('ik ben boodschappen doen')", "done": false }
+            { "id": "7.1", "task": "E1: Variabele tonen bij long press ({locatie:naar} ipv waarde)", "done": true, "note": "Al correct - originele template wordt doorgegeven aan longPressModal" },
+            { "id": "7.2", "task": "E2: Grijze knoppen veel lichter maken, tekst leesbaar", "done": true, "note": "surfaceHighlight lichter gemaakt: light #9BA3A8→#B8C0C5, dark #2D2D2D→#3D3D3D" },
+            { "id": "7.3", "task": "E3: Sortering zinnen met variabele naar boven", "done": true, "note": "hasPlaceholders check + sort in SimpleCategoryView" },
+            { "id": "7.4", "task": "E4: Fix contextgevoelige aanvulling ('ik ben boodschappen doen')", "done": true, "note": "Boodschappen locatie toegevoegd met correcte grammaticale varianten" }
           ],
           "definitionOfDone": [
-            "Long press toont {variabele} syntax",
-            "Grijze knoppen hebben leesbare tekst",
-            "Zinnen met variabele staan bovenaan",
-            "'ik ben boodschappen doen' werkt correct"
+            "Long press toont {variabele} syntax ✓",
+            "Grijze knoppen hebben leesbare tekst ✓",
+            "Zinnen met variabele staan bovenaan ✓",
+            "'ik ben boodschappen doen' werkt correct ✓"
           ]
         },
         {
