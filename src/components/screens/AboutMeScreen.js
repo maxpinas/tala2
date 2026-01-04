@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   emptyStateSubtext: {
-    fontSize: typography.small.fontSize,
+    fontSize: typography.caption.fontSize,
     marginTop: spacing.sm,
     textAlign: 'center',
   },

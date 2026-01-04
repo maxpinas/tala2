@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   sectionLabel: {
-    fontSize: typography.small.fontSize,
+    fontSize: typography.caption.fontSize,
     fontWeight: '600',
     textTransform: 'uppercase',
     marginBottom: spacing.sm,
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
   },
   noPhotosText: {
     paddingVertical: spacing.lg,
-    fontSize: typography.small.fontSize,
+    fontSize: typography.caption.fontSize,
   },
   deleteButton: {
     flexDirection: 'row',
