@@ -21,7 +21,7 @@ import { useTheme, spacing, borderRadius, typography } from '../../theme';
  * @param {string} tileType - 'category' | 'favorite' | 'quickResponse'
  */
 
-// Available color options for tiles
+// Available color options for tiles (14 colors)
 const COLOR_OPTIONS = [
   { id: 'green', lightColor: '#4CAF50', darkColor: '#388E3C', label: 'Groen' },
   { id: 'blue', lightColor: '#2196F3', darkColor: '#1976D2', label: 'Blauw' },
@@ -31,6 +31,24 @@ const COLOR_OPTIONS = [
   { id: 'teal', lightColor: '#009688', darkColor: '#00796B', label: 'Teal' },
   { id: 'pink', lightColor: '#E91E63', darkColor: '#C2185B', label: 'Roze' },
   { id: 'indigo', lightColor: '#3F51B5', darkColor: '#303F9F', label: 'Indigo' },
+  { id: 'cyan', lightColor: '#00BCD4', darkColor: '#0097A7', label: 'Cyaan' },
+  { id: 'amber', lightColor: '#FFC107', darkColor: '#FFA000', label: 'Amber' },
+  { id: 'lime', lightColor: '#CDDC39', darkColor: '#AFB42B', label: 'Limoen' },
+  { id: 'brown', lightColor: '#795548', darkColor: '#5D4037', label: 'Bruin' },
+  { id: 'grey', lightColor: '#9E9E9E', darkColor: '#616161', label: 'Grijs' },
+  { id: 'deepPurple', lightColor: '#673AB7', darkColor: '#512DA8', label: 'Diep Paars' },
+];
+
+// Available text/icon color options (8 colors)
+const TEXT_COLOR_OPTIONS = [
+  { id: 'white', color: '#FFFFFF', label: 'Wit' },
+  { id: 'black', color: '#000000', label: 'Zwart' },
+  { id: 'yellow', color: '#FFEB3B', label: 'Geel' },
+  { id: 'red', color: '#F44336', label: 'Rood' },
+  { id: 'blue', color: '#2196F3', label: 'Blauw' },
+  { id: 'green', color: '#4CAF50', label: 'Groen' },
+  { id: 'orange', color: '#FF9800', label: 'Oranje' },
+  { id: 'purple', color: '#9C27B0', label: 'Paars' },
 ];
 
 const TileCustomizationModal = ({
@@ -50,9 +68,13 @@ const TileCustomizationModal = ({
   const [name, setName] = useState('');
   const [colorId, setColorId] = useState('green');
   const [darkColorId, setDarkColorId] = useState('green');
-  const [textColor, setTextColor] = useState('white'); // 'white' or 'black'
+  const [textColorLight, setTextColorLight] = useState('white'); // 'white' or 'black'
+  const [textColorDark, setTextColorDark] = useState('white'); // 'white' or 'black'
+  const [iconColorLight, setIconColorLight] = useState('white'); // 'white' or 'black'
+  const [iconColorDark, setIconColorDark] = useState('white'); // 'white' or 'black'
   const [backgroundPhotoId, setBackgroundPhotoId] = useState(null);
   const [showPhotoSelector, setShowPhotoSelector] = useState(false);
+  const [applyToAll, setApplyToAll] = useState(false); // Apply to all tiles
 
   // Initialize state from tile data
   useEffect(() => {
@@ -60,8 +82,14 @@ const TileCustomizationModal = ({
       setName(tile.customName || tile.label || tile.text || '');
       setColorId(tile.colorId || 'green');
       setDarkColorId(tile.darkColorId || tile.colorId || 'green');
-      setTextColor(tile.textColor || 'white');
+      // Support old textColor field for backwards compatibility
+      const legacyTextColor = tile.hasOwnProperty && tile.hasOwnProperty('textColor') ? tile.textColor : 'white';
+      setTextColorLight(tile.textColorLight || legacyTextColor);
+      setTextColorDark(tile.textColorDark || 'white');
+      setIconColorLight(tile.iconColorLight || 'white');
+      setIconColorDark(tile.iconColorDark || 'white');
       setBackgroundPhotoId(tile.backgroundPhotoId || null);
+      setApplyToAll(false); // Reset when opening new tile
     }
   }, [tile]);
 
@@ -73,8 +101,12 @@ const TileCustomizationModal = ({
       customName: name !== (tile.label || tile.text) ? name : undefined,
       colorId,
       darkColorId,
-      textColor,
+      textColorLight,
+      textColorDark,
+      iconColorLight,
+      iconColorDark,
       backgroundPhotoId,
+      applyToAll, // Flag to indicate if should apply to all tiles
     };
     
     onSave && onSave(updatedTile);
@@ -103,15 +135,23 @@ const TileCustomizationModal = ({
     return COLOR_OPTIONS.find(c => c.id === id) || COLOR_OPTIONS[0];
   };
 
+  const getTextColorValue = (id) => {
+    const found = TEXT_COLOR_OPTIONS.find(c => c.id === id);
+    return found ? found.color : '#FFFFFF';
+  };
+
   const selectedLightColor = getSelectedColor(colorId);
   const selectedDarkColor = getSelectedColor(darkColorId);
   const backgroundPhoto = gallery.find(p => p.id === backgroundPhotoId);
 
-  // Preview tile appearance
+  // Preview tile appearance - use appropriate color based on current mode
   const previewBgColor = isDark 
     ? selectedDarkColor.darkColor 
     : selectedLightColor.lightColor;
-  const previewTextColor = textColor === 'white' ? '#FFFFFF' : '#000000';
+  const currentTextColor = isDark ? textColorDark : textColorLight;
+  const currentIconColor = isDark ? iconColorDark : iconColorLight;
+  const previewTextColor = getTextColorValue(currentTextColor);
+  const previewIconColor = getTextColorValue(currentIconColor);
 
   if (!tile) return null;
 
@@ -137,7 +177,7 @@ const TileCustomizationModal = ({
           >
             {/* Preview */}
             <View style={styles.previewSection}>
-              <Text style={[styles.sectionLabel, { color: theme.textDim }]}>Voorbeeld</Text>
+              <Text style={[styles.sectionLabel, { color: theme.textDim }]}>Voorbeeld ({isDark ? 'Dark Mode' : 'Light Mode'})</Text>
               <View 
                 style={[
                   styles.previewTile, 
@@ -153,6 +193,7 @@ const TileCustomizationModal = ({
                   />
                 )}
                 <View style={[styles.previewOverlay, backgroundPhoto && styles.previewOverlayWithImage]}>
+                  <Feather name="grid" size={28} color={previewIconColor} style={{ marginBottom: 8 }} />
                   <Text style={[styles.previewText, { color: previewTextColor }]}>
                     {name || 'Tile naam'}
                   </Text>
@@ -241,40 +282,105 @@ const TileCustomizationModal = ({
               </View>
             </View>
 
-            {/* D5: Tekstkleur */}
+            {/* Light Mode - Tekst & Icon kleur */}
             <View style={styles.section}>
-              <Text style={[styles.sectionLabel, { color: theme.textDim }]}>Tekstkleur</Text>
-              <View style={styles.textColorOptions}>
-                <TouchableOpacity
-                  style={[
-                    styles.textColorOption,
-                    { backgroundColor: '#000000' },
-                    textColor === 'white' && styles.textColorOptionSelected,
-                  ]}
-                  onPress={() => setTextColor('white')}
-                >
-                  <Text style={styles.textColorLabel}>Aa</Text>
-                  {textColor === 'white' && (
-                    <View style={styles.textColorCheck}>
-                      <Feather name="check" size={16} color="#4CAF50" />
-                    </View>
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.textColorOption,
-                    { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#E0E0E0' },
-                    textColor === 'black' && styles.textColorOptionSelected,
-                  ]}
-                  onPress={() => setTextColor('black')}
-                >
-                  <Text style={[styles.textColorLabel, { color: '#000000' }]}>Aa</Text>
-                  {textColor === 'black' && (
-                    <View style={styles.textColorCheck}>
-                      <Feather name="check" size={16} color="#4CAF50" />
-                    </View>
-                  )}
-                </TouchableOpacity>
+              <Text style={[styles.sectionLabel, { color: theme.textDim }]}>Kleuren Light Mode</Text>
+              <View style={styles.dualColorRow}>
+                {/* Tekstkleur */}
+                <View style={styles.colorColumn}>
+                  <Text style={[styles.colorColumnLabel, { color: theme.textDim }]}>Tekst</Text>
+                  <View style={styles.colorGrid}>
+                    {TEXT_COLOR_OPTIONS.map((colorOpt) => (
+                      <TouchableOpacity
+                        key={colorOpt.id}
+                        style={[
+                          styles.smallColorOption,
+                          { backgroundColor: colorOpt.color },
+                          colorOpt.id === 'white' && { borderWidth: 1, borderColor: '#E0E0E0' },
+                          textColorLight === colorOpt.id && styles.colorOptionSelected,
+                        ]}
+                        onPress={() => setTextColorLight(colorOpt.id)}
+                      >
+                        {textColorLight === colorOpt.id && (
+                          <Feather name="check" size={14} color={colorOpt.id === 'white' || colorOpt.id === 'yellow' ? '#000' : '#FFF'} />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+                {/* Icon kleur */}
+                <View style={styles.colorColumn}>
+                  <Text style={[styles.colorColumnLabel, { color: theme.textDim }]}>Icon</Text>
+                  <View style={styles.colorGrid}>
+                    {TEXT_COLOR_OPTIONS.map((colorOpt) => (
+                      <TouchableOpacity
+                        key={colorOpt.id}
+                        style={[
+                          styles.smallColorOption,
+                          { backgroundColor: colorOpt.color },
+                          colorOpt.id === 'white' && { borderWidth: 1, borderColor: '#E0E0E0' },
+                          iconColorLight === colorOpt.id && styles.colorOptionSelected,
+                        ]}
+                        onPress={() => setIconColorLight(colorOpt.id)}
+                      >
+                        {iconColorLight === colorOpt.id && (
+                          <Feather name="check" size={14} color={colorOpt.id === 'white' || colorOpt.id === 'yellow' ? '#000' : '#FFF'} />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {/* Dark Mode - Tekst & Icon kleur */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionLabel, { color: theme.textDim }]}>Kleuren Dark Mode</Text>
+              <View style={styles.dualColorRow}>
+                {/* Tekstkleur */}
+                <View style={styles.colorColumn}>
+                  <Text style={[styles.colorColumnLabel, { color: theme.textDim }]}>Tekst</Text>
+                  <View style={styles.colorGrid}>
+                    {TEXT_COLOR_OPTIONS.map((colorOpt) => (
+                      <TouchableOpacity
+                        key={colorOpt.id}
+                        style={[
+                          styles.smallColorOption,
+                          { backgroundColor: colorOpt.color },
+                          colorOpt.id === 'white' && { borderWidth: 1, borderColor: '#E0E0E0' },
+                          textColorDark === colorOpt.id && styles.colorOptionSelected,
+                        ]}
+                        onPress={() => setTextColorDark(colorOpt.id)}
+                      >
+                        {textColorDark === colorOpt.id && (
+                          <Feather name="check" size={14} color={colorOpt.id === 'white' || colorOpt.id === 'yellow' ? '#000' : '#FFF'} />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+                {/* Icon kleur */}
+                <View style={styles.colorColumn}>
+                  <Text style={[styles.colorColumnLabel, { color: theme.textDim }]}>Icon</Text>
+                  <View style={styles.colorGrid}>
+                    {TEXT_COLOR_OPTIONS.map((colorOpt) => (
+                      <TouchableOpacity
+                        key={colorOpt.id}
+                        style={[
+                          styles.smallColorOption,
+                          { backgroundColor: colorOpt.color },
+                          colorOpt.id === 'white' && { borderWidth: 1, borderColor: '#E0E0E0' },
+                          iconColorDark === colorOpt.id && styles.colorOptionSelected,
+                        ]}
+                        onPress={() => setIconColorDark(colorOpt.id)}
+                      >
+                        {iconColorDark === colorOpt.id && (
+                          <Feather name="check" size={14} color={colorOpt.id === 'white' || colorOpt.id === 'yellow' ? '#000' : '#FFF'} />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
               </View>
             </View>
 
@@ -356,6 +462,23 @@ const TileCustomizationModal = ({
             )}
           </ScrollView>
 
+          {/* Apply to all checkbox */}
+          <TouchableOpacity 
+            style={[styles.applyToAllRow, { borderTopColor: theme.surfaceHighlight }]}
+            onPress={() => setApplyToAll(!applyToAll)}
+          >
+            <View style={[
+              styles.checkbox, 
+              { borderColor: theme.primary },
+              applyToAll && { backgroundColor: theme.primary }
+            ]}>
+              {applyToAll && <Feather name="check" size={16} color="#FFFFFF" />}
+            </View>
+            <Text style={[styles.applyToAllText, { color: theme.text }]}>
+              Toepassen op alle tiles
+            </Text>
+          </TouchableOpacity>
+
           {/* Save button */}
           <View style={[styles.footer, { borderTopColor: theme.surfaceHighlight }]}>
             <TouchableOpacity
@@ -380,6 +503,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: borderRadius.xl,
     borderTopRightRadius: borderRadius.xl,
     maxHeight: '90%',
+    minHeight: '70%',
   },
   header: {
     flexDirection: 'row',
@@ -487,6 +611,26 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  smallColorOption: {
+    width: 32,
+    height: 32,
+    borderRadius: borderRadius.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dualColorRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  colorColumn: {
+    flex: 1,
+    marginRight: spacing.md,
+  },
+  colorColumnLabel: {
+    fontSize: typography.caption.fontSize,
+    fontWeight: '500',
+    marginBottom: spacing.xs,
+  },
   textColorOptions: {
     flexDirection: 'row',
     gap: spacing.md,
@@ -593,6 +737,26 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: typography.body.fontSize,
     fontWeight: '600',
+  },
+  applyToAllRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderTopWidth: 1,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: borderRadius.sm,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: spacing.md,
+  },
+  applyToAllText: {
+    fontSize: typography.body.fontSize,
+    fontWeight: '500',
   },
   footer: {
     padding: spacing.lg,

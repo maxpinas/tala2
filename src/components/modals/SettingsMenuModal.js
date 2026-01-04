@@ -8,7 +8,7 @@ import { createBackupObject, encryptBackup, saveAndShareBackup } from '../../uti
 import { useApp, APP_MODES } from '../../context';
 
 const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger, theme, rightElement, styles }) => (
-  <TouchableOpacity style={[styles.menuItem, { backgroundColor: theme.surface }]} onPress={onPress} disabled={!onPress}>
+  <TouchableOpacity style={[styles.menuItem, { backgroundColor: theme.surface }]} onPress={onPress} disabled={!onPress && !rightElement}>
     <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
       <View style={[styles.selectorIcon, {backgroundColor: iconBg || theme.primary}]}>
         <Feather name={icon} size={22} color={danger ? theme.textInverse : (iconBg === theme.accent || iconBg === theme.danger ? theme.textInverse : theme.textInverse)} />
@@ -132,6 +132,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
           subtitle={isDark ? "Aan" : "Uit"}
           theme={theme}
           styles={styles}
+          onPress={toggleTheme}
           rightElement={
             <Switch
               value={isDark}

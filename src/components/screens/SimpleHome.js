@@ -70,7 +70,7 @@ const SimpleHome = ({
 }) => {
   const { theme, isDark } = useTheme();
   
-  // Color options for tile customization (must match TileCustomizationModal)
+  // Color options for tile customization (must match TileCustomizationModal - 14 colors)
   const COLOR_OPTIONS = {
     green: { light: '#4CAF50', dark: '#388E3C' },
     blue: { light: '#2196F3', dark: '#1976D2' },
@@ -80,6 +80,12 @@ const SimpleHome = ({
     teal: { light: '#009688', dark: '#00796B' },
     pink: { light: '#E91E63', dark: '#C2185B' },
     indigo: { light: '#3F51B5', dark: '#303F9F' },
+    cyan: { light: '#00BCD4', dark: '#0097A7' },
+    amber: { light: '#FFC107', dark: '#FFA000' },
+    lime: { light: '#CDDC39', dark: '#AFB42B' },
+    brown: { light: '#795548', dark: '#5D4037' },
+    grey: { light: '#9E9E9E', dark: '#616161' },
+    deepPurple: { light: '#673AB7', dark: '#512DA8' },
   };
   
   // Get tile color based on customization
@@ -95,14 +101,49 @@ const SimpleHome = ({
     return theme.categories.etenDrinken;
   };
   
+  // Text/Icon color options (must match TileCustomizationModal - 8 colors)
+  const TEXT_COLOR_MAP = {
+    white: '#FFFFFF',
+    black: '#000000',
+    yellow: '#FFEB3B',
+    red: '#F44336',
+    blue: '#2196F3',
+    green: '#4CAF50',
+    orange: '#FF9800',
+    purple: '#9C27B0',
+  };
+
   // Get tile text color based on customization
   const getTileTextColor = (catKey) => {
     const customization = tileCustomizations[catKey];
-    if (customization?.textColor === 'black') {
-      return '#000000';
+    if (customization) {
+      // Use mode-specific text color, with fallback to legacy textColor
+      let textColorId;
+      if (isDark) {
+        textColorId = customization.textColorDark;
+      } else {
+        textColorId = customization.textColorLight || (customization.hasOwnProperty && customization.hasOwnProperty('textColor') ? customization.textColor : null);
+      }
+      if (textColorId && TEXT_COLOR_MAP[textColorId]) {
+        return TEXT_COLOR_MAP[textColorId];
+      }
     }
     // D8: Default wit
-    return theme.textInverse;
+    return '#FFFFFF';
+  };
+  
+  // Get tile icon color based on customization
+  const getTileIconColor = (catKey) => {
+    const customization = tileCustomizations[catKey];
+    if (customization) {
+      // Use mode-specific icon color
+      const iconColorId = isDark ? customization.iconColorDark : customization.iconColorLight;
+      if (iconColorId && TEXT_COLOR_MAP[iconColorId]) {
+        return TEXT_COLOR_MAP[iconColorId];
+      }
+    }
+    // Default wit
+    return '#FFFFFF';
   };
   
   // Get tile label (custom name or default)
@@ -215,6 +256,7 @@ const SimpleHome = ({
           const bgPhoto = getTileBackgroundPhoto(catKey);
           const tileColor = getTileColor(catKey);
           const tileTextColor = getTileTextColor(catKey);
+          const tileIconColor = getTileIconColor(catKey);
           
           return (
             <Tile
@@ -223,7 +265,7 @@ const SimpleHome = ({
               icon={categories[catKey].icon || 'grid'}
               backgroundColor={tileColor}
               textColor={tileTextColor}
-              iconColor={tileTextColor}
+              iconColor={tileIconColor}
               backgroundImage={bgPhoto?.uri}
               onPress={() => onCategory(catKey)}
               onLongPress={() => onCategoryLongPress && onCategoryLongPress(catKey)}

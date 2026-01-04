@@ -658,17 +658,38 @@ const MainApp = ({ onReset }) => {
         tile={selectedTileForCustomization}
         gallery={gallery}
         onSave={(updatedTile) => {
-          // Save customization for this tile
-          setTileCustomizations(prev => ({
-            ...prev,
-            [updatedTile.id]: {
-              customName: updatedTile.customName,
-              colorId: updatedTile.colorId,
-              darkColorId: updatedTile.darkColorId,
-              textColor: updatedTile.textColor,
-              backgroundPhotoId: updatedTile.backgroundPhotoId,
-            }
-          }));
+          const customization = {
+            customName: updatedTile.customName,
+            colorId: updatedTile.colorId,
+            darkColorId: updatedTile.darkColorId,
+            textColorLight: updatedTile.textColorLight,
+            textColorDark: updatedTile.textColorDark,
+            iconColorLight: updatedTile.iconColorLight,
+            iconColorDark: updatedTile.iconColorDark,
+            backgroundPhotoId: updatedTile.backgroundPhotoId,
+          };
+          
+          if (updatedTile.applyToAll) {
+            // Apply to all category tiles
+            const allCustomizations = {};
+            Object.keys(categories).forEach(catKey => {
+              allCustomizations[catKey] = {
+                ...customization,
+                // Keep individual names, only apply colors
+                customName: tileCustomizations[catKey]?.customName,
+              };
+            });
+            setTileCustomizations(prev => ({
+              ...prev,
+              ...allCustomizations,
+            }));
+          } else {
+            // Save customization for this tile only
+            setTileCustomizations(prev => ({
+              ...prev,
+              [updatedTile.id]: customization,
+            }));
+          }
         }}
         tileType={selectedTileForCustomization?.type || 'category'}
       />
