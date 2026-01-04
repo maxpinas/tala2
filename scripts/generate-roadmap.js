@@ -78,9 +78,50 @@ function generateMarkdown(data) {
   md += '## Backlog\n\n';
   
   for (const item of data.backlog) {
-    md += `- [ ] ${item.task}\n`;
+    if (item.description) {
+      md += `### ${item.task}\n`;
+      md += `${item.description}\n\n`;
+    } else {
+      md += `- [ ] ${item.task}\n`;
+    }
   }
   md += '\n';
+
+  md += '---\n\n';
+
+  // Tech Debt
+  if (data.techDebt && data.techDebt.length > 0) {
+    md += '## Tech Debt / Cleanup\n\n';
+    for (const item of data.techDebt) {
+      md += `### ${item.task}\n`;
+      md += `> ⚠️ ${item.description}\n\n`;
+    }
+    md += '---\n\n';
+  }
+
+  // App Store Checklist
+  if (data.appStoreChecklist) {
+    md += '## App Store Release Checklist\n\n';
+    
+    const sections = [
+      { key: 'metadata', title: 'Metadata & Content' },
+      { key: 'privacyLegal', title: 'Privacy & Legal' },
+      { key: 'securityAudit', title: 'Code & Security Audit' },
+      { key: 'technical', title: 'Technische Vereisten' },
+      { key: 'testing', title: 'Pre-Submit Testing' }
+    ];
+
+    for (const section of sections) {
+      if (data.appStoreChecklist[section.key]) {
+        md += `### ${section.title}\n`;
+        for (const item of data.appStoreChecklist[section.key]) {
+          const checkbox = item.done ? '[x]' : '[ ]';
+          md += `- ${checkbox} ${item.task}\n`;
+        }
+        md += '\n';
+      }
+    }
+  }
 
   return md;
 }

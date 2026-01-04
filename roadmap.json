@@ -323,8 +323,96 @@
     }
   ],
   "backlog": [
-    { "id": "b1", "task": "Foto's koppelen aan zinnen" },
-    { "id": "b2", "task": "Spraakherkenning voor input" },
-    { "id": "b3", "task": "Export naar PDF van medisch paspoort" }
-  ]
+    {
+      "id": "b0",
+      "task": "Centraal Kleuren Thema",
+      "description": "Nieuw kleurenpalet implementeren (plan ligt klaar), consistente toepassing door hele app",
+      "priority": "high"
+    },
+    {
+      "id": "b1",
+      "task": "Tiles Customization Modal",
+      "description": "Bij tiles op homepage eerst menu tonen (Aanpassen/Customizen). Aanpassen opent modal voor naam/volgorde/verwijderen (zelfde stijl als onderwerpen aanpassen)"
+    },
+    {
+      "id": "b2",
+      "task": "Foto's Aanpassen Modal",
+      "description": "Long-press op foto's: 'Aanpassen' ipv direct 'Verwijderen'. Zelfde modal stijl als tiles aanpassen"
+    },
+    {
+      "id": "b3",
+      "task": "Backup & Restore",
+      "description": "Restore functie implementeren (backup inlezen en herstellen). UI voor restore in Beheer menu"
+    },
+    {
+      "id": "b4",
+      "task": "Onboarding Help Flow",
+      "description": "Onboarding bij eerste app start met highlights van belangrijkste functies. Uitleg over long-press, instructies voor taal instellen. Skip optie voor ervaren gebruikers"
+    },
+    {
+      "id": "b5",
+      "task": "Meertaligheid (i18n)",
+      "description": "Ondersteuning voor NL, EN, DE, FR, ES. AI flow voor genereren van nieuwe taalbestanden. Inclusief UI teksten, initiële onderwerpen/zinnen, locaties/personen met grammatica regels. Taal selectie in instellingen"
+    },
+    {
+      "id": "b6",
+      "task": "Foto's koppelen aan zinnen"
+    },
+    {
+      "id": "b7",
+      "task": "Spraakherkenning voor input"
+    },
+    {
+      "id": "b8",
+      "task": "Export naar PDF van medisch paspoort"
+    }
+  ],
+  "techDebt": [
+    {
+      "id": "td1",
+      "task": "Expert Modus Verwijderen",
+      "description": "Expert modus wordt niet meer gebruikt. Te verwijderen: APP_MODES.EXPERT, alle isExpertMode checks, Expert menu items, Expert UI elementen, StartupModeModal mode selectie. Impact: ~500+ regels code"
+    }
+  ],
+  "appStoreChecklist": {
+    "metadata": [
+      { "id": "m1", "task": "App naam: 'Tala' (check beschikbaarheid)", "done": false },
+      { "id": "m2", "task": "Subtitle (max 30 tekens): bijv. 'Communicatie bij afasie'", "done": false },
+      { "id": "m3", "task": "Beschrijving (max 4000 tekens)", "done": false },
+      { "id": "m4", "task": "Keywords (max 100 tekens): afasie, communicatie, spraak, AAC, hulpmiddel", "done": false },
+      { "id": "m5", "task": "Screenshots (6.7\" en 5.5\"): minimaal 3, liefst 5-10 per device", "done": false },
+      { "id": "m6", "task": "App Preview video (optioneel)", "done": false },
+      { "id": "m7", "task": "App icoon: 1024x1024px zonder transparantie", "done": false },
+      { "id": "m8", "task": "Categorie: Medical of Lifestyle", "done": false },
+      { "id": "m9", "task": "Leeftijdsclassificatie: 4+", "done": false }
+    ],
+    "privacyLegal": [
+      { "id": "p1", "task": "Privacy Policy URL (verplicht)", "done": false },
+      { "id": "p2", "task": "Terms of Service URL (aanbevolen)", "done": false },
+      { "id": "p3", "task": "Support URL (verplicht)", "done": false },
+      { "id": "p4", "task": "App Privacy labels in App Store Connect", "done": false }
+    ],
+    "securityAudit": [
+      { "id": "s1", "task": "Data opslag review: gevoelige data in SecureStore", "done": true },
+      { "id": "s2", "task": "Backup encryptie met AES", "done": true },
+      { "id": "s3", "task": "Permissions audit: Camera/Photo Library usage descriptions", "done": false },
+      { "id": "s4", "task": "Network requests: HTTPS only", "done": true },
+      { "id": "s5", "task": "Crash-free: test alle flows", "done": false },
+      { "id": "s6", "task": "Memory leaks: profile met Instruments", "done": false },
+      { "id": "s7", "task": "Accessibility: VoiceOver support", "done": false }
+    ],
+    "technical": [
+      { "id": "t1", "task": "Minimale iOS versie: 15.0+", "done": false },
+      { "id": "t2", "task": "iPad support beslissen", "done": false },
+      { "id": "t3", "task": "Bundle identifier: com.studiohyra.tala (aanpassen)", "done": false },
+      { "id": "t4", "task": "App versie: semantic versioning", "done": true },
+      { "id": "t5", "task": "Build nummer: incrementeel", "done": true }
+    ],
+    "testing": [
+      { "id": "te1", "task": "Test op fysieke devices", "done": false },
+      { "id": "te2", "task": "Test op oudere iOS versies", "done": false },
+      { "id": "te3", "task": "Test accessibility met VoiceOver", "done": false },
+      { "id": "te4", "task": "Performance check (app start < 3 sec)", "done": false }
+    ]
+  }
 }
