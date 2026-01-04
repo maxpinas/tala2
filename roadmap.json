@@ -356,15 +356,42 @@
     },
     {
       "id": "b6",
-      "task": "Foto's koppelen aan zinnen"
+      "task": "Unified Photo Flow",
+      "description": "Overal waar je foto toevoegt dezelfde modal: eigen library tonen, optie om foto toe te voegen van camera rol naar library, optie om foto te maken en toe te voegen. Alle foto's 1 formaat (geen small/medium/large). Library dezelfde tile maat als homepage tiles, geen flexibel grid met verschillende formaten"
     },
     {
       "id": "b7",
-      "task": "Spraakherkenning voor input"
+      "task": "Foto's koppelen aan zinnen"
     },
     {
       "id": "b8",
+      "task": "Spraakherkenning voor input"
+    },
+    {
+      "id": "b9",
       "task": "Export naar PDF van medisch paspoort"
+    }
+  ],
+  "bugfixes": [
+    {
+      "id": "bug1",
+      "task": "Zin Bouwen: Verwijder 'Persoonlijk' en 'Aangepast' uit opslaan opties",
+      "description": "Bij eigen zin opslaan worden nog 'Persoonlijk' en 'Aangepast' getoond als onderwerp opties, maar deze bestaan niet meer"
+    },
+    {
+      "id": "bug2",
+      "task": "Zin Bouwen: Dark mode kleuren te donker",
+      "description": "De kleuren van Wie/Doe/Wat/Waar knoppen zijn te donker en grauw in dark mode, moeten lichter/levendiger"
+    },
+    {
+      "id": "bug3",
+      "task": "Zien tab: Zelfde header als andere tabs",
+      "description": "Zien tab moet dezelfde header houden als Praat/Herhaal/Favoriet. Geen terug knop nodig"
+    },
+    {
+      "id": "bug4",
+      "task": "Verwijder alle emoticons uit UI",
+      "description": "Er staan emoticons (bijv. idee emoticon bij tips) in de UI. Alleen Feather icons gebruiken. Emoticons alleen toegestaan voor gebruiker in Zin Bouwen"
     }
   ],
   "techDebt": [

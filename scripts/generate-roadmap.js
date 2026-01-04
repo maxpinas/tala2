@@ -89,6 +89,18 @@ function generateMarkdown(data) {
 
   md += '---\n\n';
 
+  // Bugfixes
+  if (data.bugfixes && data.bugfixes.length > 0) {
+    md += '## Bugfixes\n\n';
+    for (const item of data.bugfixes) {
+      md += `### ${item.task}\n`;
+      if (item.description) {
+        md += `${item.description}\n\n`;
+      }
+    }
+    md += '---\n\n';
+  }
+
   // Tech Debt
   if (data.techDebt && data.techDebt.length > 0) {
     md += '## Tech Debt / Cleanup\n\n';

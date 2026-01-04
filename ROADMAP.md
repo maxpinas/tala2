@@ -148,9 +148,28 @@ Onboarding bij eerste app start met highlights van belangrijkste functies. Uitle
 ### Meertaligheid (i18n)
 Ondersteuning voor NL, EN, DE, FR, ES. AI flow voor genereren van nieuwe taalbestanden. Inclusief UI teksten, initiële onderwerpen/zinnen, locaties/personen met grammatica regels. Taal selectie in instellingen
 
+### Unified Photo Flow
+Overal waar je foto toevoegt dezelfde modal: eigen library tonen, optie om foto toe te voegen van camera rol naar library, optie om foto te maken en toe te voegen. Alle foto's 1 formaat (geen small/medium/large). Library dezelfde tile maat als homepage tiles, geen flexibel grid met verschillende formaten
+
 - [ ] Foto's koppelen aan zinnen
 - [ ] Spraakherkenning voor input
 - [ ] Export naar PDF van medisch paspoort
+
+---
+
+## Bugfixes
+
+### Zin Bouwen: Verwijder 'Persoonlijk' en 'Aangepast' uit opslaan opties
+Bij eigen zin opslaan worden nog 'Persoonlijk' en 'Aangepast' getoond als onderwerp opties, maar deze bestaan niet meer
+
+### Zin Bouwen: Dark mode kleuren te donker
+De kleuren van Wie/Doe/Wat/Waar knoppen zijn te donker en grauw in dark mode, moeten lichter/levendiger
+
+### Zien tab: Zelfde header als andere tabs
+Zien tab moet dezelfde header houden als Praat/Herhaal/Favoriet. Geen terug knop nodig
+
+### Verwijder alle emoticons uit UI
+Er staan emoticons (bijv. idee emoticon bij tips) in de UI. Alleen Feather icons gebruiken. Emoticons alleen toegestaan voor gebruiker in Zin Bouwen
 
 ---
 
