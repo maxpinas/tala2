@@ -111,6 +111,78 @@ Volledige visuele overhaul van donker (#0B1120) naar warm licht thema (#F5F0E8).
 
 ---
 
+## App Store Release Checklist
+
+### Metadata & Content
+- [ ] App naam: "Tala" (check beschikbaarheid)
+- [ ] Subtitle (max 30 tekens): bijv. "Communicatie bij afasie"
+- [ ] Beschrijving (max 4000 tekens): duidelijke uitleg wat de app doet
+- [ ] Keywords (max 100 tekens): afasie, communicatie, spraak, AAC, hulpmiddel
+- [ ] Screenshots (6.7" en 5.5"): minimaal 3, liefst 5-10 per device
+- [ ] App Preview video (optioneel maar aanbevolen)
+- [ ] App icoon: 1024x1024px zonder transparantie
+- [ ] Categorie: Medical of Lifestyle
+- [ ] Leeftijdsclassificatie: 4+ (geen aanstootgevende content)
+
+### Privacy & Legal
+- [ ] Privacy Policy URL (verplicht)
+  - Welke data wordt verzameld (lokaal opgeslagen profiel, geen server)
+  - Hoe data wordt gebruikt
+  - Geen tracking, geen analytics
+- [ ] Terms of Service URL (aanbevolen)
+- [ ] Support URL (verplicht)
+- [ ] App Privacy labels in App Store Connect:
+  - Data Not Collected (als alles lokaal blijft)
+  - Of: Data Linked to You (als profiel data)
+
+### Code & Security Audit
+- [ ] **Data opslag review:**
+  - Gevoelige data (profiel, medisch) in SecureStore ✅
+  - Backup encryptie met AES ✅
+  - Geen plaintext wachtwoorden
+- [ ] **Permissions audit:**
+  - Camera/Photo Library: alleen voor foto's toevoegen
+  - Microphone: alleen als spraakherkenning wordt toegevoegd
+  - Alle permissions hebben duidelijke usage descriptions in Info.plist
+- [ ] **Network requests:**
+  - Geen externe API calls (behalve evt. AI suggestions)
+  - HTTPS only indien wel netwerk
+- [ ] **Crash-free:** Test alle flows, geen unhandled exceptions
+- [ ] **Memory leaks:** Profile met Instruments
+- [ ] **Accessibility:** VoiceOver support, voldoende contrast
+
+### Apple Review Specifiek
+- [ ] **Demo account** (indien login): n.v.t. voor Tala
+- [ ] **Review notes:** Uitleg dat app voor mensen met afasie is
+- [ ] **In-app purchases:** n.v.t. (gratis app)
+- [ ] **Sign in with Apple:** n.v.t. (geen login)
+- [ ] **Geen verboden content:** geen user-generated public content
+- [ ] **Geen private APIs:** alleen publieke React Native / Expo APIs
+
+### Technische Vereisten
+- [ ] Minimale iOS versie: 15.0+ (of lager indien gewenst)
+- [ ] iPad support: ja/nee beslissen (Universal of iPhone only)
+- [ ] Dark mode support: ja, via ThemeContext
+- [ ] Launch screen: SplashScreen.storyboard ✅
+- [ ] Bundle identifier: `com.studiohyra.tala` (aanpassen van anonymous)
+- [ ] App versie: semantic versioning (1.0.0)
+- [ ] Build nummer: incrementeel per submit
+
+### Pre-Submit Testing
+- [ ] Test op fysieke devices (niet alleen simulator)
+- [ ] Test op oudere iOS versies
+- [ ] Test alle happy paths
+- [ ] Test edge cases (geen data, lege profiel, etc.)
+- [ ] Test accessibility met VoiceOver
+- [ ] Performance check (app start < 3 sec)
+
+### Na Goedkeuring
+- [ ] App Store Optimization (ASO): monitor downloads
+- [ ] Ratings & Reviews: vraag gebruikers om review
+- [ ] Versie updates plannen
+
+---
+
 ## Tech Debt / Cleanup
 
 ### Expert Modus Verwijderen (TODO)
