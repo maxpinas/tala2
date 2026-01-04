@@ -37,7 +37,9 @@ import {
   VoiceSettingsScreen,
   SimpleHome,
   SimpleSentenceBuilder,
-  SimpleCategoryView
+  SimpleCategoryView,
+  FilterScreen,
+  AboutMeScreen
 } from './src/components/screens';
 import GalleryScreen from './src/components/screens/GalleryScreen';
 
@@ -895,11 +897,8 @@ const MainApp = ({ onReset }) => {
               } else if (type === 'arts') {
                 setShowMedicalScreen(true);
               } else if (type === 'toon') {
-                // Show full screen text of last spoken
-                if (history.length > 0) {
-                  setFullScreenText(history[0].text);
-                  setShowFullScreen(true);
-                }
+                // B3: Navigate to AboutMeScreen with profile info
+                setCurrentView('ABOUT_ME');
               } else {
                 // Default: open quick access modal
                 setShowQuickAccess(true);
@@ -920,7 +919,10 @@ const MainApp = ({ onReset }) => {
             onLocationPress={() => setShowContextModal(true)}
             onPersonPress={() => setShowPartnerModal(true)}
             
-            // Context - new props for FilterModal
+            // B2: Navigate to FilterScreen instead of modal
+            onOpenFilter={() => setCurrentView('FILTER')}
+            
+            // Context - new props for FilterModal (kept for backwards compat)
             locations={contexts}
             persons={activePartners}
             onLocationSelect={(loc) => {
@@ -952,7 +954,33 @@ const MainApp = ({ onReset }) => {
           />
         )}
 
-        {currentView !== 'GALLERY' && !(isGebruikMode && (currentView === 'HOME' || currentView === 'CATEGORY')) && (
+        {/* B2: FilterScreen - full-screen filter with tabs and back button */}
+        {isGebruikMode && currentView === 'FILTER' && !isBuilding && (
+          <FilterScreen
+            onBack={() => setCurrentView('HOME')}
+            locations={contexts}
+            persons={activePartners}
+            activeLocation={activeLocationObject}
+            activePerson={activePersonObject}
+            onLocationSelect={(loc) => {
+              setCurrentContext(loc?.id || 'geen');
+            }}
+            onPersonSelect={(person) => {
+              setCurrentPartner(person?.id || 'geen');
+            }}
+          />
+        )}
+
+        {/* B3: AboutMeScreen - shows "Over mij" info + personal explanation texts */}
+        {isGebruikMode && currentView === 'ABOUT_ME' && !isBuilding && (
+          <AboutMeScreen
+            onBack={() => setCurrentView('HOME')}
+            profile={profile}
+            onSpeak={handleSpeak}
+          />
+        )}
+
+        {currentView !== 'GALLERY' && !(isGebruikMode && (currentView === 'HOME' || currentView === 'CATEGORY' || currentView === 'FILTER' || currentView === 'ABOUT_ME')) && (
           <ScrollView contentContainerStyle={[styles.scrollContent, {paddingBottom: 100}]} showsVerticalScrollIndicator={false}>
             {currentView === 'BASIC_SETUP' && <BasicSetupFlow onBack={handleBackFromSettings} initialData={profile} onSave={(d) => { setProfile(d); handleBackFromSettings(); }} onTriggerPopup={triggerPopup} />}
             {currentView === 'CUSTOM_TEXTS' && <CustomTextsFlow onBack={handleBackFromSettings} initialData={profile} onSave={(d) => { setProfile(d); handleBackFromSettings(); }} onTriggerPopup={triggerPopup} />}

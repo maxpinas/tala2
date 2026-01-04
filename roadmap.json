@@ -103,18 +103,18 @@
         {
           "id": "phase-4",
           "title": "FASE 4: Navigatie & Schermen",
-          "status": "not-started",
+          "status": "completed",
           "description": "Scherm routing en content volgens B1-B3",
           "tasks": [
-            { "id": "4.1", "task": "B1: Zien tab → toont exact zelfde als + → Kijken", "done": false },
-            { "id": "4.2", "task": "B2: Filter via tabs (locatie/persoon) + terug knop, geen modal", "done": false },
-            { "id": "4.3", "task": "B3: Toon via + → toont 'Over mij' info + persoonlijke uitleg teksten", "done": false }
+            { "id": "4.1", "task": "B1: Zien tab → toont exact zelfde als + → Kijken", "done": true, "note": "Zien tab navigeert nu direct naar GalleryScreen" },
+            { "id": "4.2", "task": "B2: Filter via tabs (locatie/persoon) + terug knop, geen modal", "done": true, "note": "FilterScreen component gemaakt, vervangt FilterModal" },
+            { "id": "4.3", "task": "B3: Toon via + → toont 'Over mij' info + persoonlijke uitleg teksten", "done": true, "note": "AboutMeScreen component gemaakt" }
           ],
           "definitionOfDone": [
-            "Zien tab = exact zelfde als + → Kijken",
-            "Filter opent tabs (locatie/persoon), niet modal",
-            "Terug knop bij filter view",
-            "Toon toont Over mij correct"
+            "Zien tab = exact zelfde als + → Kijken ✓",
+            "Filter opent tabs (locatie/persoon), niet modal ✓",
+            "Terug knop bij filter view ✓",
+            "Toon toont Over mij correct ✓"
           ]
         },
         {

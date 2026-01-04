@@ -7,7 +7,6 @@ import {
   Header, 
   SubNavigation, 
   FloatingActionButton, 
-  FilterModal,
   Grid,
   Tile,
   QuickActionTile,
@@ -56,7 +55,10 @@ const SimpleHome = ({
   onLocationPress,
   onPersonPress,
   
-  // Context - new props for FilterModal
+  // B2: Filter via screen navigation instead of modal
+  onOpenFilter,
+  
+  // Context - new props for FilterModal (kept for backward compatibility)
   locations = [],
   persons = [],
   onLocationSelect,
@@ -77,7 +79,6 @@ const SimpleHome = ({
   
   // State
   const [activeTab, setActiveTab] = useState('praat');
-  const [filterVisible, setFilterVisible] = useState(false);
   
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -93,6 +94,12 @@ const SimpleHome = ({
 
   // Handlers
   const handleTabChange = (tab) => {
+    // B1: "Zien" tab navigates directly to GalleryScreen (same as FAB → Kijken)
+    if (tab === 'zien' && onLatenZien) {
+      onLatenZien();
+      return; // Don't change tab, navigate instead
+    }
+    
     // Animate tab transition
     Animated.sequence([
       Animated.timing(fadeAnim, {
@@ -115,13 +122,12 @@ const SimpleHome = ({
   };
 
   const handleFilterPress = () => {
-    // If we have the new FilterModal props, show it
-    // Otherwise fall back to original location/person press handlers
-    if (locations.length > 0 || persons.length > 0) {
-      setFilterVisible(true);
-    } else {
+    // B2: Navigate to FilterScreen instead of showing modal
+    if (onOpenFilter) {
+      onOpenFilter();
+    } else if (onLocationPress) {
       // Fallback: show location selector
-      onLocationPress && onLocationPress();
+      onLocationPress();
     }
   };
 
@@ -318,25 +324,7 @@ const SimpleHome = ({
         onNood={() => onSnel && onSnel('nood')}
       />
 
-      {/* Filter Modal */}
-      <FilterModal
-        visible={filterVisible}
-        onClose={() => setFilterVisible(false)}
-        locations={locations}
-        persons={persons}
-        activeLocation={activeLocation}
-        activePerson={activePerson}
-        onLocationSelect={(loc) => {
-          if (onLocationSelect) {
-            onLocationSelect(loc);
-          }
-        }}
-        onPersonSelect={(person) => {
-          if (onPersonSelect) {
-            onPersonSelect(person);
-          }
-        }}
-      />
+      {/* B2: FilterModal removed - now using FilterScreen via onOpenFilter */}
     </View>
   );
 };

@@ -17,3 +17,5 @@ export { default as VoiceSettingsScreen } from './VoiceSettingsScreen';
 export { default as SimpleHome } from './SimpleHome';
 export { default as SimpleSentenceBuilder } from './SimpleSentenceBuilder';
 export { default as SimpleCategoryView } from './SimpleCategoryView';
+export { default as FilterScreen } from './FilterScreen';
+export { default as AboutMeScreen } from './AboutMeScreen';
