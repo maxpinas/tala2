@@ -201,25 +201,36 @@
         {
           "id": "phase-9",
           "title": "FASE 9: Final Integration Test",
-          "status": "not-started",
-          "description": "Volledige test van alle features samen",
+          "status": "in-progress",
+          "description": "Volledige test van alle features samen - KLAAR VOOR HANDMATIGE TEST",
           "tasks": [
-            { "id": "9.1", "task": "Complete app flow testen in light mode", "done": false },
-            { "id": "9.2", "task": "Complete app flow testen in dark mode", "done": false },
-            { "id": "9.3", "task": "Theme switch mid-use testen", "done": false },
-            { "id": "9.4", "task": "Alle customizations persistent testen", "done": false },
-            { "id": "9.5", "task": "Console errors checken", "done": false },
-            { "id": "9.6", "task": "Visuele glitches checken", "done": false },
-            { "id": "9.7", "task": "Second pass uitvoeren", "done": false },
-            { "id": "9.8", "task": "Tag release v2.0-redesign", "done": false }
+            { "id": "9.1", "task": "Complete app flow testen in light mode", "done": false, "note": "Handmatig testen vereist" },
+            { "id": "9.2", "task": "Complete app flow testen in dark mode", "done": false, "note": "Handmatig testen vereist" },
+            { "id": "9.3", "task": "Theme switch mid-use testen", "done": false, "note": "Handmatig testen vereist" },
+            { "id": "9.4", "task": "Alle customizations persistent testen", "done": false, "note": "Handmatig testen vereist" },
+            { "id": "9.5", "task": "Console errors checken", "done": true, "note": "Geen TypeScript/ESLint errors gevonden" },
+            { "id": "9.6", "task": "Visuele glitches checken", "done": false, "note": "Handmatig testen vereist" },
+            { "id": "9.7", "task": "Second pass uitvoeren", "done": false, "note": "Na handmatige test" },
+            { "id": "9.8", "task": "Tag release v2.0-redesign", "done": false, "note": "Na goedkeuring" }
           ],
           "definitionOfDone": [
             "Complete app flow werkt in light mode",
             "Complete app flow werkt in dark mode",
             "Theme switch werkt mid-use",
             "Alle customizations zijn persistent",
-            "Geen console errors",
+            "Geen console errors ✓ (static analysis)",
             "Geen visuele glitches"
+          ],
+          "testInstructions": [
+            "1. Start app met `npx expo start`",
+            "2. Test alle onderwerpen in light mode",
+            "3. Ga naar Instellingen → Dark Mode toggle",
+            "4. Test alle onderwerpen in dark mode",
+            "5. Wissel theme midden in een actie",
+            "6. Long press op home tile → test customization",
+            "7. Long press op Medisch Paspoort velden",
+            "8. Test Herhaal tab (geen duplicaten)",
+            "9. Test Filter scherm met locatie/persoon tabs"
           ]
         }
       ],
