@@ -1,6 +1,7 @@
 export { default as SettingsMenuModal } from './SettingsMenuModal';
 export { default as ProfileMenuModal } from './ProfileMenuModal';
 export { default as ContentMenuModal } from './ContentMenuModal';
+export { default as BeheerMenuModal } from './BeheerMenuModal';
 export { default as ToolsMenuModal } from './ToolsMenuModal';
 export { default as QuickAccessModal } from './QuickAccessModal';
 export { default as EmergencyModal } from './EmergencyModal';

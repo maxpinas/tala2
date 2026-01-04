@@ -75,3 +75,19 @@ Volledige visuele overhaul van donker (#0B1120) naar warm licht thema (#F5F0E8).
 - [ ] Spraakherkenning voor input
 - [ ] Export naar PDF van medisch paspoort
 
+---
+
+## Tech Debt / Cleanup
+
+### Expert Modus Verwijderen (TODO)
+> ⚠️ De Expert modus wordt niet meer actief gebruikt. De code blijft voorlopig staan voor backwards compatibility, maar moet in een toekomstige versie volledig verwijderd worden.
+
+**Te verwijderen:**
+- `APP_MODES.EXPERT` uit `src/context/AppContext.js`
+- Alle `isExpertMode` checks in `App.js` en componenten
+- Expert-specifieke menu items in `SettingsMenuModal.js`
+- Expert UI elementen (sentence bar, word picker, etc.)
+- `StartupModeModal.js` mode selectie (nu alleen demo data vraag)
+
+**Impact:** Ongeveer 500+ regels code kunnen verwijderd worden na cleanup.
+

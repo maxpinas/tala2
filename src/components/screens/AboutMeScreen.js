@@ -13,7 +13,6 @@ import { t } from '../../i18n';
  * @param {object} profile - User profile data
  * @param {function} onSpeak - Text-to-speech handler
  * @param {function} onUpdateProfile - Handler to update profile data
- * @param {object} activePartner - Current active partner object
  * @param {function} onOpenMedical - Handler to open medical passport
  */
 const AboutMeScreen = ({
@@ -21,7 +20,6 @@ const AboutMeScreen = ({
   profile = {},
   onSpeak,
   onUpdateProfile,
-  activePartner,
   onOpenMedical,
 }) => {
   const { theme, isDark } = useTheme();
@@ -148,14 +146,14 @@ const AboutMeScreen = ({
           <Text style={[styles.bottomActionLabel, { color: theme.text }]}>Medisch{'\n'}Paspoort</Text>
         </TouchableOpacity>
 
-        {/* Partner Contact */}
-        {activePartner && activePartner.id !== 'geen' ? (
+        {/* Partner Contact - Always uses first partner from profile (not filter selection) */}
+        {profile.partnerName && profile.partnerPhone ? (
           <View style={[styles.bottomActionCard, { backgroundColor: theme.surface }]}>
             <View style={[styles.bottomActionIcon, { backgroundColor: isDark ? '#42A5F5' : '#BBDEFB' }]}>
               <Feather name="phone" size={28} color={isDark ? '#FFFFFF' : '#1565C0'} />
             </View>
             <Text style={[styles.bottomActionLabel, { color: theme.text }]} numberOfLines={2}>
-              {activePartner.name || activePartner.label || 'Partner'}
+              {profile.partnerName}
             </Text>
           </View>
         ) : (

@@ -4,7 +4,6 @@ import { Feather } from '@expo/vector-icons';
 import { useTheme, spacing, borderRadius } from '../../theme';
 import { useStyles } from '../../styles';
 import { clearAllData } from '../../storage';
-import { createBackupObject, encryptBackup, saveAndShareBackup } from '../../utils/backup';
 import { useApp, APP_MODES } from '../../context';
 
 const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger, theme, rightElement, styles }) => (
@@ -24,51 +23,11 @@ const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger, theme, right
   </TouchableOpacity>
 );
 
-const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onReset, onSpeechTest, onVoiceSettings }) => {
+const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onBeheerMenu, onReset, onSpeechTest, onVoiceSettings }) => {
     // Get theme from context
     const { theme, isDark, toggleTheme } = useTheme();
     const styles = useStyles();
     
-    // Backup handler
-    const handleBackup = async () => {
-      try {
-        // Vraag om wachtwoord
-        let password = '';
-        if (typeof window !== 'undefined') {
-          password = prompt('Kies een wachtwoord voor je backup-bestand:');
-        } else {
-          // React Native prompt alternatief (optioneel: gebruik een eigen modal)
-          Alert.prompt(
-            'Backup-wachtwoord',
-            'Kies een wachtwoord voor je backup-bestand:',
-            [
-              {
-                text: 'Annuleren',
-                style: 'cancel',
-                onPress: () => {},
-              },
-              {
-                text: 'OK',
-                onPress: async (input) => {
-                  if (!input) return;
-                  const backupObj = await createBackupObject();
-                  const encrypted = encryptBackup(backupObj, input);
-                  await saveAndShareBackup(encrypted);
-                },
-              },
-            ],
-            'secure-text'
-          );
-          return;
-        }
-        if (!password) return;
-        const backupObj = await createBackupObject();
-        const encrypted = encryptBackup(backupObj, password);
-        await saveAndShareBackup(encrypted);
-      } catch (e) {
-        Alert.alert('Fout', 'Backup maken is mislukt. Probeer het opnieuw.');
-      }
-    };
   const { appMode, setAppMode, setModeRemember, isExpertMode, isGebruikMode } = useApp();
 
   const handleModeSwitch = () => {
@@ -148,35 +107,37 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
         
         {isGebruikMode ? (
           // C1-C6: Simplified menu for 'gebruik' mode with restructured navigation
+          // Volgorde: Donkere modus (al boven), Inhoud beheren, Beheer, Profiel
           <>
-            {/* C1: Renamed to 'Inhoud beheren' */}
+            {/* Inhoud beheren */}
             <MenuItem
               icon="grid"
-              iconBg={theme.primary}  // C5: Green circle background
+              iconBg={theme.primary}
               title="Inhoud beheren"
               subtitle="Zinnen, onderwerpen en foto's"
               theme={theme}
               styles={styles}
               onPress={() => { onClose(); if (onContentMenu) onContentMenu(); }}
             />
-            {/* C4: Profiel naar menu met opties */}
+            {/* Beheer - opent submenu */}
+            <MenuItem
+              icon="settings"
+              iconBg={theme.primary}
+              title="Beheer"
+              subtitle="Backup maken en app resetten"
+              theme={theme}
+              styles={styles}
+              onPress={() => { onClose(); if (onBeheerMenu) onBeheerMenu(); }}
+            />
+            {/* Profiel */}
             <MenuItem
               icon="user"
-              iconBg={theme.primary}  // C5: Green circle background
+              iconBg={theme.primary}
               title="Profiel"
               subtitle="Gegevens en medisch paspoort"
               theme={theme}
               styles={styles}
               onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
-            />
-            <MenuItem
-              icon="unlock"
-              iconBg={theme.primary}  // C5: Green circle background
-              title="Wijzig naar Expert"
-              subtitle="Schakel naar Expertmodus"
-              theme={theme}
-              styles={styles}
-              onPress={() => { onClose(); handleModeSwitch(); }}
             />
           </>
         ) : (

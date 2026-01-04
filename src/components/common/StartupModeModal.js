@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Dimensions,
   Platform,
+  TextInput,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme } from '../../theme';
@@ -15,55 +17,146 @@ import { APP_MODES } from '../../context';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 /**
- * StartupModeModal - Keuze modal voor Expert vs Gebruikersmodus
+ * StartupModeModal - Welkom modal voor eerste start
  * 
- * Verschijnt bij eerste start of als mode niet is ingesteld.
- * Moderne UI met grote, toegankelijke knoppen en duidelijke iconen.
+ * Stap 1: Welkom + keuze demo data of leeg beginnen
+ * Stap 2: Naam en partner invoeren (alleen bij leeg beginnen)
+ * Mode is altijd 'gebruik' (gewone modus).
  */
 const StartupModeModal = ({ visible, onSelectMode }) => {
   const { theme } = useTheme();
-  const [rememberChoice, setRememberChoice] = useState(false);
-  const [fillDemoData, setFillDemoData] = useState(false);
-  const [selectedMode, setSelectedMode] = useState(null);
+  const [step, setStep] = useState(1); // 1 = welkom, 2 = naam/partner
+  const [fillDemoData, setFillDemoData] = useState(null); // null = nog niet gekozen
+  const [userName, setUserName] = useState('');
+  const [partnerName, setPartnerName] = useState('');
 
-  const handleConfirm = () => {
-    if (selectedMode) {
-      onSelectMode(selectedMode, rememberChoice, fillDemoData);
+  const handleNext = () => {
+    if (fillDemoData === true) {
+      // Met demo data - direct starten
+      onSelectMode(APP_MODES.GEBRUIK, true, true, '', '');
+    } else {
+      // Leeg beginnen - ga naar stap 2 voor naam/partner
+      setStep(2);
     }
   };
 
-  const ModeCard = ({ mode, title, icon, color }) => {
-    const isSelected = selectedMode === mode;
-    
-    return (
-      <TouchableOpacity
-        style={[
-          styles.modeCard,
-          { backgroundColor: theme.surfaceHighlight },
-          isSelected && { borderColor: color },
-        ]}
-        onPress={() => setSelectedMode(mode)}
-        activeOpacity={0.8}
-        accessibilityLabel={title}
-        accessibilityRole="button"
-        accessibilityState={{ selected: isSelected }}
-      >
-        {/* Selection indicator */}
-        <View style={[styles.selectionRing, { borderColor: theme.surfaceHighlight }, isSelected && { backgroundColor: color, borderColor: color }]}>
-          {isSelected && <Feather name="check" size={18} color="#fff" />}
-        </View>
-
-        {/* Icon */}
-        <View style={[styles.iconContainer, { backgroundColor: color + '20' }]}> 
-          <Feather name={icon} size={40} color={color} />
-        </View>
-
-        {/* Title */}
-        <Text style={[styles.modeTitle, { color: theme.text }]}>{title}</Text>
-      </TouchableOpacity>
-    );
+  const handleComplete = () => {
+    // Leeg beginnen met ingevoerde naam/partner
+    onSelectMode(APP_MODES.GEBRUIK, true, false, userName, partnerName);
   };
 
+  const handleBack = () => {
+    setStep(1);
+  };
+
+  // Stap 1: Welkom + keuze
+  if (step === 1) {
+    return (
+      <Modal
+        visible={visible}
+        animationType="fade"
+        transparent={true}
+        statusBarTranslucent
+      >
+        <View style={styles.overlay}>
+          <View style={[styles.container, { backgroundColor: theme.surface }]}>
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={[styles.logoContainer, { backgroundColor: theme.primary + '20' }]}>
+                <Feather name="message-circle" size={32} color={theme.primary} />
+              </View>
+              <Text style={[styles.title, { color: theme.text }]}>Welkom bij Tala</Text>
+              <Text style={[styles.description, { color: theme.textDim }]}>
+                Tala helpt je om te communiceren met de mensen om je heen.
+              </Text>
+            </View>
+
+            {/* Demo data choice - main focus */}
+            <View style={styles.choiceContainer}>
+              <Text style={[styles.choiceTitle, { color: theme.text }]}>
+                Hoe wil je beginnen?
+              </Text>
+              
+              <TouchableOpacity
+                style={[
+                  styles.choiceCard,
+                  { backgroundColor: theme.surfaceHighlight },
+                  fillDemoData === true && { borderColor: theme.primary, borderWidth: 2 }
+                ]}
+                onPress={() => setFillDemoData(true)}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.choiceIconContainer, { backgroundColor: theme.primary + '20' }]}>
+                  <Feather name="zap" size={28} color={theme.primary} />
+                </View>
+                <View style={styles.choiceTextContainer}>
+                  <Text style={[styles.choiceCardTitle, { color: theme.text }]}>Met voorbeelden</Text>
+                  <Text style={[styles.choiceCardSubtitle, { color: theme.textDim }]}>
+                    Start met demo zinnen en foto's om de app te ontdekken
+                  </Text>
+                </View>
+                {fillDemoData === true && (
+                  <View style={[styles.checkCircle, { backgroundColor: theme.primary }]}>
+                    <Feather name="check" size={16} color="#fff" />
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.choiceCard,
+                  { backgroundColor: theme.surfaceHighlight },
+                  fillDemoData === false && { borderColor: theme.primary, borderWidth: 2 }
+                ]}
+                onPress={() => setFillDemoData(false)}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.choiceIconContainer, { backgroundColor: theme.primary + '20' }]}>
+                  <Feather name="edit-3" size={28} color={theme.primary} />
+                </View>
+                <View style={styles.choiceTextContainer}>
+                  <Text style={[styles.choiceCardTitle, { color: theme.text }]}>Leeg beginnen</Text>
+                  <Text style={[styles.choiceCardSubtitle, { color: theme.textDim }]}>
+                    Vul zelf je gegevens en zinnen in
+                  </Text>
+                </View>
+                {fillDemoData === false && (
+                  <View style={[styles.checkCircle, { backgroundColor: theme.primary }]}>
+                    <Feather name="check" size={16} color="#fff" />
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {/* Confirm button */}
+            <TouchableOpacity
+              style={[
+                styles.confirmButton, 
+                { backgroundColor: fillDemoData !== null ? theme.primary : theme.border }
+              ]}
+              onPress={handleNext}
+              disabled={fillDemoData === null}
+              activeOpacity={0.8}
+              accessibilityLabel="Volgende"
+              accessibilityRole="button"
+            >
+              <Text style={styles.confirmButtonText}>
+                {fillDemoData === null ? 'Maak een keuze' : 'Volgende'}
+              </Text>
+              {fillDemoData !== null && <Feather name="arrow-right" size={20} color="#fff" />}
+            </TouchableOpacity>
+
+            {/* Info text */}
+            <Text style={[styles.infoText, { color: theme.textDim }]}>
+              💡 Je kunt later altijd je instellingen aanpassen via het menu
+            </Text>
+          </View>
+        </View>
+      </Modal>
+    );
+  }
+
+  // Stap 2: Naam en partner invoeren
   return (
     <Modal
       visible={visible}
@@ -71,89 +164,77 @@ const StartupModeModal = ({ visible, onSelectMode }) => {
       transparent={true}
       statusBarTranslucent
     >
-      <View style={styles.overlay}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.overlay}
+      >
         <View style={[styles.container, { backgroundColor: theme.surface }]}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={[styles.logoContainer, { backgroundColor: theme.primary + '20' }]}>
-              <Feather name="message-circle" size={32} color={theme.primary} />
-            </View>
-            <Text style={[styles.title, { color: theme.text }]}>Welkom bij Tala</Text>
-            <Text style={[styles.description, { color: theme.textDim }]}>
-              Kies hoe je de app wilt gebruiken. Je kunt dit later altijd wijzigen.
-            </Text>
+          {/* Header met terug knop */}
+          <View style={styles.step2Header}>
+            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+              <Feather name="arrow-left" size={24} color={theme.text} />
+            </TouchableOpacity>
+            <Text style={[styles.step2Title, { color: theme.text }]}>Over jou</Text>
+            <View style={styles.backButton} />
           </View>
 
-          {/* Mode Cards */}
-          <View style={styles.cardsContainer}>
-            <ModeCard
-              mode={APP_MODES.GEBRUIK}
-              title="Gewoon"
-              icon="smile"
-              color="#10B981"
-            />
-
-            <ModeCard
-              mode={APP_MODES.EXPERT}
-              title="Uitgebreid"
-              icon="sliders"
-              color="#6366F1"
+          {/* Naam invoer */}
+          <View style={styles.inputSection}>
+            <View style={[styles.inputIconContainer, { backgroundColor: theme.primary + '20' }]}>
+              <Feather name="user" size={28} color={theme.primary} />
+            </View>
+            <Text style={[styles.inputLabel, { color: theme.text }]}>Hoe heet je?</Text>
+            <TextInput
+              style={[styles.textInput, { 
+                backgroundColor: theme.surfaceHighlight, 
+                color: theme.text,
+                borderColor: theme.border
+              }]}
+              placeholder="Jouw naam"
+              placeholderTextColor={theme.textDim}
+              value={userName}
+              onChangeText={setUserName}
+              autoFocus
             />
           </View>
 
-          {/* Demo data toggle */}
-          <TouchableOpacity
-            style={styles.rememberRow}
-            onPress={() => setFillDemoData(!fillDemoData)}
-            activeOpacity={0.7}
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked: fillDemoData }}
-          >
-            <View style={[styles.checkbox, { borderColor: theme.surfaceHighlight }, fillDemoData && { backgroundColor: theme.primary, borderColor: theme.primary }]}>
-              {fillDemoData && <Feather name="check" size={14} color="#fff" />}
+          {/* Partner invoer */}
+          <View style={styles.inputSection}>
+            <View style={[styles.inputIconContainer, { backgroundColor: theme.primary + '20' }]}>
+              <Feather name="heart" size={28} color={theme.primary} />
             </View>
-            <Text style={[styles.rememberText, { color: theme.text }]}>Vul met demo informatie</Text>
-          </TouchableOpacity>
+            <Text style={[styles.inputLabel, { color: theme.text }]}>Wie is je partner of verzorger?</Text>
+            <TextInput
+              style={[styles.textInput, { 
+                backgroundColor: theme.surfaceHighlight, 
+                color: theme.text,
+                borderColor: theme.border
+              }]}
+              placeholder="Naam partner (optioneel)"
+              placeholderTextColor={theme.textDim}
+              value={partnerName}
+              onChangeText={setPartnerName}
+            />
+          </View>
 
-          {/* Remember choice toggle */}
+          {/* Complete button */}
           <TouchableOpacity
-            style={styles.rememberRow}
-            onPress={() => setRememberChoice(!rememberChoice)}
-            activeOpacity={0.7}
-            accessibilityRole="checkbox"
-            accessibilityState={{ checked: rememberChoice }}
-          >
-            <View style={[styles.checkbox, { borderColor: theme.surfaceHighlight }, rememberChoice && { backgroundColor: theme.primary, borderColor: theme.primary }]}>
-              {rememberChoice && <Feather name="check" size={14} color="#fff" />}
-            </View>
-            <Text style={[styles.rememberText, { color: theme.text }]}>Onthoud mijn keuze</Text>
-          </TouchableOpacity>
-
-          {/* Confirm button */}
-          <TouchableOpacity
-            style={[
-              styles.confirmButton,
-              { backgroundColor: theme.primary },
-              !selectedMode && { backgroundColor: theme.border },
-            ]}
-            onPress={handleConfirm}
-            disabled={!selectedMode}
+            style={[styles.confirmButton, { backgroundColor: theme.primary, marginTop: 24 }]}
+            onPress={handleComplete}
             activeOpacity={0.8}
-            accessibilityLabel="Start de app"
+            accessibilityLabel="Beginnen"
             accessibilityRole="button"
           >
-            <Text style={styles.confirmButtonText}>
-              {selectedMode ? 'Start' : 'Maak een keuze'}
-            </Text>
-            {selectedMode && <Feather name="arrow-right" size={20} color="#fff" />}
+            <Text style={styles.confirmButtonText}>Beginnen</Text>
+            <Feather name="arrow-right" size={20} color="#fff" />
           </TouchableOpacity>
 
-          {/* Info text */}
+          {/* Skip hint */}
           <Text style={[styles.infoText, { color: theme.textDim }]}>
-            💡 Tip: Partners kunnen Expert gebruiken om de app in te stellen
+            Je kunt dit later altijd aanpassen in je profiel
           </Text>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
@@ -206,82 +287,51 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
-  cardsContainer: {
+  choiceContainer: {
+    marginBottom: 24,
+  },
+  choiceTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  choiceCard: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  modeCard: {
-    width: '48%',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    position: 'relative',
-    marginBottom: 12,
     alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
-  selectionRing: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
+  choiceIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  choiceTextContainer: {
+    flex: 1,
+  },
+  choiceCardTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  choiceCardSubtitle: {
+    fontSize: 14,
+    lineHeight: 19,
+  },
+  checkCircle: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'transparent',
-    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  iconContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  modeTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  modeSubtitle: {
-    fontSize: 14,
-    marginBottom: 12,
-  },
-  featuresContainer: {
-    marginTop: 8,
-  },
-  featureRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  featureText: {
-    fontSize: 13,
-    flex: 1,
     marginLeft: 8,
-  },
-  rememberRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    paddingVertical: 8,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  rememberText: {
-    fontSize: 15,
-    marginLeft: 12,
   },
   confirmButton: {
     flexDirection: 'row',
@@ -302,6 +352,51 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'center',
     lineHeight: 18,
+  },
+  // Step 2 styles
+  step2Header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  step2Title: {
+    fontSize: 22,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  inputSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  inputIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  inputLabel: {
+    fontSize: 17,
+    fontWeight: '600',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  textInput: {
+    width: '100%',
+    fontSize: 18,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    textAlign: 'center',
   },
 });
 

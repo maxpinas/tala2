@@ -55,6 +55,7 @@ import {
   SettingsMenuModal,
   ProfileMenuModal,
   ContentMenuModal,
+  BeheerMenuModal,
   QuickAccessModal,
   EmergencyModal, 
   MedicalScreen, 
@@ -101,7 +102,7 @@ const MainAppWrapper = ({ onReset }) => {
   const { setCategories, setActiveCategory } = useCategories();
 
   // Handle mode selection from startup modal
-  const handleModeSelect = (mode, remember, fillDemo = false) => {
+  const handleModeSelect = (mode, remember, fillDemo = false, userName = '', partnerName = '') => {
     if (fillDemo) {
       const demoState = buildDemoState();
       setProfile(demoState.profile);
@@ -114,6 +115,13 @@ const MainAppWrapper = ({ onReset }) => {
       setCurrentPartner('partner');
       setCategories(demoState.categories);
       setActiveCategory(Object.keys(demoState.categories)[0]);
+    } else if (userName || partnerName) {
+      // Leeg beginnen met ingevoerde naam/partner
+      setProfile(prev => ({
+        ...prev,
+        name: userName || prev.name,
+        partnerName: partnerName || prev.partnerName,
+      }));
     }
 
     // Set remember flag first so persistence effect can act when appMode is set
@@ -214,6 +222,7 @@ const MainApp = ({ onReset }) => {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showContentMenu, setShowContentMenu] = useState(false);
+  const [showBeheerMenu, setShowBeheerMenu] = useState(false);
   const [showQuickAccess, setShowQuickAccess] = useState(false);       
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
@@ -720,7 +729,8 @@ const MainApp = ({ onReset }) => {
       />
 
       <AddOrEditPhotoModal visible={showPhotoModal} onClose={() => { setShowPhotoModal(false); setPhotoToEdit(null); }} onSave={handleSavePhoto} categories={categories} initialData={photoToEdit} onTriggerPopup={triggerPopup} />
-      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onProfileMenu={(target) => { if (target === 'BASIC_SETUP') { openProfileSetupWizard(); } else { setShowProfileMenu(true); } }} onContentMenu={() => setShowContentMenu(true)} onReset={onReset} onSpeechTest={() => setShowSpeechTest(true)} onVoiceSettings={() => setShowVoiceSettings(true)} />
+      <SettingsMenuModal visible={showSettingsMenu} onClose={() => setShowSettingsMenu(false)} onProfileMenu={(target) => { if (target === 'BASIC_SETUP') { openProfileSetupWizard(); } else { setShowProfileMenu(true); } }} onContentMenu={() => setShowContentMenu(true)} onBeheerMenu={() => setShowBeheerMenu(true)} onReset={onReset} onSpeechTest={() => setShowSpeechTest(true)} onVoiceSettings={() => setShowVoiceSettings(true)} />
+      <BeheerMenuModal visible={showBeheerMenu} onClose={() => setShowBeheerMenu(false)} onReset={onReset} />
       <ProfileMenuModal
         visible={showProfileMenu}
         onClose={() => setShowProfileMenu(false)}
@@ -1192,7 +1202,6 @@ const MainApp = ({ onReset }) => {
             profile={profile}
             onSpeak={handleSpeak}
             onUpdateProfile={(updatedProfile) => setProfile(updatedProfile)}
-            activePartner={activePersonObject}
             onOpenMedical={() => setShowMedicalScreen(true)}
           />
         )}
@@ -1386,25 +1395,21 @@ export default function App() {
 const AppContent = ({ onboarded, setOnboarded, appKey, handleReset }) => {
   const { theme: currentTheme, isDark } = useTheme();
 
-  // Show loading while checking onboarding status
-  if (onboarded === null) {
+  // Skip legacy onboarding - nu geïntegreerd in StartupModeModal
+  useEffect(() => {
+    if (onboarded === false) {
+      saveOnboarded(true);
+      setOnboarded(true);
+    }
+  }, [onboarded, setOnboarded]);
+
+  // Show loading while checking onboarding status or transitioning
+  if (onboarded === null || onboarded === false) {
     return (
       <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.bg, justifyContent: 'center', alignItems: 'center' }]}>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
         <ActivityIndicator size="large" color={currentTheme.primary} />
       </SafeAreaView>
-    );
-  }
-
-  if (!onboarded) {
-    return (
-      <OnboardingFlow 
-        onComplete={(n, p) => { 
-          // Save profile data immediately during onboarding
-          saveOnboarded(true);
-          setOnboarded(true); 
-        }} 
-      />
     );
   }
 
