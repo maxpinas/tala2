@@ -55,7 +55,7 @@ const ListManagerScreenEmbedded = ({ items, onUpdate, type = 'object' }) => {
                 </TouchableOpacity>
             </View>
             {items.map((item, i) => (
-                <View key={i} style={styles.listItemRow}>
+                <View key={i} style={[styles.listItemRow, {backgroundColor: '#3D3D3D'}]}>
                     <View style={{flex: 1}}>
                         <TextInput 
                             style={{color: '#FFF', fontSize: 16}} 
@@ -65,13 +65,13 @@ const ListManagerScreenEmbedded = ({ items, onUpdate, type = 'object' }) => {
                     </View>
                     <View style={{flexDirection: 'row', gap: 15, marginLeft: 10}}>
                         <TouchableOpacity onPress={() => move(i, -1)} disabled={i === 0}>
-                            <Feather name="arrow-up" size={20} color={i === 0 ? theme.surfaceHighlight : theme.textDim} />
+                            <Feather name="arrow-up" size={20} color={i === 0 ? '#5D5D5D' : '#A0A0A0'} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => move(i, 1)} disabled={i === items.length - 1}>
-                            <Feather name="arrow-down" size={20} color={i === items.length - 1 ? theme.surfaceHighlight : theme.textDim} />
+                            <Feather name="arrow-down" size={20} color={i === items.length - 1 ? '#5D5D5D' : '#A0A0A0'} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => remove(i)}>
-                            <Feather name="trash-2" size={20} color={theme.danger} />
+                            <Feather name="trash-2" size={20} color="#FF6B6B" />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -86,7 +86,7 @@ const ManageLocationsScreen = ({ onClose, contexts, setContexts }) => {
     const { theme } = useTheme();
     const styles = useStyles();
     return (
-        <Modal visible={true} animationType="slide">)
+        <Modal visible={true} animationType="slide">
             <SafeAreaView style={{flex: 1, backgroundColor: theme.bg}}>
                 <View style={styles.header}>
                     <Text style={styles.catHeaderSmall}>Locaties</Text>

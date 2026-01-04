@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTheme, spacing, borderRadius } from '../../theme';
 
-const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
+const ProfileMenuModal = ({ visible, onClose, onNavigate, onMedicalSettings }) => {
   const { theme } = useTheme();
 
   const MenuItem = ({ icon, title, subtitle, onPress, iconBg }) => (
@@ -67,25 +67,25 @@ const ProfileMenuModal = ({ visible, onClose, onNavigate }) => {
           <MenuItem 
             icon="user" 
             iconBg={theme.primary}
-            title="Gegevens" 
-            subtitle="Naam, adres, contacten & medisch" 
+            title="Persoonlijke Gegevens" 
+            subtitle="Naam, adres en contactpersonen" 
             onPress={() => { onClose(); onNavigate('PROFILE_SETUP'); }} 
           />
           
           <MenuItem 
+            icon="heart" 
+            iconBg={theme.primary}
+            title="Medisch Paspoort" 
+            subtitle="Bloedgroep, medicijnen, allergieën" 
+            onPress={() => { onClose(); if (onMedicalSettings) onMedicalSettings(); }} 
+          />
+          
+          <MenuItem 
             icon="message-square" 
-            iconBg={theme.categories.etenDrinken}
+            iconBg={theme.primary}
             title="Uitleg Teksten" 
             subtitle="Over mij en medisch paspoort" 
             onPress={() => { onClose(); onNavigate('CUSTOM_TEXTS'); }} 
-          />
-
-          <MenuItem 
-            icon="volume-2" 
-            iconBg={theme.accent}
-            title="Stem" 
-            subtitle="Kies Claire of Xander" 
-            onPress={() => { onClose(); onNavigate('VOICE_SETTINGS'); }} 
           />
         </View>
       </View>

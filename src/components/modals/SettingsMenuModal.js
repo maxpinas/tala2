@@ -8,7 +8,7 @@ import { createBackupObject, encryptBackup, saveAndShareBackup } from '../../uti
 import { useApp, APP_MODES } from '../../context';
 
 const MenuItem = ({ icon, iconBg, title, subtitle, onPress, danger, theme, rightElement, styles }) => (
-  <TouchableOpacity style={[styles.menuItem, { backgroundColor: theme.surface }]} onPress={onPress} disabled={!onPress && !rightElement}>
+  <TouchableOpacity style={[styles.menuItem, { backgroundColor: theme.bg }]} onPress={onPress} disabled={!onPress && !rightElement}>
     <View style={{flexDirection:'row', alignItems:'center', flex: 1}}>
       <View style={[styles.selectorIcon, {backgroundColor: iconBg || theme.primary}]}>
         <Feather name={icon} size={22} color={danger ? theme.textInverse : (iconBg === theme.accent || iconBg === theme.danger ? theme.textInverse : theme.textInverse)} />
@@ -127,19 +127,22 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
         {/* Dark Mode Toggle - altijd zichtbaar */}
         <MenuItem
           icon={isDark ? "moon" : "sun"}
-          iconBg={isDark ? theme.primary : theme.accent}
+          iconBg={theme.primary}
           title="Donkere modus"
           subtitle={isDark ? "Aan" : "Uit"}
           theme={theme}
           styles={styles}
           onPress={toggleTheme}
           rightElement={
-            <Switch
-              value={isDark}
-              onValueChange={toggleTheme}
-              trackColor={{ false: theme.surfaceHighlight, true: theme.primary }}
-              thumbColor={theme.surface}
-            />
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Switch
+                value={isDark}
+                onValueChange={toggleTheme}
+                trackColor={{ false: '#CCCCCC', true: theme.primary }}
+                thumbColor={isDark ? '#FFFFFF' : '#FFFFFF'}
+                ios_backgroundColor="#CCCCCC"
+              />
+            </View>
           }
         />
         
@@ -156,15 +159,15 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
               styles={styles}
               onPress={() => { onClose(); if (onContentMenu) onContentMenu(); }}
             />
-            {/* C4: Profiel direct naar wizard (BASIC_SETUP) */}
+            {/* C4: Profiel naar menu met opties */}
             <MenuItem
               icon="user"
               iconBg={theme.primary}  // C5: Green circle background
               title="Profiel"
-              subtitle="Gegevens aanpassen"
+              subtitle="Gegevens en medisch paspoort"
               theme={theme}
               styles={styles}
-              onPress={() => { onClose(); if (onProfileMenu) onProfileMenu('BASIC_SETUP'); }}
+              onPress={() => { onClose(); if (onProfileMenu) onProfileMenu(); }}
             />
             <MenuItem
               icon="unlock"
@@ -181,7 +184,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
           <>
             <MenuItem
               icon="user"
-              iconBg={theme.surfaceHighlight}
+              iconBg={theme.primary}
               title="Persoonlijke gegevens"
               subtitle="Beheer je profiel"
               theme={theme}
@@ -199,7 +202,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
             />
             <MenuItem
               icon="volume-2"
-              iconBg={theme.accent}
+              iconBg={theme.primary}
               title="Stem"
               subtitle="Kies of test de spraak"
               theme={theme}
@@ -218,7 +221,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
             />
             <MenuItem
               icon="download"
-              iconBg={theme.accent}
+              iconBg={theme.primary}
               title="Backup maken"
               subtitle="Versleutelde backup exporteren"
               theme={theme}
@@ -227,7 +230,7 @@ const SettingsMenuModal = ({ visible, onClose, onProfileMenu, onContentMenu, onR
             />
             <MenuItem
               icon="lock"
-              iconBg={theme.surfaceHighlight}
+              iconBg={theme.primary}
               title="Wijzig naar Gebruikersmodus"
               subtitle="Schakel naar Gebruikersmodus"
               theme={theme}

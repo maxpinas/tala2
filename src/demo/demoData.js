@@ -2,40 +2,44 @@ import { Image } from 'react-native';
 import { INITIAL_CATEGORIES, DEFAULT_CONTEXTS, DEFAULT_QUICK } from '../data';
 
 const DEMO_PROFILE = {
-  name: 'Jeroen Demo',
-  partnerName: 'Sanne',
+  // Personal
+  name: 'Jeroen',
   phone: '06 1234 5678',
   email: 'jeroen.demo@example.com',
-  address: 'Vondelstraat 12, Utrecht',
+  address: 'Vondelstraat 12',
+  addressLine2: '3521 AB Utrecht',
+  dob: '14-05-1982',
+  
+  // Partner / Contact 1
+  partnerName: 'Sanne',
   partnerPhone: '06 1122 3344',
   partnerEmail: 'sanne@example.com',
+  
+  // Contact 2
   contact2Name: 'Dr. Bakker',
   contact2Phone: '030-1234567',
+  
+  // Emergency contact 3
+  emergencyName2: 'Pieter',
+  emergencyPhone2: '06-99887766',
+  
+  // Medical
   hospitalName: 'UMC Utrecht',
   doctorPhone: '030-7654321',
-  medication: 'Paracetamol 500mg in de ochtend en avond',
-  allergies: 'Penicilline',
-  customPartnerText: 'Partner Sanne helpt bij afspraken en vervoer.',
-  customMedicalText: 'Af en toe duizelig na inspanning, graag rustig opstarten.',
-  voiceId: 'claire',
-};
-
-const DEMO_EXTENDED_PROFILE = {
-  dob: '14-05-1982',
-  address: 'Appartement 2 hoog, bel 12A',
   bloodType: 'O+',
   meds: [
     'Paracetamol 500mg 2x per dag',
     'Omeprazol 20mg in de ochtend',
     'Ventolin bij benauwdheid',
   ],
-  emergencyName2: 'Pieter',
-  emergencyPhone2: '06-99887766',
-  generic: [
-    'Ik loop met een wandelstok',
-    'Let op bij drukke omgevingen',
-    'Graag duidelijke uitleg stap voor stap',
-  ],
+  allergies: 'Penicilline',
+  
+  // Custom texts
+  customPartnerText: 'Partner Sanne helpt bij afspraken en vervoer.',
+  customMedicalText: 'Af en toe duizelig na inspanning, graag rustig opstarten.',
+  
+  // Voice
+  voiceId: 'claire',
 };
 
 const DEMO_CONTEXTS = [
@@ -93,7 +97,6 @@ const resolveDemoGallery = () => {
 
 export const buildDemoState = () => ({
   profile: { ...DEMO_PROFILE },
-  extendedProfile: { ...DEMO_EXTENDED_PROFILE },
   contexts: [...DEMO_CONTEXTS],
   customPartners: [...DEMO_PARTNERS],
   quickResponses: [...DEMO_QUICK],
@@ -104,7 +107,6 @@ export const buildDemoState = () => ({
 
 export const DEMO_DATA = {
   profile: DEMO_PROFILE,
-  extendedProfile: DEMO_EXTENDED_PROFILE,
   contexts: DEMO_CONTEXTS,
   customPartners: DEMO_PARTNERS,
   quickResponses: DEMO_QUICK,

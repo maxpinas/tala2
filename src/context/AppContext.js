@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { DEFAULT_CONTEXTS, DEFAULT_QUICK } from '../data';
 import {
   saveProfile,
-  saveExtendedProfile,
   saveContexts,
   saveCustomPartners,
   saveQuickResponses,
@@ -19,25 +18,42 @@ import {
   loadUserPresets,
 } from '../storage';
 
-// Initial profile state
+// Initial profile state - ALL user data in one place
 const INITIAL_PROFILE = {
+  // Personal
   name: '',
-  partnerName: '',
   phone: '',
   email: '',
   address: '',
+  addressLine2: '', // Postcode + plaats
+  dob: '', // Date of birth
+  
+  // Partner / Contact 1
+  partnerName: '',
   partnerPhone: '',
   partnerEmail: '',
+  
+  // Contact 2
   contact2Name: '',
   contact2Phone: '',
+  
+  // Emergency contact 3
+  emergencyName2: '',
+  emergencyPhone2: '',
+  
+  // Medical
   hospitalName: '',
   doctorPhone: '',
-  medication: '',
+  bloodType: '',
+  meds: [], // Array of medications
   allergies: '',
+  
+  // Custom texts
   customPartnerText: '',
   customMedicalText: '',
-  // Stem instelling
-  voiceId: 'claire', // 'claire' of 'xander' (later ook cloud providers)
+  
+  // Voice setting
+  voiceId: 'claire', // 'claire' or 'xander'
 };
 
 const AppContext = createContext(null);
@@ -60,7 +76,6 @@ export const AppProvider = ({ children }) => {
 
   // Profile state
   const [profile, setProfile] = useState(INITIAL_PROFILE);
-  const [extendedProfile, setExtendedProfile] = useState({});
 
   // Dynamic lists
   const [contexts, setContexts] = useState(DEFAULT_CONTEXTS);
@@ -83,7 +98,6 @@ export const AppProvider = ({ children }) => {
       try {
         const defaults = {
           profile: INITIAL_PROFILE,
-          extendedProfile: {},
           contexts: DEFAULT_CONTEXTS,
           customPartners: [],
           quickResponses: DEFAULT_QUICK,
@@ -108,9 +122,8 @@ export const AppProvider = ({ children }) => {
         
         // Load stored profile data
         if (data.profile) {
-          setProfile(data.profile);
+          setProfile({ ...INITIAL_PROFILE, ...data.profile });
         }
-        if (data.extendedProfile) setExtendedProfile(data.extendedProfile);
         if (data.contexts) setContexts(data.contexts);
         if (data.customPartners) setCustomPartners(data.customPartners);
         if (data.quickResponses) setQuickResponses(data.quickResponses);
@@ -134,10 +147,6 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (isInitialized.current) saveProfile(profile);
   }, [profile]);
-
-  useEffect(() => {
-    if (isInitialized.current) saveExtendedProfile(extendedProfile);
-  }, [extendedProfile]);
 
   useEffect(() => {
     if (isInitialized.current) saveContexts(contexts);
@@ -319,8 +328,6 @@ export const AppProvider = ({ children }) => {
     // Profile
     profile,
     setProfile,
-    extendedProfile,
-    setExtendedProfile,
 
     // Lists
     contexts,

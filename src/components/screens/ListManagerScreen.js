@@ -70,7 +70,7 @@ const ListManagerScreen = ({ title, items, onUpdate, onClose, type = 'object' })
                         </TouchableOpacity>
                     </View>
                     {localItems.map((item, i) => (
-                        <View key={i} style={styles.listItemRow}>
+                        <View key={i} style={[styles.listItemRow, {backgroundColor: '#3D3D3D'}]}>
                             <View style={{flex: 1}}>
                                 <TextInput 
                                     style={{color: '#FFF', fontSize: 16}} 
@@ -80,13 +80,13 @@ const ListManagerScreen = ({ title, items, onUpdate, onClose, type = 'object' })
                             </View>
                             <View style={{flexDirection: 'row', gap: 15, marginLeft: 10}}>
                                 <TouchableOpacity onPress={() => move(i, -1)} disabled={i === 0}>
-                                    <Feather name="arrow-up" size={20} color={i === 0 ? theme.surfaceHighlight : theme.textDim} />
+                                    <Feather name="arrow-up" size={20} color={i === 0 ? '#5D5D5D' : '#A0A0A0'} />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => move(i, 1)} disabled={i === localItems.length - 1}>
-                                    <Feather name="arrow-down" size={20} color={i === localItems.length - 1 ? theme.surfaceHighlight : theme.textDim} />
+                                    <Feather name="arrow-down" size={20} color={i === localItems.length - 1 ? '#5D5D5D' : '#A0A0A0'} />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => remove(i)}>
-                                    <Feather name="trash-2" size={20} color={theme.danger} />
+                                    <Feather name="trash-2" size={20} color="#FF6B6B" />
                                 </TouchableOpacity>
                             </View>
                         </View>

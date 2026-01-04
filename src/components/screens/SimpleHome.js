@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Animated }
 import { Feather } from '@expo/vector-icons';
 import { useTheme, spacing, borderRadius, typography } from '../../theme';
 import { t } from '../../i18n';
+import { renderPhrase } from '../../data';
 import { 
   Header, 
   SubNavigation, 
@@ -72,7 +73,7 @@ const SimpleHome = ({
   
   // Color options for tile customization (must match TileCustomizationModal - 14 colors)
   const COLOR_OPTIONS = {
-    green: { light: '#4CAF50', dark: '#388E3C' },
+    green: { light: '#7A9A8A', dark: '#8FBCBB' },
     blue: { light: '#2196F3', dark: '#1976D2' },
     purple: { light: '#9C27B0', dark: '#7B1FA2' },
     orange: { light: '#FF9800', dark: '#F57C00' },
@@ -167,9 +168,16 @@ const SimpleHome = ({
     return theme.categories.etenDrinken; // Uniform groen voor alle home tiles
   };
   
-  // A3: Favoriet tiles krijgen dezelfde groene kleur (Ja tile kleur)
+  // A3: Favoriet tiles krijgen dezelfde kleur als de Praat tiles
   const getFavoriteTileColor = () => {
-    return theme.categories.etenDrinken; // Zelfde groen als home tiles
+    // Gebruik dezelfde standaardkleur als de category tiles (groen)
+    return isDark ? COLOR_OPTIONS.green.dark : COLOR_OPTIONS.green.light;
+  };
+  
+  // Context object voor renderPhrase - om placeholders te vervangen
+  const phraseContext = {
+    location: activeLocation,
+    person: activePerson,
   };
   
   // State
@@ -364,7 +372,7 @@ const SimpleHome = ({
           {quickResponses.map((qr, index) => (
             <QuickActionTile
               key={index}
-              label={qr}
+              label={renderPhrase(qr, phraseContext)}
               backgroundColor={getFavoriteTileColor()}
               textColor={theme.textInverse}
               onPress={() => onQuickResponse && onQuickResponse(qr)}

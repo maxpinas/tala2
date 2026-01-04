@@ -77,7 +77,7 @@ const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShow
             
             <MenuItem 
               icon="grid" 
-              iconBg={theme.categories.thuis}
+              iconBg={theme.primary}
               title="Onderwerpen" 
               subtitle="Categorieën en zinnen beheren" 
               onPress={() => { onClose(); onNavigate('TOPIC_MANAGER'); }} 
@@ -85,7 +85,7 @@ const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShow
             
             <MenuItem 
               icon="users" 
-              iconBg={theme.categories.etenDrinken}
+              iconBg={theme.primary}
               title="Gesprekspartners" 
               subtitle="Mensen en rollen toevoegen" 
               onPress={() => { onClose(); onShowPartners(); }} 
@@ -93,7 +93,7 @@ const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShow
             
             <MenuItem 
               icon="map-pin" 
-              iconBg={theme.accent}
+              iconBg={theme.primary}
               title="Locaties" 
               subtitle="Plaatsen en situaties beheren" 
               onPress={() => { onClose(); onShowLocations(); }} 
@@ -106,15 +106,6 @@ const ContentMenuModal = ({ visible, onClose, onNavigate, onShowPartners, onShow
               title="Stem" 
               subtitle="Kies of test de spraak" 
               onPress={() => { onClose(); if (onVoiceSettings) onVoiceSettings(); }} 
-            />
-            
-            {/* C3: Uitleg teksten verplaatst naar Inhoud beheren */}
-            <MenuItem 
-              icon="message-square" 
-              iconBg={theme.primary}
-              title="Uitleg Teksten" 
-              subtitle="Over mij en medisch paspoort" 
-              onPress={() => { onClose(); onNavigate('CUSTOM_TEXTS'); }} 
             />
             
             <View style={{height: spacing.xl}} />

@@ -7,14 +7,25 @@ import { useStyles } from '../../styles';
 const ManageTopicsScreen = ({ onClose, categories, setCategories }) => {
     const { theme } = useTheme();
     const styles = useStyles();
-    // Categories is an object. To reorder, we need to convert to array of [key, val], manipulate, then reconstruct.
-    const [catList, setCatList] = useState(Object.keys(categories).map(k => ({ key: k, originalKey: k, ...categories[k] })));
+    // Filter out Persoonlijk and Aangepast - they are not shown in the interface anymore
+    const HIDDEN_CATEGORIES = ['Persoonlijk', 'Aangepast'];
+    const [catList, setCatList] = useState(
+        Object.keys(categories)
+            .filter(k => !HIDDEN_CATEGORIES.includes(k))
+            .map(k => ({ key: k, originalKey: k, ...categories[k] }))
+    );
     const [newCatName, setNewCatName] = useState("");
 
     const saveChanges = () => {
         const newCatObj = {};
+        // Keep hidden categories intact
+        HIDDEN_CATEGORIES.forEach(hiddenKey => {
+            if (categories[hiddenKey]) {
+                newCatObj[hiddenKey] = categories[hiddenKey];
+            }
+        });
+        // Add visible categories
         catList.forEach(c => {
-            // If renamed, use new key, else original
             newCatObj[c.key] = { icon: c.icon, items: c.items };
         });
         setCategories(newCatObj);
@@ -70,7 +81,7 @@ const ManageTopicsScreen = ({ onClose, categories, setCategories }) => {
                             </TouchableOpacity>
                         </View>
                         {catList.map((item, i) => (
-                             <View key={i} style={styles.listItemRow}>
+                             <View key={i} style={[styles.listItemRow, {backgroundColor: '#3D3D3D'}]}>
                                  <View style={{flex: 1}}>
                                      <TextInput 
                                          style={{color: '#FFF', fontSize: 16, fontWeight: 'bold'}} 
@@ -80,16 +91,14 @@ const ManageTopicsScreen = ({ onClose, categories, setCategories }) => {
                                  </View>
                                  <View style={{flexDirection: 'row', gap: 15, marginLeft: 10}}>
                                      <TouchableOpacity onPress={() => move(i, -1)} disabled={i===0}>
-                                         <Feather name="arrow-up" size={20} color={i===0?theme.surfaceHighlight:theme.textDim}/>
+                                         <Feather name="arrow-up" size={20} color={i===0 ? '#5D5D5D' : '#A0A0A0'}/>
                                      </TouchableOpacity>
                                      <TouchableOpacity onPress={() => move(i, 1)} disabled={i===catList.length-1}>
-                                         <Feather name="arrow-down" size={20} color={i===catList.length-1?theme.surfaceHighlight:theme.textDim}/>
+                                         <Feather name="arrow-down" size={20} color={i===catList.length-1 ? '#5D5D5D' : '#A0A0A0'}/>
                                      </TouchableOpacity>
-                                     {item.key !== 'Persoonlijk' && item.key !== 'Aangepast' && (
-                                         <TouchableOpacity onPress={() => remove(i)}>
-                                             <Feather name="trash-2" size={20} color={theme.danger}/>
-                                         </TouchableOpacity>
-                                     )}
+                                     <TouchableOpacity onPress={() => remove(i)}>
+                                         <Feather name="trash-2" size={20} color="#FF6B6B"/>
+                                     </TouchableOpacity>
                                  </View>
                              </View>
                         ))}

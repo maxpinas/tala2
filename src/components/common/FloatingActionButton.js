@@ -80,7 +80,7 @@ const FloatingActionButton = ({
         {menuItems.map((item, index) => {
           const translateY = animation.interpolate({
             inputRange: [0, 1],
-            outputRange: [0, -((index + 1) * 80)], // A5: Grotere spacing (was 60)
+            outputRange: [0, -((index + 1) * 80 + 30)], // 30px extra hoogte boven FAB
           });
 
           const scale = animation.interpolate({
@@ -109,7 +109,7 @@ const FloatingActionButton = ({
                 onPress={() => handleItemPress(item)}
                 activeOpacity={0.8}
               >
-                <Feather name={item.icon} size={22} color={theme.textInverse} />
+                <Feather name={item.icon} size={26} color={theme.textInverse} />
               </TouchableOpacity>
               
               <Animated.View style={[styles.labelContainer, { opacity, backgroundColor: theme.surface }]}>
@@ -126,7 +126,7 @@ const FloatingActionButton = ({
           activeOpacity={0.8}
         >
           <Animated.View style={{ transform: [{ rotate: rotation }] }}>
-            <Feather name="plus" size={28} color={theme.textInverse} />
+            <Feather name="plus" size={32} color={theme.textInverse} />
           </Animated.View>
         </TouchableOpacity>
       </View>
@@ -137,7 +137,7 @@ const FloatingActionButton = ({
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     zIndex: 998,
   },
   backdropPressable: {
@@ -151,9 +151,9 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   fab: {
-    width: 72, // A5: 2x groter (was 56)
-    height: 72,
-    borderRadius: 36,
+    width: 80, // Nog groter
+    height: 80,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
     ...shadows.lg,
@@ -166,9 +166,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   menuButton: {
-    width: 64, // A5: Groter (was 48)
-    height: 64,
-    borderRadius: 32,
+    width: 72, // Nog groter
+    height: 72,
+    borderRadius: 36,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 4,
@@ -176,15 +176,15 @@ const styles = StyleSheet.create({
   },
   labelContainer: {
     position: 'absolute',
-    right: 60,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.sm,
+    right: 84,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
     ...shadows.sm,
   },
   menuLabel: {
-    fontSize: typography.bodySmall.fontSize,
-    fontWeight: '500',
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
 

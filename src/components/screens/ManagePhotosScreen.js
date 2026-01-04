@@ -181,11 +181,11 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
           </View>
         ) : (
           categoryPhotos.map((photo, index) => (
-            <View key={photo.id} style={[localStyles.photoItem, { backgroundColor: theme.surface }]}>
+            <View key={photo.id} style={[localStyles.photoItem, { backgroundColor: '#3D3D3D' }]}>
               {editingPhotoId === photo.id ? (
                 // Edit mode
                 <View style={localStyles.editContainer}>
-                  <View style={[localStyles.editPreview, { backgroundColor: theme.surfaceHighlight }]}>
+                  <View style={[localStyles.editPreview, { backgroundColor: '#4D4D4D' }]}>
                     {photo.uri ? (
                       <Image source={{ uri: photo.uri }} style={localStyles.editImage} />
                     ) : (
@@ -194,25 +194,25 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
                   </View>
                   
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={[localStyles.editLabel, { color: theme.textDim }]}>BIJSCHRIFT</Text>
+                    <Text style={[localStyles.editLabel, { color: '#A0A0A0' }]}>BIJSCHRIFT</Text>
                     <TextInput
-                      style={[localStyles.editInput, { backgroundColor: theme.surfaceHighlight, color: theme.text }]}
+                      style={[localStyles.editInput, { backgroundColor: '#4D4D4D', color: '#FFFFFF' }]}
                       value={editCaption}
                       onChangeText={setEditCaption}
                       placeholder="Wat wil je zeggen?"
-                      placeholderTextColor={theme.textDim}
+                      placeholderTextColor="#A0A0A0"
                       multiline
                     />
                     
-                    <Text style={[localStyles.editLabel, { marginTop: 12, color: theme.textDim }]}>GROOTTE</Text>
+                    <Text style={[localStyles.editLabel, { marginTop: 12, color: '#A0A0A0' }]}>GROOTTE</Text>
                     <View style={localStyles.sizeRow}>
                       {['small', 'medium', 'large'].map(size => (
                         <TouchableOpacity
                           key={size}
-                          style={[localStyles.sizeChip, { backgroundColor: editSize === size ? theme.primary : theme.surfaceHighlight }]}
+                          style={[localStyles.sizeChip, { backgroundColor: editSize === size ? '#8FBCBB' : '#4D4D4D' }]}
                           onPress={() => setEditSize(size)}
                         >
-                          <Text style={[localStyles.sizeText, { color: editSize === size ? '#000' : theme.textDim }]}>
+                          <Text style={[localStyles.sizeText, { color: editSize === size ? '#000' : '#A0A0A0' }]}>
                             {size === 'small' ? 'Klein' : size === 'medium' ? 'Normaal' : 'Groot'}
                           </Text>
                         </TouchableOpacity>
@@ -220,11 +220,11 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
                     </View>
                     
                     <View style={localStyles.editActions}>
-                      <TouchableOpacity style={[localStyles.saveBtn, { backgroundColor: theme.primary }]} onPress={saveEdit}>
+                      <TouchableOpacity style={[localStyles.saveBtn, { backgroundColor: '#8FBCBB' }]} onPress={saveEdit}>
                         <Text style={localStyles.saveBtnText}>Opslaan</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={[localStyles.cancelBtn, { backgroundColor: theme.surfaceHighlight }]} onPress={() => setEditingPhotoId(null)}>
-                        <Text style={[localStyles.cancelBtnText, { color: theme.text }]}>Annuleren</Text>
+                      <TouchableOpacity style={[localStyles.cancelBtn, { backgroundColor: '#4D4D4D' }]} onPress={() => setEditingPhotoId(null)}>
+                        <Text style={[localStyles.cancelBtnText, { color: '#FFFFFF' }]}>Annuleren</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -232,40 +232,40 @@ const ManagePhotosScreen = ({ onClose, category, gallery, setGallery, categories
               ) : (
                 // View mode
                 <>
-                  <View style={[localStyles.photoPreview, { backgroundColor: theme.surfaceHighlight }]}>
+                  <View style={[localStyles.photoPreview, { backgroundColor: '#4D4D4D' }]}>
                     {photo.uri ? (
                       <Image source={{ uri: photo.uri }} style={localStyles.photoImage} />
                     ) : (
                       <View style={[localStyles.photoPlaceholder, { backgroundColor: photo.color }]}>
-                        <Feather name="image" size={32} color={theme.textDim} />
+                        <Feather name="image" size={32} color="#A0A0A0" />
                       </View>
                     )}
                   </View>
                   
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={[localStyles.photoCaption, { color: theme.text }]} numberOfLines={2}>
+                    <Text style={[localStyles.photoCaption, { color: '#FFFFFF' }]} numberOfLines={2}>
                       {photo.text || 'Geen bijschrift'}
                     </Text>
-                    <Text style={[localStyles.photoSize, { color: theme.textDim }]}>
+                    <Text style={[localStyles.photoSize, { color: '#A0A0A0' }]}>
                       {photo.size === 'small' ? 'Klein' : photo.size === 'medium' ? 'Normaal' : 'Groot'}
                     </Text>
                   </View>
                   
                   <View style={localStyles.actions}>
                     <TouchableOpacity onPress={() => { setMovingPhoto(photo); setShowMoveModal(true); }} style={localStyles.actionBtn}>
-                      <Feather name="folder" size={18} color={theme.accent} />
+                      <Feather name="folder" size={18} color="#C8D84C" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => startEditing(photo)} style={localStyles.actionBtn}>
-                      <Feather name="edit-2" size={18} color={theme.primary} />
+                      <Feather name="edit-2" size={18} color="#8FBCBB" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => movePhotoUp(index)} style={localStyles.actionBtn}>
-                      <Feather name="arrow-up" size={18} color={theme.textDim} />
+                      <Feather name="arrow-up" size={18} color="#A0A0A0" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => movePhotoDown(index)} style={localStyles.actionBtn}>
-                      <Feather name="arrow-down" size={18} color={theme.textDim} />
+                      <Feather name="arrow-down" size={18} color="#A0A0A0" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => deletePhoto(photo.id)} style={localStyles.actionBtn}>
-                      <Feather name="trash-2" size={18} color={theme.danger} />
+                      <Feather name="trash-2" size={18} color="#FF6B6B" />
                     </TouchableOpacity>
                   </View>
                 </>

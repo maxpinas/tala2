@@ -38,7 +38,6 @@ const SimpleCategoryView = ({
 
   // Filter phrases die niet getoond moeten worden (placeholder zonder context)
   // en render de zichtbare phrases met placeholder vervanging
-  // E3: Sorteer zinnen met variabelen naar boven
   const visiblePhrases = phrases
     .map((phrase, originalIndex) => {
       const rendered = renderPhrase(phrase, phraseContext);
@@ -49,16 +48,11 @@ const SimpleCategoryView = ({
         rendered,
         originalIndex,
         shouldShow,
-        hasVars, // E3: Track if phrase has variables
+        hasVars,
       };
     })
-    .filter(p => p.shouldShow)
-    .sort((a, b) => {
-      // E3: Phrases with variables go first
-      if (a.hasVars && !b.hasVars) return -1;
-      if (!a.hasVars && b.hasVars) return 1;
-      return 0; // Keep original order within groups
-    });
+    .filter(p => p.shouldShow);
+    // Geen sortering meer - behoud de volgorde zoals ingesteld in het beheer scherm
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>

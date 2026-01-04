@@ -40,11 +40,11 @@ const ListEditor = ({ items, onItemAdd, onItemRemove, placeholder, title }) => {
   );
 };
 
-const ExtendedModeSetup = ({ profile, extendedProfile, onSave, onClose, onTriggerPopup }) => {
+const ExtendedModeSetup = ({ profile, onSave, onClose, onTriggerPopup }) => {
   const { theme } = useTheme();
   const styles = useStyles();
   const [stepIndex, setStepIndex] = useState(0);
-  const [data, setData] = useState(extendedProfile);
+  const [data, setData] = useState(profile);
   const steps = EXTENDED_SECTIONS;
   const currentStep = steps[stepIndex];
   

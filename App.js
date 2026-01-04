@@ -34,6 +34,7 @@ import {
   ExtendedModeSetup, 
   SmartSentenceBuilder,
   ProfileSetupFlow,
+  MedicalSetupFlow,
   VoiceSettingsScreen,
   SimpleHome,
   SimpleSentenceBuilder,
@@ -89,7 +90,6 @@ const MainAppWrapper = ({ onReset }) => {
     setAppMode,
     setModeRemember,
     setProfile,
-    setExtendedProfile,
     setContexts,
     setCustomPartners,
     setQuickResponses,
@@ -105,7 +105,6 @@ const MainAppWrapper = ({ onReset }) => {
     if (fillDemo) {
       const demoState = buildDemoState();
       setProfile(demoState.profile);
-      setExtendedProfile(demoState.extendedProfile);
       setContexts(demoState.contexts);
       setCustomPartners(demoState.customPartners);
       setQuickResponses(demoState.quickResponses);
@@ -153,7 +152,6 @@ const MainApp = ({ onReset }) => {
   // Get shared state from AppContext
   const { 
     profile, setProfile,
-    extendedProfile, setExtendedProfile,
     contexts, setContexts,
     customPartners, setCustomPartners,
     quickResponses, setQuickResponses,
@@ -204,7 +202,7 @@ const MainApp = ({ onReset }) => {
           ].filter(Boolean);
           setCategories(prev => ({...prev, Persoonlijk: { ...prev.Persoonlijk, items: personalItems } }));
       }
-  }, [profile, extendedProfile]);
+  }, [profile]);
 
   // In gebruikersmodus: altijd direct mode aan (woorden worden direct uitgesproken)
   useEffect(() => {
@@ -221,6 +219,7 @@ const MainApp = ({ onReset }) => {
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [showPartnersScreen, setShowPartnersScreen] = useState(false);
   const [showLocationsScreen, setShowLocationsScreen] = useState(false);
+  const [partnersLocationsSource, setPartnersLocationsSource] = useState(null); // 'content' | 'selector' - where we came from
   const [showManagePhotos, setShowManagePhotos] = useState(false);
   const [managePhotosCategory, setManagePhotosCategory] = useState(null);
   const [showSpeechTest, setShowSpeechTest] = useState(false);
@@ -255,6 +254,8 @@ const MainApp = ({ onReset }) => {
   const [showEmergency, setShowEmergency] = useState(false);
   const [showPartnerScreen, setShowPartnerScreen] = useState(false);
   const [showMedicalScreen, setShowMedicalScreen] = useState(false);
+  const [showMedicalSetup, setShowMedicalSetup] = useState(false);
+  const [medicalSetupSource, setMedicalSetupSource] = useState(null); // 'profile' or 'medical'
   const [showFullScreen, setShowFullScreen] = useState(false);
   const [fullScreenText, setFullScreenText] = useState(''); // Dedicated text for fullscreen show
   const [showPhotoFullScreen, setShowPhotoFullScreen] = useState(false);
@@ -273,6 +274,12 @@ const MainApp = ({ onReset }) => {
   // Long-press actie modal state (Kopieer/Toon/Verwijder/Verplaats opties)
   const [longPressModal, setLongPressModal] = useState({ visible: false, text: '', type: 'phrase', index: -1, category: null, photoId: null });
   
+  // Category phrases manager - voor "Aanpassen" vanuit longpress
+  const [manageCategoryPhrases, setManageCategoryPhrases] = useState({ visible: false, category: null, returnToLongPress: null });
+  
+  // Favorieten manager - voor "Aanpassen" vanuit longpress op favorieten
+  const [manageFavoritesFromLongPress, setManageFavoritesFromLongPress] = useState({ visible: false, returnToLongPress: null });
+  
   // Category picker voor toevoegen aan onderwerp
   const [showCategoryPicker, setShowCategoryPicker] = useState({ visible: false, text: '', action: 'add' }); // action: 'add' | 'move'
 
@@ -284,7 +291,7 @@ const MainApp = ({ onReset }) => {
 
   const closeProfileSetupWizard = useCallback(() => {
     setShowProfileSetup(false);
-    setShowProfileMenu(false);
+    setShowProfileMenu(true);
   }, []);
 
   useEffect(() => {
@@ -300,7 +307,7 @@ const MainApp = ({ onReset }) => {
       profile?.name,
       profile?.partnerName,
       profile?.contact2Name,
-      extendedProfile?.emergencyName2,
+      profile?.emergencyName2,
       ...(customPartners || []).map((partner) => partner?.label),
     ];
     const seen = new Set();
@@ -313,7 +320,7 @@ const MainApp = ({ onReset }) => {
         seen.add(key);
         return true;
       });
-  }, [profile?.name, profile?.partnerName, profile?.contact2Name, extendedProfile, customPartners]);
+  }, [profile?.name, profile?.partnerName, profile?.contact2Name, profile?.emergencyName2, customPartners]);
 
   const locationSuggestions = useMemo(() => {
     const labels = (contexts || []).map((context) => (typeof context?.label === 'string' ? context.label.trim() : ''));
@@ -360,6 +367,8 @@ const MainApp = ({ onReset }) => {
   }), [activeLocationObject, activePersonObject]);
 
   const handleBackFromSettings = () => { setCurrentView('HOME'); };
+  const handleBackToContentMenu = () => { setCurrentView('HOME'); setShowContentMenu(true); };
+  const handleBackToProfileMenu = () => { setCurrentView('HOME'); setShowProfileMenu(true); };
   const addPhraseToCategory = (text, targetCategory = activeCategory) => { 
     if(!targetCategory) return; 
     setCategories(prev => ({ ...prev, [targetCategory]: { ...prev[targetCategory], items: [...prev[targetCategory].items, text] } })); 
@@ -474,7 +483,9 @@ const MainApp = ({ onReset }) => {
     // Sluit ook SimpleSentenceBuilder als die open is
     setShowSimpleSentenceBuilder(false);
     setBuilderInitialTopic(null);
-    setFullScreenText(text);
+    // Render placeholders naar echte waarden
+    const renderedText = renderPhrase(text, phraseContext);
+    setFullScreenText(renderedText);
     setShowFullScreen(true);
   };
   
@@ -521,7 +532,7 @@ const MainApp = ({ onReset }) => {
       const updated = [text, ...quickResponses];
       setQuickResponses(updated);
       saveQuickResponses(updated);
-      setToast({ visible: true, message: 'Toegevoegd aan Snel Reageren', icon: 'check' });
+      setToast({ visible: true, message: 'Toegevoegd aan Favorieten', icon: 'check' });
     }
     closeLongPressModal();
   };
@@ -533,6 +544,85 @@ const MainApp = ({ onReset }) => {
     saveQuickResponses(updated);
     setToast({ visible: true, message: 'Snel antwoord verwijderd', icon: 'trash-2' });
     closeLongPressModal();
+  };
+  
+  // Open favorieten manager vanuit longpress "Aanpassen" optie
+  const handleOpenFavoritesManager = () => {
+    const { text } = longPressModal;
+    setManageFavoritesFromLongPress({ 
+      visible: true, 
+      returnToLongPress: { text } 
+    });
+    closeLongPressModal();
+  };
+  
+  // Sluit favorieten manager en keer terug naar longpress modal
+  const handleCloseFavoritesManager = () => {
+    const { returnToLongPress } = manageFavoritesFromLongPress;
+    setManageFavoritesFromLongPress({ visible: false, returnToLongPress: null });
+    
+    // Open de longpress modal weer met de opgeslagen info
+    if (returnToLongPress) {
+      setTimeout(() => {
+        setLongPressModal({ 
+          visible: true, 
+          text: returnToLongPress.text, 
+          type: 'phrase', 
+          index: -1, 
+          category: null, 
+          photoId: null,
+          isQuick: true
+        });
+      }, 100);
+    }
+  };
+  
+  // Open category phrases manager vanuit longpress "Aanpassen" optie
+  const handleOpenCategoryManager = () => {
+    const { category, text, index } = longPressModal;
+    if (category && categories[category]) {
+      // Sla longpress info op voor terugkeer
+      setManageCategoryPhrases({ 
+        visible: true, 
+        category, 
+        returnToLongPress: { text, index, category } 
+      });
+      closeLongPressModal();
+    }
+  };
+  
+  // Sluit category phrases manager en keer terug naar longpress modal
+  const handleCloseCategoryManager = () => {
+    const { returnToLongPress } = manageCategoryPhrases;
+    setManageCategoryPhrases({ visible: false, category: null, returnToLongPress: null });
+    
+    // Open de longpress modal weer met de opgeslagen info
+    if (returnToLongPress) {
+      setTimeout(() => {
+        setLongPressModal({ 
+          visible: true, 
+          text: returnToLongPress.text, 
+          type: 'phrase', 
+          index: returnToLongPress.index, 
+          category: returnToLongPress.category, 
+          photoId: null 
+        });
+      }, 100);
+    }
+  };
+  
+  // Update category items vanuit de manager
+  const handleUpdateCategoryPhrases = (newItems) => {
+    const { category } = manageCategoryPhrases;
+    if (category && categories[category]) {
+      setCategories(prev => ({
+        ...prev,
+        [category]: {
+          ...prev[category],
+          items: newItems
+        }
+      }));
+    }
   };
   
   // Voeg zin toe aan geselecteerde categorie
@@ -634,6 +724,7 @@ const MainApp = ({ onReset }) => {
       <ProfileMenuModal
         visible={showProfileMenu}
         onClose={() => setShowProfileMenu(false)}
+        onMedicalSettings={() => { setShowProfileMenu(false); setMedicalSetupSource('profile'); setShowMedicalSetup(true); }}
         onNavigate={(v) => {
           if (v === 'PROFILE_SETUP') {
             openProfileSetupWizard();
@@ -646,7 +737,7 @@ const MainApp = ({ onReset }) => {
           }
         }}
       />
-      <ContentMenuModal visible={showContentMenu} onClose={() => setShowContentMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onShowPartners={() => setShowPartnersScreen(true)} onShowLocations={() => setShowLocationsScreen(true)} onVoiceSettings={() => setShowVoiceSettings(true)} />
+      <ContentMenuModal visible={showContentMenu} onClose={() => setShowContentMenu(false)} onNavigate={(v) => { setCurrentView(v); }} onShowPartners={() => { setPartnersLocationsSource('content'); setShowPartnersScreen(true); }} onShowLocations={() => { setPartnersLocationsSource('content'); setShowLocationsScreen(true); }} onVoiceSettings={() => setShowVoiceSettings(true)} />
       
       {/* D1-D8: Tile Customization Modal */}
       <TileCustomizationModal
@@ -697,21 +788,36 @@ const MainApp = ({ onReset }) => {
         <ProfileSetupFlow
           key={profileSetupKey}
           profile={profile}
-          extendedProfile={extendedProfile}
           onSaveProfile={setProfile}
-          onSaveExtended={setExtendedProfile}
           onClose={closeProfileSetupWizard}
           onTriggerPopup={triggerPopup}
         />
       )}
-      {showPartnersScreen && <ManagePartnersScreen onClose={() => setShowPartnersScreen(false)} partners={customPartners} setPartners={setCustomPartners} />}
-      {showLocationsScreen && <ManageLocationsScreen onClose={() => setShowLocationsScreen(false)} contexts={contexts} setContexts={setContexts} />}
+      {showPartnersScreen && <ManagePartnersScreen onClose={() => { 
+        setShowPartnersScreen(false); 
+        if (partnersLocationsSource === 'selector') {
+          setShowPartnerModal(true);
+        } else {
+          setShowContentMenu(true); 
+        }
+        setPartnersLocationsSource(null);
+      }} partners={customPartners} setPartners={setCustomPartners} />}
+      {showLocationsScreen && <ManageLocationsScreen onClose={() => { 
+        setShowLocationsScreen(false); 
+        if (partnersLocationsSource === 'selector') {
+          setShowContextModal(true);
+        } else {
+          setShowContentMenu(true); 
+        }
+        setPartnersLocationsSource(null);
+      }} contexts={contexts} setContexts={setContexts} />}
       {showSpeechTest && <SpeechTest onClose={() => setShowSpeechTest(false)} />}
-      {showVoiceSettings && <VoiceSettingsScreen currentVoiceId={profile.voiceId} onSave={handleSaveVoice} onClose={() => { setShowVoiceSettings(false); setShowProfileMenu(true); }} onSaveAndClose={() => { setShowVoiceSettings(false); setShowProfileMenu(false); setShowSettingsMenu(false); }} />}
+      {showVoiceSettings && <VoiceSettingsScreen currentVoiceId={profile.voiceId} onSave={handleSaveVoice} onClose={() => { setShowVoiceSettings(false); setShowContentMenu(true); }} onSaveAndClose={() => { setShowVoiceSettings(false); setShowContentMenu(true); }} />}
       <QuickAccessModal visible={showQuickAccess} onClose={() => setShowQuickAccess(false)} onNavigate={(v) => { if(v === 'PARTNER_SCREEN') setShowPartnerScreen(true); else if(v === 'MEDICAL_SCREEN') setShowMedicalScreen(true); else if(v === 'EMERGENCY') setShowEmergency(true); }} />
-      <EmergencyModal visible={showEmergency} onClose={() => setShowEmergency(false)} profile={profile} extended={extendedProfile} onTriggerPopup={triggerPopup} onShowMedical={() => setShowMedicalScreen(true)} />
+      <EmergencyModal visible={showEmergency} onClose={() => setShowEmergency(false)} profile={profile} onTriggerPopup={triggerPopup} onShowMedical={() => setShowMedicalScreen(true)} />
       <PartnerScreen visible={showPartnerScreen} onClose={() => setShowPartnerScreen(false)} text={profile.customPartnerText} name={profile.name} />
-      <MedicalScreen visible={showMedicalScreen} onClose={() => setShowMedicalScreen(false)} profile={profile} extended={extendedProfile} text={profile.customMedicalText} onUpdateProfile={setProfile} onUpdateExtended={setExtendedProfile} />
+      <MedicalScreen visible={showMedicalScreen} onClose={() => setShowMedicalScreen(false)} profile={profile} onOpenSetup={() => { setShowMedicalScreen(false); setMedicalSetupSource('medical'); setShowMedicalSetup(true); }} />
+      {showMedicalSetup && <MedicalSetupFlow profile={profile} onSaveProfile={setProfile} onClose={() => { setShowMedicalSetup(false); if (medicalSetupSource === 'medical') { setShowMedicalScreen(true); } else { setShowProfileMenu(true); } }} onTriggerPopup={triggerPopup} />}
       {showFullScreen && <FullScreenShow text={fullScreenText || sentence.join(' ')} onClose={() => { setShowFullScreen(false); setFullScreenText(''); }} />}
       {showPhotoFullScreen && fullScreenPhoto && (
         <PhotoFullScreenShow 
@@ -734,11 +840,36 @@ const MainApp = ({ onReset }) => {
         />
       )}
       
-      <SelectorModal visible={showContextModal} title="Waar ben je?" options={contexts} selectedId={currentContext} onSelect={setCurrentContext} onClose={() => setShowContextModal(false)} onManage={() => { setShowContextModal(false); setShowLocationsScreen(true); }} />
-      <SelectorModal visible={showPartnerModal} title="Met wie praat je?" options={activePartners.filter(p => p.id !== 'geen')} selectedId={currentPartner} onSelect={setCurrentPartner} onClose={() => setShowPartnerModal(false)} onManage={() => { setShowPartnerModal(false); setShowPartnersScreen(true); }} />
+      <SelectorModal visible={showContextModal} title="Waar ben je?" options={contexts} selectedId={currentContext} onSelect={setCurrentContext} onClose={() => setShowContextModal(false)} onManage={() => { setShowContextModal(false); setPartnersLocationsSource('selector'); setShowLocationsScreen(true); }} />
+      <SelectorModal visible={showPartnerModal} title="Met wie praat je?" options={activePartners.filter(p => p.id !== 'geen')} selectedId={currentPartner} onSelect={setCurrentPartner} onClose={() => setShowPartnerModal(false)} onManage={() => { setShowPartnerModal(false); setPartnersLocationsSource('selector'); setShowPartnersScreen(true); }} />
 
-      {currentView === 'TOPIC_MANAGER' && <ManageTopicsScreen onClose={handleBackFromSettings} categories={categories} setCategories={setCategories} />}
-      {currentView === 'MANAGE_QUICK' && <ListManagerScreen title="Beheer Snel Reageren" items={quickResponses} onUpdate={setQuickResponses} onClose={handleBackFromSettings} type="string" />}
+      {currentView === 'TOPIC_MANAGER' && <ManageTopicsScreen onClose={handleBackToContentMenu} categories={categories} setCategories={setCategories} />}
+      {currentView === 'MANAGE_QUICK' && <ListManagerScreen title="Beheer Favorieten" items={quickResponses} onUpdate={setQuickResponses} onClose={handleBackToContentMenu} type="string" />}
+      
+      {/* Category phrases manager - geopend vanuit longpress "Aanpassen" */}
+      {manageCategoryPhrases.visible && manageCategoryPhrases.category && (
+        <ListManagerScreen 
+          title={`Beheer ${manageCategoryPhrases.category}`} 
+          items={categories[manageCategoryPhrases.category]?.items || []} 
+          onUpdate={handleUpdateCategoryPhrases} 
+          onClose={handleCloseCategoryManager} 
+          type="string" 
+        />
+      )}
+      
+      {/* Favorieten manager - geopend vanuit longpress "Aanpassen" op favorieten */}
+      {manageFavoritesFromLongPress.visible && (
+        <ListManagerScreen 
+          title="Beheer Favorieten" 
+          items={quickResponses} 
+          onUpdate={(newItems) => {
+            setQuickResponses(newItems);
+            saveQuickResponses(newItems);
+          }} 
+          onClose={handleCloseFavoritesManager} 
+          type="string" 
+        />
+      )}
 
       {/* SimpleSentenceBuilder Modal for Gewoon mode */}
       <SimpleSentenceBuilder 
@@ -790,45 +921,45 @@ const MainApp = ({ onReset }) => {
           activeOpacity={1} 
           onPress={closeLongPressModal}
         >
-          <View style={styles.longPressSheet}>
-            <Text style={styles.longPressText} numberOfLines={3}>{longPressModal.text || (longPressModal.type === 'photo' ? 'Foto' : '')}</Text>
+          <View style={[styles.longPressSheet, { backgroundColor: theme.surface }]}>
+            <Text style={[styles.longPressText, { color: theme.text }]} numberOfLines={3}>{longPressModal.text ? renderPhrase(longPressModal.text, phraseContext) : (longPressModal.type === 'photo' ? 'Foto' : '')}</Text>
             
             {/* Kopieer - alleen voor tekst */}
             {longPressModal.text && (
               <TouchableOpacity 
-                style={styles.longPressOption}
+                style={[styles.longPressOption, { backgroundColor: theme.bg }]}
                 onPress={() => handleCopyToClipboard(longPressModal.text)}
               >
-                <View style={styles.longPressIconBg}>
-                  <Feather name="copy" size={24} color="#000" />
+                <View style={[styles.longPressIconBg, { backgroundColor: '#64748B' }]}>
+                  <Feather name="copy" size={24} color="#FFF" />
                 </View>
-                <Text style={styles.longPressLabel}>Kopieer</Text>
+                <Text style={[styles.longPressLabel, { color: theme.text }]}>Kopieer</Text>
               </TouchableOpacity>
             )}
             
             {/* Toon Groot - alleen voor tekst */}
             {longPressModal.text && (
               <TouchableOpacity 
-                style={styles.longPressOption}
+                style={[styles.longPressOption, { backgroundColor: theme.bg }]}
                 onPress={() => handleShowFullscreen(longPressModal.text)}
               >
                 <View style={[styles.longPressIconBg, { backgroundColor: theme.accent }]}>
                   <Feather name="maximize-2" size={24} color="#000" />
                 </View>
-                <Text style={styles.longPressLabel}>Toon Groot</Text>
+                <Text style={[styles.longPressLabel, { color: theme.text }]}>Toon Groot</Text>
               </TouchableOpacity>
             )}
             
             {/* Toevoegen aan onderwerp - voor history en zinnen */}
             {(longPressModal.type === 'history' || longPressModal.type === 'phrase') && longPressModal.text && (
               <TouchableOpacity 
-                style={styles.longPressOption}
+                style={[styles.longPressOption, { backgroundColor: theme.bg }]}
                 onPress={handleAddToCategory}
               >
                 <View style={[styles.longPressIconBg, { backgroundColor: '#22C55E' }]}>
                   <Feather name="folder-plus" size={24} color="#000" />
                 </View>
-                <Text style={styles.longPressLabel}>Toevoegen aan onderwerp</Text>
+                <Text style={[styles.longPressLabel, { color: theme.text }]}>Toevoegen aan onderwerp</Text>
               </TouchableOpacity>
             )}
 
@@ -836,50 +967,50 @@ const MainApp = ({ onReset }) => {
             {(longPressModal.type === 'history' || longPressModal.type === 'phrase') && longPressModal.text && (
               longPressModal.isQuick ? (
                 <TouchableOpacity
-                  style={styles.longPressOption}
-                  onPress={() => handleDeleteQuickResponse(longPressModal.text)}
+                  style={[styles.longPressOption, { backgroundColor: theme.bg }]}
+                  onPress={handleOpenFavoritesManager}
                 >
-                  <View style={[styles.longPressIconBg, { backgroundColor: theme.danger }]}>
-                    <Feather name="trash-2" size={24} color="#FFF" />
+                  <View style={[styles.longPressIconBg, { backgroundColor: '#F59E0B' }]}>
+                    <Feather name="edit-3" size={24} color="#000" />
                   </View>
-                  <Text style={styles.longPressLabel}>Verwijder uit Snel Reageren</Text>
+                  <Text style={[styles.longPressLabel, { color: theme.text }]}>Aanpassen</Text>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
-                  style={styles.longPressOption}
+                  style={[styles.longPressOption, { backgroundColor: theme.bg }]}
                   onPress={() => handleAddQuickResponse(longPressModal.text)}
                 >
                   <View style={[styles.longPressIconBg, { backgroundColor: theme.primary }]}>
                     <Feather name="plus" size={24} color="#000" />
                   </View>
-                  <Text style={styles.longPressLabel}>Toevoegen aan Snel Reageren</Text>
+                  <Text style={[styles.longPressLabel, { color: theme.text }]}>Toevoegen aan Favorieten</Text>
                 </TouchableOpacity>
               )
             )}
             
-            {/* Verwijderen - voor zinnen met index en foto's */}
-            {longPressModal.type === 'phrase' && longPressModal.index >= 0 && (
+            {/* Aanpassen - voor zinnen in een categorie */}
+            {longPressModal.type === 'phrase' && longPressModal.index >= 0 && longPressModal.category && (
               <TouchableOpacity 
-                style={styles.longPressOption}
-                onPress={handleDeletePhrase}
+                style={[styles.longPressOption, { backgroundColor: theme.bg }]}
+                onPress={handleOpenCategoryManager}
               >
-                <View style={[styles.longPressIconBg, { backgroundColor: theme.danger }]}>
-                  <Feather name="trash-2" size={24} color="#FFF" />
+                <View style={[styles.longPressIconBg, { backgroundColor: '#F59E0B' }]}>
+                  <Feather name="edit-3" size={24} color="#000" />
                 </View>
-                <Text style={styles.longPressLabel}>Verwijderen</Text>
+                <Text style={[styles.longPressLabel, { color: theme.text }]}>Aanpassen</Text>
               </TouchableOpacity>
             )}
             
             {/* Verwijderen - voor foto's */}
             {longPressModal.type === 'photo' && longPressModal.photoId && (
               <TouchableOpacity 
-                style={styles.longPressOption}
+                style={[styles.longPressOption, { backgroundColor: theme.bg }]}
                 onPress={handleDeletePhoto}
               >
                 <View style={[styles.longPressIconBg, { backgroundColor: theme.danger }]}>
                   <Feather name="trash-2" size={24} color="#FFF" />
                 </View>
-                <Text style={styles.longPressLabel}>Foto verwijderen</Text>
+                <Text style={[styles.longPressLabel, { color: theme.text }]}>Foto verwijderen</Text>
               </TouchableOpacity>
             )}
             
@@ -887,7 +1018,7 @@ const MainApp = ({ onReset }) => {
               style={styles.longPressCancelBtn}
               onPress={closeLongPressModal}
             >
-              <Text style={styles.longPressCancelText}>Annuleer</Text>
+              <Text style={[styles.longPressCancelText, { color: theme.text }]}>Annuleer</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -896,23 +1027,23 @@ const MainApp = ({ onReset }) => {
       {/* Category picker modal */}
       <Modal visible={showCategoryPicker.visible} transparent animationType="slide">
         <TouchableOpacity 
-          style={styles.longPressOverlay} 
+          style={[styles.longPressOverlay, { backgroundColor: 'rgba(0,0,0,0.7)' }]} 
           activeOpacity={1} 
           onPress={() => setShowCategoryPicker({ visible: false, text: '', action: 'add' })}
         >
-          <View style={styles.longPressSheet}>
-            <Text style={styles.longPressText}>Kies onderwerp</Text>
+          <View style={[styles.longPressSheet, { backgroundColor: theme.surface }]}>
+            <Text style={[styles.longPressText, { color: theme.text }]}>Kies onderwerp</Text>
             <ScrollView style={{ maxHeight: 300 }}>
               {Object.keys(categories).map((catKey) => (
                 <TouchableOpacity
                   key={catKey}
-                  style={styles.longPressOption}
+                  style={[styles.longPressOption, { backgroundColor: theme.bg }]}
                   onPress={() => handleAddToCategoryConfirm(catKey)}
                 >
                   <View style={[styles.longPressIconBg, { backgroundColor: theme.surfaceHighlight }]}>
                     <Feather name={categories[catKey].icon || 'folder'} size={24} color={theme.primary} />
                   </View>
-                  <Text style={styles.longPressLabel}>{catKey}</Text>
+                  <Text style={[styles.longPressLabel, { color: theme.text }]}>{catKey}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -920,7 +1051,7 @@ const MainApp = ({ onReset }) => {
               style={styles.longPressCancelBtn}
               onPress={() => setShowCategoryPicker({ visible: false, text: '', action: 'add' })}
             >
-              <Text style={styles.longPressCancelText}>Annuleer</Text>
+              <Text style={[styles.longPressCancelText, { color: theme.primary }]}>Annuleer</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
@@ -1060,14 +1191,17 @@ const MainApp = ({ onReset }) => {
             onBack={() => setCurrentView('HOME')}
             profile={profile}
             onSpeak={handleSpeak}
+            onUpdateProfile={(updatedProfile) => setProfile(updatedProfile)}
+            activePartner={activePersonObject}
+            onOpenMedical={() => setShowMedicalScreen(true)}
           />
         )}
 
         {currentView !== 'GALLERY' && !(isGebruikMode && (currentView === 'HOME' || currentView === 'CATEGORY' || currentView === 'FILTER' || currentView === 'ABOUT_ME')) && (
           <ScrollView contentContainerStyle={[styles.scrollContent, {paddingBottom: 100}]} showsVerticalScrollIndicator={false}>
             {currentView === 'BASIC_SETUP' && <BasicSetupFlow onBack={handleBackFromSettings} initialData={profile} onSave={(d) => { setProfile(d); handleBackFromSettings(); }} onTriggerPopup={triggerPopup} />}
-            {currentView === 'CUSTOM_TEXTS' && <CustomTextsFlow onBack={handleBackFromSettings} initialData={profile} onSave={(d) => { setProfile(d); handleBackFromSettings(); }} onTriggerPopup={triggerPopup} />}
-            {currentView === 'EXTENDED_SETUP' && <ExtendedModeSetup profile={profile} extendedProfile={extendedProfile} onSave={(d) => { setExtendedProfile(d); handleBackFromSettings(); }} onClose={handleBackFromSettings} onTriggerPopup={triggerPopup} />}
+            {currentView === 'CUSTOM_TEXTS' && <CustomTextsFlow onBack={handleBackToProfileMenu} initialData={profile} onSave={(d) => { setProfile(d); handleBackToProfileMenu(); }} onTriggerPopup={triggerPopup} />}
+            {currentView === 'EXTENDED_SETUP' && <ExtendedModeSetup profile={profile} onSave={(d) => { setProfile(d); handleBackFromSettings(); }} onClose={handleBackFromSettings} onTriggerPopup={triggerPopup} />}
             {currentView === 'HISTORY' && <HistoryView history={history} onBack={() => setCurrentView('HOME')} onSelect={(item) => { if (isInstantMode) { handleSpeak(item.text); } else { setSelectedHistoryItem(item); } }} onLongPress={(item) => handleHistoryLongPress(item)} onClear={clearHistory} />}
           
           {isBuilding && <SmartSentenceBuilder initialSentence={builderMode === 'ADD_TO_CATEGORY' ? [] : sentence} mode={builderMode} onCancel={() => setIsBuilding(false)} onSave={handleSaveBuilder} />}

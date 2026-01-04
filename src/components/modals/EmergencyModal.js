@@ -21,7 +21,7 @@ const FullScreenHelp = ({ visible, onClose, theme }) => (
     </Modal>
 );
 
-const EmergencyModal = ({ visible, onClose, profile, extended, onTriggerPopup, onShowMedical }) => {
+const EmergencyModal = ({ visible, onClose, profile, onTriggerPopup, onShowMedical }) => {
   const { theme } = useTheme();
   const [showHelp, setShowHelp] = useState(false);
   
@@ -44,7 +44,7 @@ const EmergencyModal = ({ visible, onClose, profile, extended, onTriggerPopup, o
             <View style={{backgroundColor: theme.surface, padding: spacing.lg, borderRadius: borderRadius.lg, marginBottom: spacing.lg, borderWidth: 1, borderColor: theme.surfaceHighlight}}>
               <Text style={{color: theme.textDim, fontSize: 12, fontWeight: 'bold', marginBottom: spacing.xs}}>PERSOON</Text>
               <Text style={{color: theme.text, fontSize: 20, fontWeight: 'bold', marginBottom: spacing.xs}}>{profile.name}</Text>
-              <Text style={{color: theme.text, fontSize: 16}}>{profile.address || extended?.address || "Adres onbekend"}</Text>
+              <Text style={{color: theme.text, fontSize: 16}}>{profile.address || profile.addressLine2 || "Adres onbekend"}</Text>
             </View>
             
             <TouchableOpacity style={{backgroundColor: theme.danger, padding: spacing.xl, borderRadius: borderRadius.lg, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: spacing.md}} onPress={() => onTriggerPopup("NOOD", "Belt 112... (Simulatie)", "danger")}>
@@ -76,14 +76,14 @@ const EmergencyModal = ({ visible, onClose, profile, extended, onTriggerPopup, o
                   <Feather name="phone" size={20} color={theme.primary} />
                 </TouchableOpacity>
                 
-                {(profile.contact2Name || extended?.emergencyName2) && (
-                  <TouchableOpacity style={{backgroundColor: theme.surface, padding: spacing.lg, borderRadius: borderRadius.lg, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: theme.surfaceHighlight}} onPress={() => onTriggerPopup("Bellen", `Belt ${profile.contact2Name || extended?.emergencyName2}...`, "info")}>
+                {(profile.contact2Name || profile.emergencyName2) && (
+                  <TouchableOpacity style={{backgroundColor: theme.surface, padding: spacing.lg, borderRadius: borderRadius.lg, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: theme.surfaceHighlight}} onPress={() => onTriggerPopup("Bellen", `Belt ${profile.contact2Name || profile.emergencyName2}...`, "info")}>
                     <View style={{width: 48, height: 48, borderRadius: borderRadius.full, backgroundColor: theme.accent, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md}}>
                       <Feather name="user-plus" size={24} color={theme.textInverse} />
                     </View>
                     <View style={{flex: 1}}>
-                      <Text style={{color: theme.text, fontSize: 16, fontWeight: 'bold'}}>{profile.contact2Name || extended?.emergencyName2}</Text>
-                      <Text style={{color: theme.textDim, fontSize: 14}}>{profile.contact2Phone || extended?.emergencyPhone2}</Text>
+                      <Text style={{color: theme.text, fontSize: 16, fontWeight: 'bold'}}>{profile.contact2Name || profile.emergencyName2}</Text>
+                      <Text style={{color: theme.textDim, fontSize: 14}}>{profile.contact2Phone || profile.emergencyPhone2}</Text>
                     </View>
                     <Feather name="phone" size={20} color={theme.primary} />
                   </TouchableOpacity>

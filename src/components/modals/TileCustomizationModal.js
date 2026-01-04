@@ -23,7 +23,7 @@ import { useTheme, spacing, borderRadius, typography } from '../../theme';
 
 // Available color options for tiles (14 colors)
 const COLOR_OPTIONS = [
-  { id: 'green', lightColor: '#4CAF50', darkColor: '#388E3C', label: 'Groen' },
+  { id: 'green', lightColor: '#7A9A8A', darkColor: '#8FBCBB', label: 'Groen' },
   { id: 'blue', lightColor: '#2196F3', darkColor: '#1976D2', label: 'Blauw' },
   { id: 'purple', lightColor: '#9C27B0', darkColor: '#7B1FA2', label: 'Paars' },
   { id: 'orange', lightColor: '#FF9800', darkColor: '#F57C00', label: 'Oranje' },
@@ -46,7 +46,7 @@ const TEXT_COLOR_OPTIONS = [
   { id: 'yellow', color: '#FFEB3B', label: 'Geel' },
   { id: 'red', color: '#F44336', label: 'Rood' },
   { id: 'blue', color: '#2196F3', label: 'Blauw' },
-  { id: 'green', color: '#4CAF50', label: 'Groen' },
+  { id: 'green', color: '#8FBCBB', label: 'Groen' },
   { id: 'orange', color: '#FF9800', label: 'Oranje' },
   { id: 'purple', color: '#9C27B0', label: 'Paars' },
 ];
